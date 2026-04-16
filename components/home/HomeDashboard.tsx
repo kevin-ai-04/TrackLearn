@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
-import { normalizeRouteSegment } from "@/lib/utils";
+import { formatCount, normalizeRouteSegment } from "@/lib/utils";
 import type { SubjectSummary } from "@/types/content";
 
 interface HomeDashboardProps {
@@ -102,9 +102,9 @@ export function HomeDashboard({ subjects }: HomeDashboardProps) {
                   <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{subject.description}</p>
                 ) : null}
                 <div className="mt-5 flex items-center gap-3 text-sm text-[var(--muted)]">
-                  <span>{subject.materials.length} materials</span>
+                  <span>{formatCount(subject.materials.length, "material")}</span>
                   <span>&bull;</span>
-                  <span>{totalModules} modules</span>
+                  <span>{formatCount(totalModules, "module")}</span>
                   <span>&bull;</span>
                   <span>{completionPercentage}% complete</span>
                 </div>
@@ -117,7 +117,7 @@ export function HomeDashboard({ subjects }: HomeDashboardProps) {
                     />
                   </div>
                   <p className="mt-3 text-sm text-[var(--muted)]">
-                    {completedCount} of {totalModules} modules done
+                    {completedCount} of {formatCount(totalModules, "module")} done
                   </p>
                 </div>
 

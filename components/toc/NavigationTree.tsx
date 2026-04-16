@@ -149,11 +149,7 @@ export function NavigationTree({ headings }: NavigationTreeProps) {
   };
 
   if (!headings.length) {
-    return (
-      <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
-        No h1-h3 headings were found in this module.
-      </div>
-    );
+    return null;
   }
 
   return (

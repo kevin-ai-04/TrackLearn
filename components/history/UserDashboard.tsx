@@ -4,8 +4,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { ImportExportDialog } from "@/components/history/ImportExportDialog";
+import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
-import { formatDateTime } from "@/lib/utils";
+import { formatCount, formatDateTime } from "@/lib/utils";
 import type { SubjectSummary } from "@/types/content";
 import type { ReadingFont, ThemeMode } from "@/types/history";
 
@@ -27,6 +28,7 @@ const fontOptions: Array<{ label: string; value: ReadingFont; description: strin
 export function UserDashboard({ subjects }: UserDashboardProps) {
   const { hydrated, state, setFont, setTheme, resetState } = useStudyHistory();
   const [dialogMode, setDialogMode] = useState<"import" | "export" | null>(null);
+  const [isResetPending, setIsResetPending] = useState(false);
 
   const subjectMetrics = subjects.map((subject) => {
     const records = subject.modules.map((module) => state.modules[`${subject.slug}::${module.slug}`]);
@@ -51,6 +53,16 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
     totalTracked: Object.keys(state.modules).length,
     completed: Object.values(state.modules).filter((record) => record.done).length,
     needsRevision: Object.values(state.modules).filter((record) => record.needsRevision).length,
+  };
+
+  const handleResetClick = () => {
+    if (!isResetPending) {
+      setIsResetPending(true);
+      return;
+    }
+
+    resetState();
+    setIsResetPending(false);
   };
 
   return (
@@ -100,12 +112,13 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
                       key={option.value}
                       type="button"
                       onClick={() => setTheme(option.value)}
-                      className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
                         state.preferences.theme === option.value
                           ? "bg-[var(--accent)] text-white"
                           : "button-secondary text-[var(--foreground)]"
                       }`}
                     >
+                      <ThemeModeIcon mode={option.value} className="h-4 w-4" />
                       {option.label}
                     </button>
                   ))}
@@ -148,26 +161,49 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
-                onClick={() => setDialogMode("export")}
+                onClick={() => {
+                  setIsResetPending(false);
+                  setDialogMode("export");
+                }}
                 className="button-primary px-4 py-3 text-sm font-semibold"
               >
                 Export Progress
               </button>
               <button
                 type="button"
-                onClick={() => setDialogMode("import")}
+                onClick={() => {
+                  setIsResetPending(false);
+                  setDialogMode("import");
+                }}
                 className="button-secondary px-4 py-3 text-sm font-semibold"
               >
                 Import Progress
               </button>
               <button
                 type="button"
-                onClick={resetState}
-                className="button-secondary px-4 py-3 text-sm font-semibold"
+                onClick={handleResetClick}
+                className={`px-4 py-3 text-sm font-semibold transition ${
+                  isResetPending ? "rounded-full bg-rose-600 text-white hover:bg-rose-700" : "button-secondary"
+                }`}
               >
-                Reset Local State
+                {isResetPending ? "Confirm Reset Local State" : "Reset Local State"}
               </button>
+              {isResetPending ? (
+                <button
+                  type="button"
+                  onClick={() => setIsResetPending(false)}
+                  className="button-secondary px-4 py-3 text-sm font-semibold"
+                >
+                  Cancel
+                </button>
+              ) : null}
             </div>
+
+            {isResetPending ? (
+              <p className="mt-4 text-sm text-rose-600">
+                Resetting will clear all saved progress and preferences from this browser.
+              </p>
+            ) : null}
 
             <p className="mt-5 text-sm text-[var(--muted)]">
               Storage status: {hydrated ? "Loaded from browser persistence." : "Hydrating local state..."}
@@ -205,7 +241,7 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
                       <p className="mt-1 text-xl font-semibold">{subject.completedModules}</p>
                     </div>
                     <div className="rounded-[1.2rem] bg-[var(--panel-alt)] px-3 py-3">
-                      <p className="text-[var(--muted)]">Revise</p>
+                      <p className="text-[var(--muted)]">Revision Flags</p>
                       <p className="mt-1 text-xl font-semibold">{subject.needsRevisionModules}</p>
                     </div>
                   </div>
@@ -220,7 +256,7 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
                   />
                 </div>
                 <p className="mt-3 text-sm text-[var(--muted)]">
-                  {subject.completedModules} of {subject.totalModules} modules completed
+                  {subject.completedModules} of {formatCount(subject.totalModules, "module")} completed
                 </p>
               </motion.article>
             ))}

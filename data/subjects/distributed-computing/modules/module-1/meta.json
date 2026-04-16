@@ -1,0 +1,5 @@
+{
+  "title": "Module 1 - Distributed Systems Basics and Computation Model",
+  "order": 1,
+  "description": "Distributed systems basics, communication primitives, design issues, global state, and process communication models."
+}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
+import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
 import { cn } from "@/lib/utils";
 import type { ReadingFont, ThemeMode } from "@/types/history";
 
@@ -203,14 +204,16 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
                 type="button"
                 onClick={() => setTheme(option.value)}
                 className={cn(
-                  "rounded-full px-3 py-2 text-xs font-semibold transition sm:px-4 sm:text-sm",
+                  "inline-flex h-10 w-10 items-center justify-center rounded-full transition",
                   state.preferences.theme === option.value
                     ? "bg-[var(--accent)] text-white"
                     : "text-[var(--muted)] hover:bg-[var(--accent-soft)] hover:text-[var(--foreground)]",
                 )}
+                aria-label={option.label}
+                title={option.label}
                 aria-pressed={state.preferences.theme === option.value}
               >
-                {option.label}
+                <ThemeModeIcon mode={option.value} />
               </button>
             ))}
           </div>

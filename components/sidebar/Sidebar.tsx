@@ -4,6 +4,7 @@ import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { ModuleList } from "@/components/sidebar/ModuleList";
 import { SubjectList } from "@/components/sidebar/SubjectList";
 import { NavigationTree } from "@/components/toc/NavigationTree";
+import { cn } from "@/lib/utils";
 import type { HeadingItem, SubjectSummary } from "@/types/content";
 
 interface SidebarProps {
@@ -28,7 +29,12 @@ export function Sidebar({
   const currentSubject = subjects.find((subject) => subject.slug === currentSubjectSlug);
 
   return (
-    <div className="grid h-full gap-4 lg:grid-rows-[minmax(0,1fr)_minmax(240px,0.85fr)]">
+    <div
+      className={cn(
+        "grid h-full gap-4",
+        headings.length ? "lg:grid-rows-[minmax(0,1fr)_minmax(240px,0.85fr)]" : "",
+      )}
+    >
       <section className="panel flex min-h-0 flex-col gap-5 overflow-hidden rounded-[2rem] p-5">
         <div className="rounded-[1.5rem] bg-[var(--panel-alt)] p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
@@ -57,9 +63,11 @@ export function Sidebar({
         <HistoryPanel subjects={subjects} />
       </section>
 
-      <section className="panel overflow-y-auto rounded-[2rem] p-5">
-        <NavigationTree headings={headings} />
-      </section>
+      {headings.length ? (
+        <section className="panel overflow-y-auto rounded-[2rem] p-5">
+          <NavigationTree headings={headings} />
+        </section>
+      ) : null}
     </div>
   );
 }
