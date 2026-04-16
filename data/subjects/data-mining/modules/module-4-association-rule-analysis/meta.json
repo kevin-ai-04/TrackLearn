@@ -1,0 +1,5 @@
+{
+  "title": "Module 4 - Association Rule Analysis",
+  "order": 4,
+  "description": "Association rules, frequent itemsets, Apriori, partitioning, pincer search, and dynamic itemset counting."
+}

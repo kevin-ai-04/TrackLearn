@@ -1,0 +1,5 @@
+{
+  "title": "Module 3 - Advanced Classification and Cluster Analysis",
+  "order": 3,
+  "description": "Decision tree classification, splitting indices, presorting-based tree growth, and clustering algorithms including PAM, hierarchical clustering, DBSCAN, and ROCK."
+}

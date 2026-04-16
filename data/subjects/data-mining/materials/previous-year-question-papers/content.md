@@ -1,0 +1,4 @@
+- [Data Mining Dec 2025](https://mbcetautonomous.wordpress.com/b-tech/cse/8th-sem-cse/)
+- [Data Mining April 2025](https://mbcetautonomous.wordpress.com/b-tech/cse/8th-sem-cse/)
+- [Data Mining July 2025](https://mbcetautonomous.wordpress.com/b-tech/cse/8th-sem-cse/)
+- [Data Mining May 2024](https://mbcetautonomous.wordpress.com/b-tech/cse/8th-sem-cse/)
