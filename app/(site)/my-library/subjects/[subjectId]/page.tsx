@@ -53,7 +53,7 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
         <section className="panel rounded-[2rem] p-6">
           <form action={boundUpdateSubjectAction} className="space-y-3">
             <input name="title" className="field" defaultValue={subject.title} required />
-            <input name="slug" className="field" defaultValue={subject.slug} />
+
             <input
               name="order"
               className="field"

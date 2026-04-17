@@ -35,7 +35,6 @@ Logged-in users can create:
 - private subjects
 - private modules
 - private materials
-- private companion notes linked to public entries
 
 All user-created content starts private.
 
@@ -134,7 +133,6 @@ Key fields:
 - `status`
 - `ownerUserId`
 - `sourceEntryId`
-- `linkedPublicEntryId`
 - `publishedEntryId`
 - `publishedFromRequestId`
 - `publishedAt`
@@ -193,7 +191,6 @@ Key fields:
 
 - A private subject can be submitted for publication.
 - A private entry can be submitted for publication.
-- A private entry may optionally link to a public entry through `linkedPublicEntryId`.
 - Approval publishes a separate public record, not the same private record flipped to public.
 - Unpublishing removes the public copy and resets the private source back to draft.
 

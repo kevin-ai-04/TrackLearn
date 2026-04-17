@@ -37,7 +37,7 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
     <AppShell
       subjects={subjects}
       currentPathLabel={`My Library - ${entry.title}`}
-      currentPathHint="Edit private markdown content, rework companion notes, and submit updates for review."
+      currentPathHint="Edit private markdown content and submit updates for review."
     >
       <div className="space-y-4">
         <section className="panel rounded-[2rem] p-6 sm:p-8">
@@ -59,16 +59,13 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
                 <option value="material">Material</option>
               </select>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <input name="slug" className="field" defaultValue={entry.slug} />
-              <input
-                name="order"
-                className="field"
-                inputMode="numeric"
-                defaultValue={entry.order ?? ""}
-                placeholder="Optional order"
-              />
-            </div>
+            <input
+              name="order"
+              className="field"
+              inputMode="numeric"
+              defaultValue={entry.order ?? ""}
+              placeholder="Optional order"
+            />
             <select name="subjectId" className="field" defaultValue={entry.subjectId}>
               {library.ownedSubjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
@@ -87,18 +84,7 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
               defaultValue={entry.description ?? ""}
               placeholder="Short description"
             />
-            <select
-              name="linkedPublicEntryId"
-              className="field"
-              defaultValue={entry.linkedPublicEntryId ?? ""}
-            >
-              <option value="">No linked public page</option>
-              {library.publicEntries.map((publicEntry) => (
-                <option key={publicEntry.id} value={publicEntry.id}>
-                  {publicEntry.subjectTitle} / {publicEntry.title}
-                </option>
-              ))}
-            </select>
+
             <textarea
               name="markdown"
               className="field min-h-72 font-mono text-sm"

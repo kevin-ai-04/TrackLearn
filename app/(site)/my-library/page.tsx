@@ -17,7 +17,7 @@ export default async function MyLibraryPage() {
     <AppShell
       subjects={subjects}
       currentPathLabel="My Library"
-      currentPathHint="Create private content, attach notes to public modules, and submit drafts for admin review."
+      currentPathHint="Create private content and submit drafts for admin review."
     >
       <div className="space-y-4">
         <section className="panel rounded-[2rem] p-6 sm:p-8">
@@ -28,8 +28,7 @@ export default async function MyLibraryPage() {
             Private subjects, modules, materials, and publication requests.
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted)]">
-            All content you create starts private. You can attach companion notes to public study
-            pages, or build full private subjects and submit them when they are ready for review.
+            All content you create starts private. You can build full private subjects and submit them when they are ready for review.
           </p>
         </section>
 
@@ -40,7 +39,6 @@ export default async function MyLibraryPage() {
             </p>
             <form action={createSubjectAction} className="mt-5 space-y-3">
               <input name="title" className="field" placeholder="Private subject title" required />
-              <input name="slug" className="field" placeholder="Optional custom slug" />
               <input
                 name="order"
                 className="field"
@@ -70,15 +68,12 @@ export default async function MyLibraryPage() {
                   <option value="material">Material</option>
                 </select>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <input name="slug" className="field" placeholder="Optional custom slug" />
-                <input
-                  name="order"
-                  className="field"
-                  inputMode="numeric"
-                  placeholder="Optional order"
-                />
-              </div>
+              <input
+                name="order"
+                className="field"
+                inputMode="numeric"
+                placeholder="Optional order"
+              />
               <select name="subjectId" className="field" required defaultValue="">
                 <option value="" disabled>
                   Choose a parent subject
@@ -99,14 +94,7 @@ export default async function MyLibraryPage() {
                 className="field"
                 placeholder="Short description"
               />
-              <select name="linkedPublicEntryId" className="field" defaultValue="">
-                <option value="">Optional companion note target</option>
-                {library.publicEntries.map((entry) => (
-                  <option key={entry.id} value={entry.id}>
-                    {entry.subjectTitle} / {entry.title}
-                  </option>
-                ))}
-              </select>
+
               <textarea
                 name="markdown"
                 className="field min-h-56 font-mono text-sm"

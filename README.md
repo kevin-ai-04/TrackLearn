@@ -4,7 +4,7 @@ TrackLearn is a Next.js study platform with:
 
 - a public study catalog backed by MongoDB
 - Google sign-in via Auth.js
-- private user libraries for custom subjects, modules, materials, and companion notes
+- private user libraries for custom subjects, modules, and materials
 - admin moderation for publishing private content into the shared catalog
 - synced signed-in progress with guest local fallback
 
@@ -17,7 +17,6 @@ The repository `data/subjects` folder is still the seed source for the public ca
 - Google authentication with Mongo-backed sessions
 - Private user library at `/my-library`
 - Markdown paste and `.md` upload for private entries
-- Companion private notes linked to public modules/materials
 - Publication request workflow with admin approval/rejection
 - Admin dashboard for moderation and public catalog management
 - Synced signed-in progress, preferences, and recent activity
@@ -113,7 +112,6 @@ Signed-in users can create:
 - private subjects
 - private modules
 - private materials
-- private companion notes linked to public entries
 
 All user-created content starts private and stays private until an admin approves a publication request.
 
@@ -128,7 +126,7 @@ Admins can:
 - publish approved copies into the shared catalog
 - unpublish public subjects or entries
 
-Approved public content is stored as a separate public copy. Later edits to the user’s private draft require a new review cycle before public updates go live.
+Approved public content is stored as a separate public copy. Later edits to the userâ€™s private draft require a new review cycle before public updates go live.
 
 ## Progress and Preferences
 
