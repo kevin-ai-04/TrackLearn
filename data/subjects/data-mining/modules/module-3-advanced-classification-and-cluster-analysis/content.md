@@ -9,8 +9,7 @@ Clustering-DBSCAN, Categorical Clustering-ROCK
 ## Classification in data mining
 
 
-### Classification in data mining can be stated as follows:
-
+**Classification in data mining can be stated as follows:**
 “For a database with a number of records and for a set of classes such that each record belongs to one of
 the given classes, the problem of classification is to decide the class to which a given record belongs. “
 
@@ -36,8 +35,7 @@ the given classes, the problem of classification is to decide the class to which
 - The goal of the classification is to build a concise model that can be used to predict the class of the records
     whose class label is not known.
 
-## EXAMPLE 1:
-
+**EXAMPLE 1:**
 Consider the following data sets the training data set and the test data set.
 
 
@@ -80,8 +78,7 @@ RULE 5: If it is rainy and not windy, then play.
 - The path is a rule which is used to classify the records.
 
 - Using the decision tree in Example 1, carry out the classification for an
-### unknown record with the values of the first four attributes as:
-
+**unknown record with the values of the first four attributes as:**
 outlook=rain, temp=70, humidity=65 and windy= true
 - We start from the root node to check the value of the attribute
     associated at the root node.
@@ -116,7 +113,7 @@ outlook=rain, temp=70, humidity=65 and windy= true
 - Sometimes the classification efficiency of the tree can be improved by revising the tree through some
     processes like pruning and grafting. These processes are activated after the decision tree is built.
 
-## ADVANTAGES AND SHORTCOMINGS OF DECISION TREE
+### ADVANTAGES AND SHORTCOMINGS OF DECISION TREE
 
 CLASSIFICATIONS(Assignment Question)
 
@@ -132,16 +129,16 @@ CLASSIFICATIONS(Assignment Question)
     - The process of growing a decision tree is computationally expensive. At each node, each candidate splitting field is
     examined before its best split can be found.
 
-## DECISION TREE CONSTRUCTION PRINCIPLE
+### DECISION TREE CONSTRUCTION PRINCIPLE
 
-## DEFINITION 1: SPLITTING ATTRIBUTE
+### DEFINITION 1: SPLITTING ATTRIBUTE
 
 - With every node of the decision tree, there is an associated attribute whose values determine the
     partitioning of the data set when the node is expanded.
 
 
 
-## DEFINITION 2: SPLITTING CRITERION
+### DEFINITION 2: SPLITTING CRITERION
 
 - The qualifying condition on the splitting attribute for data set splitting at a node, is called the splitting
     criterion at that node. For a numeric attribute, the criterion can be an equation or an inequality. For a
@@ -188,15 +185,14 @@ be determined from information other than T.
 - The other one is derived from economics as measure of diversity. This is called the gini
     index.
 
-## 1. ENTROPY
+### 1. ENTROPY
 
 
 If we are given a probability distribution P = (p1, p2,….pn), then the information conveyed by this
 distribution, also called the entropy of P, is
 Entropy(P) = -[p1 log(p1) + p2 log(p2)+......+ pn log(pn.)]
 
-## For example:
-
+**For example:**
 - if P is (0.5, 0.5), then Entropy(P) is 1;
 - if P is (0.67, 0.33), then Entropy(P) is 0.92;
 - if P is (1, 0), then Entropy(P) is 0.
@@ -224,7 +220,7 @@ The value of the entropy of the whole data set is
     information needed to identify the class of an element of T becomes the weighted average of the
     information to identify the class of the element of Ti, i.e., the weighted average of Info(Ti).
 
-## DEFINITION: GAIN
+### DEFINITION: GAIN
 
 - We define the information gain due to a split on attribute X as
     Gain(X,T) = Info(T) - Info(X, T)
@@ -234,7 +230,7 @@ The value of the entropy of the whole data set is
 - In the above example, splitting decreases the value of the entropy by 0.29. In other words, the gain is
     0.29.
 
-## DEFINITION: GAIN RATIO
+### DEFINITION: GAIN RATIO
 
 
 
@@ -275,7 +271,7 @@ Attribute 1: outlook
     play class.
 - In such a situation, the gain is calculated as follows:
 
-## 2. GINI INDEX
+### 2. GINI INDEX
 
 - One of the goodness measures can be related to measure of diversity.
 - A high index of diversity indicates that the set contains an even distribution of classes; while a low index means
@@ -310,7 +306,7 @@ as its label.
 5.Repeat for the remaining features until we run out of all features, or the decision tree
 has all leaf nodes.
 
-## Example: Sample dataset on Covid-19 infection
+**Example: Sample dataset on Covid-19 infection**
 
 Step1: Calculate the entropy of S
 
@@ -381,7 +377,7 @@ Step 2: Calculate the Information Gain for each feature
 - Pruning is a mechanism that reduces the size and complexity of a Decision tree by removing
     unnecessary nodes.
 
-## Example 2: Build a decision tree using ID3 algorithm for the given training data in the table (Buy Computer
+**Example 2: Build a decision tree using ID3 algorithm for the given training data in the table (Buy Computer**
 
 data), and predict the class of the following new example: age<=30, income=medium, student=yes, credit-
 rating=fair.
@@ -406,22 +402,20 @@ age      income     student     Credit rating   Buys computer
 
 𝐸𝑛𝑡𝑟𝑜𝑝𝑦(𝑆) = 𝐸(9, 5) = −9/14 log2(9/14) – 5/14 log2(5/14) = 0.94
 
-## Step 2:
-
-
+**Step 2:**
 ### 2.1. Consider the Age attribute
 
 For Age, we have three values age<=30 (2 yes and 3 no), age 31..40 (4 yes and 0 no), and age > 40 (3 yes and
 ## 2 no)
 
 
-## 5  2     2       3                    4      5       3         2
+5  2     2       3                    4      5       3         2
 
 𝐸𝑛𝑡𝑟𝑜𝑝𝑦 𝑎𝑔𝑒 =         − log2   −                     +      0 +    −         −
-## 14  5     5         3                 14     14         3         2
+14  5     5         3                 14     14         3         2
 
 5log2                               5log2     5log2
-## 5                                   5         5
+5                                   5         5
 
 
 = 5/14(0.9709) + 0 + 5/14(0.9709) = 0.6935
@@ -436,18 +430,18 @@ yes 1 no)
 𝐸𝑛𝑡𝑟𝑜𝑝𝑦 𝑖𝑛𝑐𝑜𝑚𝑒
 
 = 4/14(−2/4log2(2/4) − 2/4log2(2/4)) + 6/14 (−4/6log2(4/6) − 2/6log2(2/6
-## 3          1
+3          1
 
 + 4/14 (−          −
-## 3          1
+3          1
 
 4log2      4log2
-## 4          4
+4          4
 
-## 4       6           4
+4       6           4
 
 =    1 +      0.918 +     0.811
-## 14      14          14
+14      14          14
 
 
 = 0.285714 + 0.393428 + 0.231714 = 0.9108
@@ -510,12 +504,12 @@ Now build the decision tree for the left subtree
 
 - For Income, we have three values incomehigh (0 yes and 2 no), incomemedium (1 yes and 1 no) and
     incomelow (1 yes and 0 no)
-## 2    2      1         1             1
+2    2      1         1             1
 
 𝐸𝑛𝑡𝑟𝑜𝑝𝑦 𝑖𝑛𝑐𝑜𝑚𝑒 =        +   −         −              +     0
 ## 5 0   5   2log2 1   2log2 1          5
 
-## 2         2
+2         2
 
 = 2/5 (1) = 0.4
 
@@ -531,8 +525,7 @@ Now build the decision tree for the left subtree
     gain is maximized.
 
 - Since these two new branches are from distinct classes, we make them into leaf nodes with their
-## respective class as label:
-
+**respective class as label:**
 Now build the decision tree for right left subtree
 - The mutual information is
 
@@ -570,17 +563,15 @@ Now build the decision tree for right left subtree
 Accuracy and error measures
 - Accuracy and error measures are fundamental for evaluating the performance of a classification model.
 - These measures help assess how well the model predicts the class labels of the data instances.
-## Key measures:
-
-
+**Key measures:**
 1. Accuracy: Accuracy is one of the most straightforward measures and represents the proportion of
-### correctly classified instances among the total instances. It is calculated as:
+correctly classified instances among the total instances. It is calculated as:
 
 𝐴𝑐𝑐𝑢𝑟𝑎𝑐𝑦 = 𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝐶𝑜𝑟𝑟𝑒𝑐𝑡 𝑃𝑟𝑒𝑑𝑖𝑐𝑡𝑖𝑜𝑛𝑠/𝑇𝑜𝑡𝑎𝑙 𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑃𝑟𝑒𝑑𝑖𝑐𝑡𝑖𝑜𝑛𝑠
 
 
 2. Error Rate (Misclassification Rate): The error rate is the complement of accuracy and represents the
-### proportion of incorrectly classified instances. It is calculated as:
+proportion of incorrectly classified instances. It is calculated as:
 
 ## 𝐸𝑟𝑟𝑜𝑟 𝑅𝑎𝑡𝑒 = 1 − 𝐴𝑐𝑐𝑢𝑟𝑎𝑐𝑦
 
@@ -597,8 +588,7 @@ Accuracy and error measures
 
 3.   Precision: Precision focuses on the accuracy of positive predictions. It measures the proportion of true positive
 predictions among all positive predictions. Precision is important when the cost of false positives is high. It is
-## calculated as:
-
+**calculated as:**
 𝑃𝑟𝑒𝑐𝑖𝑠𝑖𝑜𝑛 = 𝑇𝑟𝑢𝑒 𝑃𝑜𝑠𝑖𝑡𝑖𝑣𝑒𝑠/ (𝑇𝑟𝑢𝑒 𝑃𝑜𝑠𝑖𝑡𝑖𝑣𝑒𝑠 + 𝐹𝑎𝑙𝑠𝑒 𝑃𝑜𝑠𝑖𝑡𝑖𝑣𝑒𝑠)
 4.       Recall (Sensitivity): Recall measures the ability of the classifier to identify all relevant instances, or the
 proportion of true positive instances that were correctly classified. It is calculated as:
@@ -679,7 +669,7 @@ Step 1: Pre-Sorting and Breadth-First Growth
     data.
 - The basic principle of clustering hinges on a concept of distance metric or similarity metric.
 
-## CLUSTERING PARADIGMS
+### CLUSTERING PARADIGMS
 
 - There are two main approaches to clustering-
      - hierarchical clustering and
@@ -688,11 +678,11 @@ Step 1: Pre-Sorting and Breadth-First Growth
     attributes, numeric and categorical, in accuracy of clustering, and in their ability to handle disk-
     resident data.
 
-## HIERARCHICAL VS PARTITIONING CLUSTERING
+### HIERARCHICAL VS PARTITIONING CLUSTERING
 
 
 
-## PARTITIONING CLUSTERING
+### PARTITIONING CLUSTERING
 
 - The partition clustering techniques partition the database into a predefined number of clusters.
 - They attempt to determine k partitions that optimize a certain criterion function.
@@ -713,7 +703,7 @@ Step 1: Pre-Sorting and Breadth-First Growth
 - Divisive clustering techniques take the opposite approach from agglomerative techniques.
 - This starts with all the records in one cluster, and then try to split that cluster into small pieces.
 
-## NUMERIC VS CATEGORICAL CLUSTERING
+### NUMERIC VS CATEGORICAL CLUSTERING
 
 
 - Clustering can be performed on both numerical data and categorical data.
@@ -729,7 +719,7 @@ Step 1: Pre-Sorting and Breadth-First Growth
     real numbers.
 - It is also hard to determine an ordering or to quantify the dissimilarity among such attributes.
 
-## PARTITIONING ALGORITHMS
+### PARTITIONING ALGORITHMS
 
 - Partitioning algorithms construct partitions of a database of N objects into a set of k clusters.
 - The construction involves determining the optimal partition with respect to an objective function.
@@ -758,13 +748,11 @@ Step 1: Pre-Sorting and Breadth-First Growth
 - After assigning each point to one of the cluster, new cluster centroids are assigned.
 - This process runs iteratively until it finds good cluster.
 
-## Example 1:
-
+**Example 1:**
 Cluster the following eight points (with (x, y) representing locations) into three clusters:
 A1(2, 10), A2(2, 5), A3(8, 4), A4(5, 8), A5(7, 5), A6(6, 4), A7(1, 2), A8(4, 9)
 
-## Example 2:
-
+**Example 2:**
 Use K-Means Algorithm to create two clusters-
 
 K-Medoids clustering/Partitioning Around Medoid (PAM)
@@ -778,16 +766,14 @@ K-Medoids clustering/Partitioning Around Medoid (PAM)
     Medoid as a reference point.
 - There are three types of algorithms for K-Medoids Clustering:
 
-## 1. PAM (Partitioning Around Clustering)
+### 1. PAM (Partitioning Around Clustering)
 
-## 2. CLARA (Clustering Large Applications)
+### 2. CLARA (Clustering Large Applications)
 
-## 3. CLARANS (Randomized Clustering Large Applications)
+### 3. CLARANS (Randomized Clustering Large Applications)
 
-## PAM Algorithm:
-
-## Given the value of k and unlabelled data:
-
+**PAM Algorithm:**
+**Given the value of k and unlabelled data:**
 1.Choose k number of random points from the data and assign these k points to k number of
 clusters. These are the initial medoids.
 2.For all the remaining data points, calculate the distance from each medoid and assign it to the
@@ -805,42 +791,39 @@ data points.
 ### Perform K medoids clustering with k =2, on the given dataset:
 
 x       y
-## 0       5       4
+0       5       4
 
-## 1       7       7
+1       7       7
 
-## 2       1       3
+2       1       3
 
-## 3       8       6
+3       8       6
 
-## 4       4       9
-
-
-## Steps:
+4       4       9
 
 
-## 1. Let initial medoids be M1(1, 3) and M2(4, 9)
+**Steps:**
+### 1. Let initial medoids be M1(1, 3) and M2(4, 9)
 
 2.Calculation of distances
 Manhattan Distance: |x1 - x2| + |y1 - y2|
 
 x      y       From        From
 M1(1, 3)    M2(4, 9)
-## 0     5      4          5          6
+0     5      4          5          6
 
-## 1     7      7         10          5
+1     7      7         10          5
 
-## 2     1      3          -          -
+2     1      3          -          -
 
-## 3     8      6         10          7
+3     8      6         10          7
 
-## 4     4      9          -          -
-
-
+4     4      9          -          -
 
 
-## Step 3:
 
+
+**Step 3:**
 ## Cluster 1: 0, 2
 
 ## Cluster 2: 1, 3, 4
@@ -851,20 +834,18 @@ Total cost: (5) + (5 + 7) = 17
 Step 4: Select a new random medoid: (5, 4)
 X         Y       From       From
 M1(5, 4)   M2(4, 9)
-## 0         5        4             -      -
+0         5        4             -      -
 
-## 1         7        7         5          5
+1         7        7         5          5
 
-## 2         1        3         5          9
+2         1        3         5          9
 
-## 3         8        6         5          7
+3         8        6         5          7
 
-## 4         4        9             -      -
-
-
-## Step 5:
+4         4        9             -      -
 
 
+**Step 5:**
 ## Cluster 1: 0, 2, 3
 
 ## Cluster 2: 1,4
@@ -878,19 +859,18 @@ Step 6: Select new random medoid: (7, 7)
 
 x        y        From       From
 M1(5, 4)   M2(7, 7)
-## 0         5        4          -          -
+0         5        4          -          -
 
-## 1         7        7          -          -
+1         7        7          -          -
 
-## 2         1        3          5         10
+2         1        3          5         10
 
-## 3         8        6          5          2
+3         8        6          5          2
 
-## 4         4        9          6          5
+4         4        9          6          5
 
 
-## Step 7:
-
+**Step 7:**
 ## Cluster 1: 0, 2
 
 ## Cluster 2: 1, 3, 4
@@ -903,15 +883,15 @@ Therefore, New medoid: (7, 7).
 Step 7: Select new random medoid: (8, 6)
 x   y    From       From
 M1(7, 7)   M2(8, 6)
-## 0   5   4      5          5
+0   5   4      5          5
 
-## 1   7   7      -          -
+1   7   7      -          -
 
-## 2   1   3     10         10
+2   1   3     10         10
 
 ## Step 8:                                           3   8   6      -          -
 
-## 4   4   9      5          7
+4   4   9      5          7
 
 ## Cluster 1: 1, 4
 
@@ -972,8 +952,7 @@ A2         (3, 8)         4            9        Cluster 1   The clusters made wi
                                                              - Points in cluster 2= {A4, A5, A6, A7, A8, A9}
     A7         (7,4)          4            1        Cluster 2
     A8         (8, 5)         6            3        Cluster 2
-## The cost for the current cluster will be:
-
+**The cost for the current cluster will be:**
 ## A9         (7, 6)         6            3        Cluster 2
 
 3+4+4+2+2+0+1+3+3+0 = 22.
@@ -1093,20 +1072,13 @@ N-2 clusters.
 
 
 Step-4: Repeat Step 3 until only one cluster left. So, we will get the following clusters. Consider the
-## below images:
-
-
-
-
-
+**below images:**
 Step-5: Once all the clusters are combined into one big cluster, develop the dendrogram to divide the
 clusters as per the problem.
 
 Measure for the distance between two clusters
 - These measures are called Linkage methods. Some of the popular linkage methods are
-## given below:
-
-
+**given below:**
 1. Single Linkage: It is the Shortest Distance between the closest points of the clusters.
 
 2. Complete Linkage: It is the farthest distance between the two points of two different clusters.
@@ -1150,17 +1122,17 @@ dendrogram.
 
 ## Sample No.                     X                       Y
 
-## P1                     0.40                    0.53
+### P1                     0.40                    0.53
 
-## P2                     0.22                    0.38
+### P2                     0.22                    0.38
 
-## P3                     0.35                    0.32
+### P3                     0.35                    0.32
 
-## P4                     0.26                    0.19
+### P4                     0.26                    0.19
 
-## P5                     0.08                    0.41
+### P5                     0.08                    0.41
 
-## P6                     0.45                    0.30
+### P6                     0.45                    0.30
 
 Step 1: Compute the distance matrix
 
@@ -1186,18 +1158,17 @@ Hierarchical Divisive clustering
     proceeds by splitting clusters recursively until individual data have been split into singleton clusters.
 
 Example: Cluster the given data points using divisive clustering (2, 10), (2, 5), (8, 4), (5, 8), (7, 5), (6, 4), (1, 2), (4, 9)
-## Answer:
-
-## 1. Step 1: All points in one cluster
+**Answer:**
+### 1. Step 1: All points in one cluster
 
 Initially, all points are in one cluster.
-## 2. Step 2: Split clusters
+### 2. Step 2: Split clusters
 
 We split the cluster into two based on some criterion. Let's say we choose to split based on maximizing the distance between
 the centroids of the resulting clusters.
-## 1. We compute the centroid of all points: Centroid: (4.625, 6.125)
+### 1. We compute the centroid of all points: Centroid: (4.625, 6.125)
 
-## 2. We compute the distance of each point to the centroid:
+### 2. We compute the distance of each point to the centroid:
 
            - Distance from (2, 10) to Centroid: √((4.625 - 2)^2 + (6.125 - 10)^2) ≈ 4.66
            - Distance from (2, 5) to Centroid: √((4.625 - 2)^2 + (6.125 - 5)^2) ≈ 1.89
@@ -1209,7 +1180,7 @@ the centroids of the resulting clusters.
            - Distance from (4, 9) to Centroid: √((4.625 - 4)^2 + (6.125 - 9)^2) ≈ 4.29
     We split the cluster by separating the point (1, 2) from the rest, as it has the maximum distance from the centroid.
 
-## 3. Step 3: Repeat the splitting
+### 3. Step 3: Repeat the splitting
 
 - For Cluster 2:
     - We compute the centroid of Cluster 2: Centroid: (4.857, 6.286)
@@ -1254,7 +1225,7 @@ Cluster 2a: {(2, 5), (5, 8), (7, 5), (4, 9)}
             - Distance from (4, 9) to Centroid: ≈ 1.77
     3. We can see that the points (5, 8) and (4, 9) are closer to each other than to the other points in the cluster. Let's split Cluster 2a by separating
     these two points.
-## 4. After the split, we have two new clusters:
+### 4. After the split, we have two new clusters:
 
             - Cluster 2a1: {(5, 8), (4, 9)}
             - Cluster 2a2: {(2, 5), (7, 5)}
@@ -1265,9 +1236,7 @@ Cluster 2a: {(2, 5), (5, 8), (7, 5), (4, 9)}
 - Cluster 2b: {(6, 4)}
 - Cluster 3: {(8, 4)}
 
-## The final clusters:
-
-
+**The final clusters:**
 - Cluster 1: {(1, 2)}
 - Cluster 2: {(5, 8)}
 - Cluster 3: {(4, 9)}
@@ -1298,7 +1267,7 @@ Cluster 2a: {(2, 5), (5, 8), (7, 5), (4, 9)}
     arbitrary shapes.
 
 Parameters Required For DBSCAN Algorithm
-## 1. eps:
+### 1. eps:
 
 - It defines the neighborhood around a data point i.e. if the distance between two points is lower or equal to ‘eps’
     then they are considered neighbors.
@@ -1307,7 +1276,7 @@ Parameters Required For DBSCAN Algorithm
     clusters.
 
 
-## 2. MinPts:
+### 2. MinPts:
 
 - Minimum number of neighbors (data points) within eps radius.
 - The larger the dataset, the larger value of MinPts must be chosen.
@@ -1326,7 +1295,7 @@ within eps but it is in the neighborhood of a core point.
 Noise or outlier: A point which is not a core point or
 border point.
 
-## DBSCAN ALGORITHM
+### DBSCAN ALGORITHM
 
 Step 1: Initialize the algorithm with the dataset and parameters (ε, minPts).
 

@@ -5,12 +5,12 @@
     algorithm (Level-wise algorithm), Partition Algorithm, Pincer Search Algorithm,
     Dynamic Itemset Counting Algorithm, FP-tree Growth Algorithm.
 
-## WHAT IS AN ASSOCIATION RULE?
+### WHAT IS AN ASSOCIATION RULE?
 
 - Let A = {l1, l2,…,lm } be a set of items. Let T, the transaction database, be a set of transactions, where
     each transaction t is a set of items. Thus, t is a subset of A.
 
-## DEFINITION: SUPPORT
+### DEFINITION: SUPPORT
 
 - A transaction t is said to support an item li, if li is present in t. t is said to support a subset of items X,
     which is a subset of A, if t supports each item l in X.
@@ -20,16 +20,14 @@
 - It can also be defined in terms of absolute number of transactions supporting X in T.
 - For absolute support, we refer it to as support count.
 
-## EXAMPLE
+**EXAMPLE
 
-- Let us consider the following set of transactions in a bookshop.
+- Let us consider the following set of transactions in a bookshop.**
 - We shall look at a set of only 6 transactions of purchases of books. In the first
     transaction, purchases are made of books on Compiler Construction, Databases, Theory
     of Computations, Computer Graphics and Neural Networks; we shall denote these
     subjects by CC, D, TC, CG and ANN, respectively. Thus, we describe the 6
-## transactions as follows:
-
-
+**transactions as follows:**
 - t1:= { ANN, CC, TC, CG}
 - t2:= {CC, D, CG}
 - t3:= {ANN, CC, TC, CG}
@@ -42,7 +40,7 @@
 - The item D is supported by 4 out of 6 transactions in T.
 - Thus, the support of D is 66.6%.
 
-## DEFINITION: ASSOCIATION RULE
+### DEFINITION: ASSOCIATION RULE
 
 
 - For a given transaction database T, an association rule is an expression of the form X⇒
@@ -56,8 +54,7 @@
     rules that have support and confidence greater than or equal to the user-specified
     minimum support and minimum confidence, respectively.
 
-## EXAMPLE:
-
+**EXAMPLE:**
 Consider the example of the bookshop. Assume that σ= 50% and τ=60%. Clearly,
 ANN⇒ CC holds. The confidence of this rule is, in fact, 100%, because all the
 transactions that support ANN also support CC. On the other hand, CC ⇒ ANN also
@@ -86,7 +83,7 @@ holds but its confidence is 66%.
 - For this reason, association tools also identify frequently occurring itemsets, whether or not any rules
     are being generated.
 
-### Example: Consider a dataset representing transactions at a grocery store:
+**Example: Consider a dataset representing transactions at a grocery store:**
 
 | Transaction ID | Items Purchased |
 | --- | --- |
@@ -97,26 +94,24 @@ holds but its confidence is 66%.
 | 5 | Bread, Milk, Diapers, Eggs |
 
 
-## Support Calculation:
-
+**Support Calculation:**
 Support measures the frequency of occurrence of an itemset in the dataset. It is calculated as the proportion of transactions in the dataset
 that contain the itemset.
 
-## 1. Calculate the support for the itemset {Bread, Milk}
+### 1. Calculate the support for the itemset {Bread, Milk}
 
 Support({Bread, Milk}) = Number of transactions containing {Bread, Milk} / Total number of transactions
 = 4 / 5 = 0.8
-## 2. Calculate the support for the itemset {Diapers}
+### 2. Calculate the support for the itemset {Diapers}
 
 Support({Diapers}) = Number of transactions containing {Diapers} / Total number of transactions
 = 4 / 5 = 0.8
 
-## Confidence Calculation:
-
+**Confidence Calculation:**
 - Confidence measures the likelihood that an item B is purchased when item A is purchased. It is
     calculated as the proportion of transactions containing both A and B over the proportion of
     transactions containing A.
-## 1. Calculate the confidence for the rule {Bread} ➞ {Milk}
+### 1. Calculate the confidence for the rule {Bread} ➞ {Milk}
 
 ## Confidence({Bread} ➞ {Milk}) = Support({Bread, Milk}) / Support({Bread})
 
@@ -124,14 +119,13 @@ Support({Diapers}) = Number of transactions containing {Diapers} / Total number 
 
 
 
-## 2. Calculate the confidence for the rule {Milk, Diapers} ➞ {Eggs}
+### 2. Calculate the confidence for the rule {Milk, Diapers} ➞ {Eggs}
 
 Confidence({Milk, Diapers} ➞ {Eggs}) = Support({Milk, Diapers, Eggs}) / Support({Milk,
 Diapers})
 = (1 / 5) / (3 / 5) = 1 / 3 ≈ 0.333
 
-### Consider a dataset representing transactions at an online bookstore:
-
+**Consider a dataset representing transactions at an online bookstore:**
 | Transaction ID | Items Purchased |
 | --- | --- |
 | 1 | Book1, Book2, Book3 |
@@ -142,23 +136,21 @@ Diapers})
 | 6 | Book1 |
 | 7 | Book2 |
 
-## Support Calculation:
-
-## Example 1: Calculate the support for the itemset {Book1}.
+**Support Calculation:**
+**Example 1: Calculate the support for the itemset {Book1}.**
 
 Support({Book1}) = Number of transactions containing {Book1} / Total number of
 transactions
 = 5 / 7 ≈ 0.714
 
-## Example 2: Calculate the support for the itemset {Book2, Book3}.
+**Example 2: Calculate the support for the itemset {Book2, Book3}.**
 
 Support({Book2, Book3}) = Number of transactions containing {Book2, Book3}
 / Total number of transactions
 = 2 / 7 ≈ 0.286
 
-## Confidence Calculation:
-
-## Example 3: Calculate the confidence for the rule {Book1} ➞ {Book2}.
+**Confidence Calculation:**
+**Example 3: Calculate the confidence for the rule {Book1} ➞ {Book2}.**
 
 ## Confidence({Book1} ➞ {Book2}) = Support({Book1, Book2}) /
 
@@ -168,7 +160,7 @@ Support({Book2, Book3}) = Number of transactions containing {Book2, Book3}
 
 
 
-## Example 4: Calculate the confidence for the rule {Book2} ➞ {Book3}.
+**Example 4: Calculate the confidence for the rule {Book2} ➞ {Book3}.**
 
 ## Confidence({Book2} ➞ {Book3}) = Support({Book2, Book3}) /
 
@@ -176,10 +168,10 @@ Support({Book2, Book3}) = Number of transactions containing {Book2, Book3}
 
 = (2 / 7) / (4 / 7) = 2 / 4 = 0.5
 
-## METHODS TO DISCOVER ASSOCIATION RULES
+### METHODS TO DISCOVER ASSOCIATION RULES
 
 
-## PROBLEM DECOMPOSITION
+### PROBLEM DECOMPOSITION
 
 - The problem of mining association rules can be decomposed into two subproblems:
     1. Find all sets of items (itemsets) whose support is greater than the user-specified minimum support,
@@ -192,7 +184,7 @@ Support({Book2, Book3}) = Number of transactions containing {Book2, Book3}
     𝑠({𝐴, 𝐵})
 - where s(X) is the support of X in T.
 
-## FREQUENT SET
+### FREQUENT SET
 
 - Let T be the transaction database and be the user-specified minimum support. An
     itemset X is said to be a frequent itemset in T with respect to σ, if
@@ -202,12 +194,12 @@ Support({Book2, Book3}) = Number of transactions containing {Book2, Book3}
     also a frequent set. On the other hand, {ANN, CC, D} is not a frequent itemset and
     hence, no set which properly contains this set is a frequent set.
 
-## MAXIMAL FREQUENT SET
+### MAXIMAL FREQUENT SET
 
 - A frequent set is a maximal frequent set if it is a frequent set and no superset of this is a
     frequent set.
 
-## BORDER SET
+### BORDER SET
 
 - An itemset is a border set if it is not a frequent set, but all its proper subsets are frequent
     sets.
@@ -228,7 +220,7 @@ minimum confidence is 50%
 
 
 
-#### ii. Compare candidate set item’s support count with minimum support count(here
+- **ii. Compare candidate set item’s support count with minimum support count(here**
 
 min_support=2 if support_count of candidate set items is less than min_support then
 remove those items). This gives us itemset L1.
@@ -239,9 +231,9 @@ a)   Generate candidate set C2 using L1 (this is called join step). Condition of
 have (K-2) elements in common.
 i. Check all subsets of an itemset are frequent or not and if not frequent remove that itemset.(Example
 subset of{I1, I2} are {I1}, {I2} they are frequent. Check for each itemset)
-#### ii. Now find support count of these itemsets by searching in dataset.
+- **ii. Now find support count of these itemsets by searching in dataset.**
 
-#### b) compare candidate (C2) support count with minimum support count(here min_support=2 if
+- **b) compare candidate (C2) support count with minimum support count(here min_support=2 if**
 
 support_count of candidate set item is less than min_support then remove those items) this gives us
 itemset L2.
@@ -254,7 +246,7 @@ So itemset generated by joining L2 is {I1, I2, I3}{I1, I2, I5}{I1, I3, i5}{I2, I
 i. Check if all subsets of these itemsets are frequent or not and if not, then remove that
 itemset.(Here subset of {I1, I2, I3} are {I1, I2},{I2, I3},{I1, I3} which are frequent. For {I2,
 I3, I4}, subset {I3, I4} is not frequent so remove it. Similarly check for every itemset)
-#### ii. Find support count of these remaining itemset by searching in dataset.
+- **ii. Find support count of these remaining itemset by searching in dataset.**
 
 (II) Compare candidate (C3) support count with minimum support count(here min_support=2 if
 support_count of candidate set item is less than min_support then remove those items) this gives us
@@ -319,7 +311,7 @@ reported.
 2.   During the second scan, counters for each of these itemsets are set up and their actual support is
 measured in one scan of the database.
 
-## PHASE 1
+### PHASE 1
 
 - In the first phase, the partition algorithm logically divides the database into a number of non-overlapping
     partitions.
@@ -329,7 +321,7 @@ measured in one scan of the database.
 - In this step, the local frequent itemsets of same lengths from all n partitions are combined to generate the global
     candidate itemsets.
 
-## PHASE 2
+### PHASE 2
 
 - In Phase II, the actual support for these itemsets are generated and the frequent itemsets are identified.
 
@@ -390,7 +382,7 @@ measured in one scan of the database.
     down many levels in one pass.
 - This is because we may discover a maximal frequent set very early in the algorithm.
 
-## EXAMPLE 2
+**EXAMPLE 2**
 
 ## Dynamic Itemset Counting Algorithm
 

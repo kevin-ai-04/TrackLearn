@@ -32,9 +32,8 @@ detection)
 - A distributed system is a collection of independent entities that cooperate to solve a problem that
     cannot be individually solved.
 - Collection of independent systems that work together to solve a problem or to accomplish a task.
-### Distributed system has been characterized in one of several ways:
-
-## 1.   Crash of a single machine never prevents from doing work
+**Distributed system has been characterized in one of several ways:**
+### 1.   Crash of a single machine never prevents from doing work
 
 2.   A collection of computers that do not share common memory or a common physical clock, that
 communicate by a messages passing over a communication network, and where each computer

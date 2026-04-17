@@ -19,20 +19,18 @@ reduction, Discretization and concept hierarchy generation.
 
 ## Data Quality: Why Preprocess the Data?
 
-## Elements defining data quality:
+**Elements defining data quality:**
+### 1. Accuracy
 
-## 1. Accuracy
+### 2. Completeness, and
 
-## 2. Completeness, and
+### 3. Consistency
 
-## 3. Consistency
-
-## 1. Inaccurate data
+### 1. Inaccurate data
 
 - having incorrect attribute values
-## Possible Reasons:
-
-#### i. The data collection instruments used may be faulty.
+**Possible Reasons:**
+- **i. The data collection instruments used may be faulty.**
 
 ii. There may have been human or computer errors occurring at data entry.
 iii. Users may purposely submit incorrect data values for mandatory fields when they
@@ -44,24 +42,22 @@ consumption.
 v. Incorrect data may also result from inconsistencies in naming conventions or data
 codes, or inconsistent formats for input fields (e.g., date).
 
-## 2. Incomplete data
+### 2. Incomplete data
 
-## Possible Reasons:
-
+**Possible Reasons:**
 - Attributes of interest may not always be available, such as customer information for
     sales transaction data.
 - Other data may not be included simply because they were not considered important at
     the time of entry.
 - Relevant data may not be recorded due to a misunderstanding or because of
     equipment malfunctions.
-## 3. Inconsistent data
+### 3. Inconsistent data
 
 - Data that were inconsistent with other recorded data may have been deleted.
 - Furthermore, the recording of the data history or modifications may have been
     overlooked.
 
-## Two other factors affecting data quality are:
-
+**Two other factors affecting data quality are:**
         - believability and
         - Interpretability
 
@@ -76,7 +72,7 @@ codes, or inconsistent formats for input fields (e.g., date).
 - Data reduction and
 - Data transformation
 
-## 1. DATA CLEANING/CLEANSING
+### 1. DATA CLEANING/CLEANSING
 
 - If users believe the data are dirty, they are unlikely to trust
     the results of any data mining that has been applied.
@@ -93,18 +89,18 @@ codes, or inconsistent formats for input fields (e.g., date).
 ### 1.1 Missing values
 
 The following methods are used to fill in the missing values for an attribute:
-## 1. Ignore the tuple:
+### 1. Ignore the tuple:
 
 - Usually done when the class label is missing (assuming the mining task involves classification).
 - This method is not very effective, unless the tuple contains several attributes with missing values.
 - By ignoring the tuple, we do not make use of the remaining attributes’ values in the tuple. Such data could have been useful to
     the task at hand.
 
-## 2. Fill in the missing value manually:
+### 2. Fill in the missing value manually:
 
 - This approach is time consuming and may not be feasible given a large data set with many missing values.
 
-## 3. Use a global constant to fill in the missing value:
+### 3. Use a global constant to fill in the missing value:
 
 - Replace all missing attribute values by the same constant such as a label like “Unknown” or −∞.
 - If missing values are replaced by, say, “Unknown,” then the mining program may mistakenly think that they form an interesting
@@ -124,7 +120,7 @@ The following methods are used to fill in the missing values for an attribute:
 - If the data distribution for a given class is skewed, the median value is a better choice.
 
 
-## 6. Use the most probable value to fill in the missing value:
+### 6. Use the most probable value to fill in the missing value:
 
 - This may be determined with regression, inference-based tools using a Bayesian formalism, or decision tree induction.
 - For example, using the other customer attributes in your data set, you may construct a decision tree to predict the missing
@@ -144,9 +140,8 @@ The following methods are used to fill in the missing values for an attribute:
 - Noise is a random error or variance in a measured variable.
 - Methods of data visualization can be used to identify
     outliers, which may represent noise.
-## Methods to smooth out data and reduce noise:
-
-#### i.   Binning:
+**Methods to smooth out data and reduce noise:**
+- **i.   Binning:**
 
      - Binning methods smooth a sorted data value by
     consulting its “neighborhood,” that is, the values
@@ -156,22 +151,19 @@ The following methods are used to fill in the missing values for an attribute:
      - Because binning methods consult the neighborhood of
     values, they perform local smoothing.
 
-## Smoothing by bin means:
-
+**Smoothing by bin means:**
 - In smoothing by bin means, each value in a bin is replaced by the
     mean value of the bin.
 - For example, the mean of the values 4, 8, and 15 in Bin 1 is 9.
 - , each original value in this bin is replaced by the value 9.
 
 
-## Smoothing by bin medians:
-
+**Smoothing by bin medians:**
 - Similarly, smoothing by bin medians can be employed, in which each
     bin value is replaced by the bin median.
 
 
-## Smoothing by bin boundaries:
-
+**Smoothing by bin boundaries:**
 - In smoothing by bin boundaries, the minimum and maximum values
     in a given bin are identified as the bin boundaries.
 - Each bin value is then replaced by the closest boundary value.
@@ -184,7 +176,7 @@ The following methods are used to fill in the missing values for an attribute:
 Use smoothing by bin means to smooth these data, using a bin depth of 3. Illustrate your steps. Comment on the effect of this
 technique for the given data.
 
-#### ii. Regression:
+- **ii. Regression:**
 
 - A technique that conforms data values to a function.
 - Linear regression involves finding the “best” line to fit two attributes
@@ -194,7 +186,7 @@ technique for the given data.
     multidimensional surface.
 
 
-#### iii. Outlier analysis:
+- **iii. Outlier analysis:**
 
 - Outliers may be detected by clustering, for example, where similar
     values are organized into groups, or “clusters.”
@@ -202,7 +194,7 @@ technique for the given data.
     considered outliers.
 - Noise values can be replaced with the nearest cluster mean.
 
-## 2. DATA INTEGRATION
+### 2. DATA INTEGRATION
 
 - The merging of data from multiple data stores.
 - Yet some attributes representing a given concept may have
@@ -263,7 +255,7 @@ technique for the given data.
 
 
 - where oij is the observed frequency (i.e., actual count) of the joint event (Ai ,Bj) and eij is the expected
-### frequency of (Ai ,Bj), which can be computed as:
+frequency of (Ai ,Bj), which can be computed as:
 
 
 
@@ -277,7 +269,7 @@ technique for the given data.
     between them.
 - If the hypothesis can be rejected, then we say that A and B are statistically correlated.
 
-## Example 2.1 Correlation analysis of nominal attributes using χ 2 .
+**Example 2.1 Correlation analysis of nominal attributes using χ 2 .**
 
 Suppose that a group of 1500 people was surveyed. The gender of each person was noted. Each person
 was polled as to whether his or her preferred type of reading material was fiction or nonfiction. Thus, we
@@ -289,8 +281,7 @@ Fiction       250     200      450
 Non-fiction   50      1000     1050
 Total         300     1200     1500
 
-## Answer:
-
+**Answer:**
 - The χ2 value (also known as the Pearson χ2 statistic) is computed as
     male    female   Total
     Fiction          250     200      450
@@ -367,7 +358,7 @@ Actual frequencies
     is below its expected value, then the covariance of A and B is negative.
 - If A and B are independent (i.e., they do not have correlation), therefore covariance Cov(A,B)=0
 
-## Example 2.2 Covariance analysis of numeric attributes.
+**Example 2.2 Covariance analysis of numeric attributes.**
 
 Consider Table 3.2, which presents a simplified example of stock prices observed at five time points for
 AllElectronics and HighTech, a high-tech company. If the stocks are affected by the same industry trends,
@@ -376,12 +367,7 @@ will their prices rise or fall together?
 
 
 
-## Answer:
-
-
-
-
-
+**Answer:**
 Cov(AllElectroncis,HighTech) = 7
 Therefore, given the positive covariance we can say that stock prices for both companies rise together.
 
@@ -410,7 +396,7 @@ Therefore, given the positive covariance we can say that stock prices for both c
     an attribute of the same name in another database may refer to the total sales for
     All_Electronics stores in a given region.
 
-## 3. DATA REDUCTION
+### 3. DATA REDUCTION
 
 - Data reduction techniques can be applied to obtain a reduced representation of the data set that is
     much smaller in volume, yet closely maintains the integrity of the original data.
@@ -433,12 +419,12 @@ consideration.
 
 2. Numerosity reduction techniques: replace the original data volume by alternative, smaller forms of data
 representation.
-#### a) Parametric methods: Regression and log-linear models
+- **a) Parametric methods: Regression and log-linear models**
 
-#### b) Nonparametric methods: histograms, clustering, sampling, and data cube aggregation
+- **b) Nonparametric methods: histograms, clustering, sampling, and data cube aggregation**
 
 
-## 3. Data Compression: lossy and lossless
+### 3. Data Compression: lossy and lossless
 
 #### 3.1.1. Principal Components Analysis (also called the Karhunen-Loeve, or K-L, method)
 
@@ -476,7 +462,7 @@ variance in those directions.
 principal component(s).
 i.e. new feature value = (feature_vector)T * principal_component
 
-## Example 1: Consider a dataset with two features: height (in inches) and weight (in
+**Example 1: Consider a dataset with two features: height (in inches) and weight (in**
 
 pounds) of a group of people. Reduce these two dimensions (height and weight) into one
 dimension using PCA.
@@ -487,18 +473,18 @@ B        65         140
 C        70         160
 D        75         180
 
-## Example 2: For the given dataset with features of 4 samples, reduce the feature
+**Example 2: For the given dataset with features of 4 samples, reduce the feature**
 
 dimensionality from 2 to 1.
 
 
 ## Sample1    Sample2    Sample3     Sample4
 
-## X1       4          8          13         7
+### X1       4          8          13         7
 
-## X2       11         4           5        14
+### X2       11         4           5        14
 
-## EXAMPLE 3: Consider the two dimensional patterns (2, 1), (3, 5), (4, 3), (5, 6), (6, 7),
+**EXAMPLE 3: Consider the two dimensional patterns (2, 1), (3, 5), (4, 3), (5, 6), (6, 7),**
 
 (7, 8). Compute the principal component using PCA Algorithm and transform the pattern
 (2, 1) using the principal component.
@@ -516,8 +502,7 @@ dimensionality from 2 to 1.
     variables.
 - The initial data can then be projected onto this smaller set.
 
-## The basic procedure is as follows:
-
+**The basic procedure is as follows:**
 1.    The input data are normalized, so that each attribute falls within the same range. This step helps ensure that attributes
 with large domains will not dominate attributes with smaller domains.
 2.    PCA computes k orthonormal vectors that provide a basis for the normalized input data. These are unit vectors that each
@@ -558,15 +543,15 @@ possible to reconstruct a good approximation of the original data.
 
 - Basic heuristic methods of attribute subset selection include:
 
-#### a) Stepwise forward selection
+- **a) Stepwise forward selection**
 
-#### b) Stepwise backward elimination
+- **b) Stepwise backward elimination**
 
-#### c) Combination of forward selection and backward elimination:
+- **c) Combination of forward selection and backward elimination:**
 
-#### d) Decision tree induction
+- **d) Decision tree induction**
 
-#### a) Stepwise forward selection:
+- **a) Stepwise forward selection:**
 
 - The procedure starts with an empty set of attributes as the reduced set.
 - The best of the original attributes is determined and added to the reduced
@@ -575,19 +560,19 @@ possible to reconstruct a good approximation of the original data.
     attributes is added to the set.
 
 
-#### b) Stepwise backward elimination:
+- **b) Stepwise backward elimination:**
 
 - The procedure starts with the full set of attributes.
 - At each step, it removes the worst attribute remaining in the set.
 
 
-#### c) Combination of forward selection and backward elimination:
+- **c) Combination of forward selection and backward elimination:**
 
 - The stepwise forward selection and backward elimination methods can be
     combined so that, at each step, the procedure selects the best attribute and
     removes the worst from among the remaining attributes.
 
-#### d) Decision tree induction:
+- **d) Decision tree induction:**
 
 - Decision tree algorithms (e.g., ID3, C4.5, and CART) were
     originally intended for classification.
@@ -634,7 +619,7 @@ Advantages of DWT
 - The method is as follows:
     1.   The length, L, of the input data vector must be an integer power of 2. This condition can be met by padding the data
     vector with zeros as necessary (L ≥ n).
-## 2.   Each transform involves applying two functions:
+### 2.   Each transform involves applying two functions:
 
 a) The first applies some data smoothing, such as a sum or weighted average.
 b) The second performs a weighted difference, which acts to bring out the detailed features of the data.
@@ -646,7 +631,7 @@ obtained are of length 2.
 5.   Selected values from the data sets obtained in the previous iterations are designated the wavelet coefficients of the
 transformed data.
 
-### Example: Compute the DWT coefficients of the vector [1,2,3,4,5,6,7,8,9].    Level 3 Decomposition:
+**Example: Compute the DWT coefficients of the vector [1,2,3,4,5,6,7,8,9].    Level 3 Decomposition:**
 
 Answer:                                                                     Length of vector is odd, padding with zeros: [2.5, 6.5, 2.25,0]
 Length of vector is odd, padding with zeros: [1,2,3,4,5,6,7,8,9,0].
@@ -657,9 +642,7 @@ Length of vector is odd, padding with zeros: [1,2,3,4,5,6,7,8,9,0].
     [(1+2)/2, (3+4)/2, (5+6)/2, (7+8)/2, (9+0)/2] = [1.5, 3.5, 5.5, 7.5, 4.5]
 - Detail Coefficients (D1):                                                 Therefore, the DWT coefficients for the given vector
     [2-1, 4-3, 6-5, 8-7, 0-9] = [1, 1, 1, 1, -9]                                [1,2,3,4,5,6,7,8,9] using DWT with three levels of decomposition
-## are:
-
-
+**are:**
 ## Level 2 Decomposition:                                                      -Approximation Coefficients:
 
 Length of vector is odd, padding with zeros: [1.5, 3.5, 5.5, 7.5, 4.5,0]        - A3: [4.5]
@@ -700,28 +683,27 @@ need to be stored, instead of the actual data. Regression and log-linear models 
 - Multiple linear regression is an extension of (simple) linear regression, which allows a response
     variable, y, to be modeled as a linear function of two or more predictor variables.
 
-## Example 1: for the given dataset, build a linear regression model to predict Y based on X.
+**Example 1: for the given dataset, build a linear regression model to predict Y based on X.**
 
-## X               Y
+### X               Y
 
 (independent    (dependent
 variable)       variable)
-## 1              2
+1              2
 
-## 2              3
+2              3
 
-## 3              4
+3              4
 
-## 4              5
+4              5
 
 
-## Answer:                                          5              6
+**Answer:                                          5              6**
 
 
 - The linear regression model has the form:
     Y=β0+β1⋅X
-## where:
-
+**where:**
 - Y is the dependent variable (what we want to predict).
 - X is the independent variable (the feature we're using for prediction).
 - β0 is the intercept (the value of Y when X is 0).
@@ -754,14 +736,13 @@ Step 4: Build the Linear Regression Equation
     Y=X+1
 - This equation can be used to predict the value of Y for any given value of X.
 
-## Example 2: for the given dataset, build a linear regression model to predict Y based on
+**Example 2: for the given dataset, build a linear regression model to predict Y based on**
 
 X.
 - x = [1, 2, 3, 4, 5] # Independent variable (features)
 - y = [2, 4, 5, 4, 6] # Dependent variable (target)
 
-## Answer:
-
+**Answer:**
 y = 0.8x + 1.8
 
 #### 3.2.2 Log Linear Models: Parametric Data Reduction
@@ -785,7 +766,7 @@ y = 0.8x + 1.8
     called singleton buckets.
 - Often, buckets instead represent continuous ranges for the given attribute
 
-## Example: Histograms
+**Example: Histograms**
 
 - The following data are a list of AllElectronics prices for
     commonly sold items (rounded to the nearest dollar).
@@ -811,7 +792,7 @@ y = 0.8x + 1.8
 i.    Equal-width: In an equal-width histogram, the width of each bucket range is
 uniform (e.g., the width of $10 for the buckets in Figure 3.8).
 
-#### ii.   Equal-frequency (or equal-depth): In an equal-frequency histogram, the buckets
+- **ii.   Equal-frequency (or equal-depth): In an equal-frequency histogram, the buckets**
 
 are created so that, roughly, the frequency of each bucket is constant (i.e., each
 bucket contains roughly the same number of contiguous data samples).
@@ -848,14 +829,14 @@ bucket contains roughly the same number of contiguous data samples).
 - Let’s look at the most common ways that we could sample D for data reduction:
 
 
-## 1.   Simple random sample without replacement (SRSWOR) of size s: This is
+### 1.   Simple random sample without replacement (SRSWOR) of size s: This is
 
 created by drawing s of the N tuples from D (s < N), where the probability of
 drawing any tuple in D is 1/N, that is, all tuples are equally likely to be
 sampled.
 
 
-## 2.   Simple random sample with replacement (SRSWR) of size s: This is
+### 2.   Simple random sample with replacement (SRSWR) of size s: This is
 
 similar to SRSWOR, except that each time a tuple is drawn from D, it is
 recorded and then replaced. That is, after a tuple is drawn, it is placed back in
@@ -871,7 +852,7 @@ sample of the tuples.
 
 
 
-## 4. Stratified sample: If D is divided into mutually disjoint parts called
+### 4. Stratified sample: If D is divided into mutually disjoint parts called
 
 strata, a stratified sample of D is generated by obtaining an SRS at each
 stratum. This helps ensure a representative sample, especially when the data
@@ -914,7 +895,7 @@ represented.
 - Data cubes created for varying levels of abstraction are often referred to as cuboids, so that
     a data cube may instead refer to a lattice of cuboids.
 
-## 4. DATA TRANSFORMATION
+### 4. DATA TRANSFORMATION
 
 - Strategies for data transformation include the following:
     1. Smoothing: to remove noise from the data. Techniques include binning, regression, and clustering.
@@ -954,16 +935,16 @@ The first three of these strategies were discussed earlier
 
 - Methods for data normalization:
 
-#### a) min-max normalization,
+- **a) min-max normalization,**
 
-#### b) z-score normalization, and
+- **b) z-score normalization, and**
 
-#### c) normalization by decimal scaling.
+- **c) normalization by decimal scaling.**
 
 
 Let A be a numeric attribute with n observed values, v1, v2,..., vn.
 
-#### a) Min-max Normalization:
+- **a) Min-max Normalization:**
 
 - Min-max normalization performs a linear transformation on the original data.
 - Suppose that minA and maxA are the minimum and maximum values of an attribute, A.
@@ -973,14 +954,14 @@ Let A be a numeric attribute with n observed values, v1, v2,..., vn.
 
 
 
-## Example: Suppose that the minimum and maximum values for the attribute income are $12,000 and
+**Example: Suppose that the minimum and maximum values for the attribute income are $12,000 and**
 
 $98,000, respectively. We would like to map income to the range [0.0,1.0]. By min-max normalization,
 transform a value of $73,600 for income.
 
-## Answer: 0.716
+**Answer: 0.716**
 
-#### b) Z-score normalization (or zero-mean normalization):
+- **b) Z-score normalization (or zero-mean normalization):**
 
 - The values for an attribute, A, are normalized based on the mean (i.e., average) and standard deviation of A.
 - A value, vi , of A is normalized to v’i by computing:
@@ -992,14 +973,14 @@ where A¯ and σA are the mean and standard deviation, respectively, of attribut
     when there are outliers that dominate the min-max normalization.
 
 
-## Example: Suppose that the mean and standard deviation of the values for the attribute income are $54,000 and
+**Example: Suppose that the mean and standard deviation of the values for the attribute income are $54,000 and**
 
 $16,000, respectively. With z-score normalization, transform the value of $73,600 for income.
 
 
-## Answer: 1.225
+**Answer: 1.225**
 
-#### c) Normalization by decimal scaling:
+- **c) Normalization by decimal scaling:**
 
 - normalizes by moving the decimal point of values of attribute A.
 - The number of decimal points moved depends on the maximum absolute value of A.
@@ -1009,7 +990,7 @@ $16,000, respectively. With z-score normalization, transform the value of $73,60
 
 where j is the smallest integer such that max(| v’i |) < 1.
 
-## Example: Suppose that the recorded values of A range from −986 to 917. The maximum absolute value
+**Example: Suppose that the recorded values of A range from −986 to 917. The maximum absolute value**
 
 of A is 986. To normalize by decimal scaling, we therefore divide each value by 1000 (i.e., j = 3) so that
 −986 normalizes to −0.986 and 917 normalizes to 0.917.

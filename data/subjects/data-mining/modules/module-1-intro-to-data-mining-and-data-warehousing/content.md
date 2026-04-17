@@ -75,7 +75,7 @@
 - A data warehouse is a repository of information collected from multiple sources, stored under a unified schema, and usually residing at a single site.
 - It is a huge historical database containing data that is mostly historic and not frequently updated.
 
-## Examples
+**Examples**
 
 - Social media websites such as Facebook, Twitter, and LinkedIn analyze large datasets and store data in a single central repository.
 - Banks use data warehouses to study spending patterns of account and card holders.
@@ -150,7 +150,7 @@ A relational database for the company AllElectronics.
 - Each dimension is described by a set of attributes.
 - The attributes of a dimension may be related via a hierarchy of relationships.
 
-## n-Dimensional Data Cube
+n-Dimensional Data Cube
 
 An n-dimensional data cube `C[A1, A2, ..., An]` is a database with n dimensions `A1, A2, ..., An`, each of which represents a theme and contains a number of distinct elements in the dimension.
 

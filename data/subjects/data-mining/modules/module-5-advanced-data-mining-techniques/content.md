@@ -4,9 +4,7 @@
 Definition: Text mining (also known as text analytics) is the process of extracting meaningful
 information and patterns from unstructured textual data.
 
-## Types:
-
-
+**Types:**
  Information Retrieval: Finding relevant documents or passages within a large corpus
 of text.
  Text Classification: Categorizing text documents into predefined categories or topics.
@@ -15,9 +13,7 @@ of text.
 the text, such as names of people, organizations, and locations.
  Sentiment Analysis: Determining the sentiment or opinion expressed in a piece of text.
 
-## Applications:
-
-
+**Applications:**
  Document summarization and categorization.
  Opinion mining and sentiment analysis in social media.
  Email filtering and spam detection.
@@ -25,9 +21,7 @@ the text, such as names of people, organizations, and locations.
 
 
 
-## Techniques:
-
-
+**Techniques:**
  Tokenization and stemming.
  Stopwords removal.
  Vectorization (e.g., TF-IDF, word embeddings).
@@ -50,7 +44,7 @@ information.
 | Applications | Sentiment analysis, document categorization, content recommendation, etc. | Web search engines, personalized recommendation systems, web usage analysis, etc. |
 
 
-## 2. WEB CONTENT MINING
+### 2. WEB CONTENT MINING
 
 
 Web content mining can be thought of as extending the work performed by basic search
@@ -64,8 +58,7 @@ i.      CRAWLERS: In web content mining, crawlers, also known as web spiders or 
 play a crucial role in gathering data from the World Wide Web. They are automated
 programs designed to systematically browse the web, retrieve web pages, and extract
 relevant information for further processing.
-## Web Crawling Process:
-
+**Web Crawling Process:**
  Seed URLs: The crawling process typically starts with a set of seed URLs, which are
 the starting points for the crawler to begin its exploration of the web.
  URL Frontier: The crawler maintains a queue of URLs to be visited, known as the
@@ -86,8 +79,7 @@ For example, they may prioritize pages based on relevance, importance, or freshn
 pages, extracting information, and discovering new URLs to crawl.
 
 
-## Challenges and Techniques:
-
+**Challenges and Techniques:**
  Politeness: Crawlers need to be respectful of web servers and adhere to politeness
 guidelines to avoid overloading them with requests. Techniques such as crawl delay
 and obeying robots.txt files are commonly used to ensure polite behavior.
@@ -133,8 +125,7 @@ the collected information.
  Data Maintenance: Harvesting systems may also include features for data
 cleaning, deduplication, and update management to ensure the quality and freshness
 of the collected data over time.
-## Components:
-
+**Components:**
  Crawling Module: This component is responsible for navigating the web,
 accessing web pages, and retrieving content. It may incorporate functionalities such
 as URL scheduling, politeness policies, and duplicate detection mechanisms.
@@ -152,8 +143,7 @@ also include features for data backup, versioning, and access control.
  Monitoring and Reporting: Some harvesting systems include monitoring
 capabilities to track the progress of data collection, identify errors or anomalies, and
 generate reports on data quality and completeness.
-## Challenges and Considerations:
-
+**Challenges and Considerations:**
  Data Volume and Scalability: Harvesting systems must be able to handle large
 volumes of data efficiently and scale to accommodate increasing demands.
  Data Quality and Accuracy: Ensuring the accuracy and reliability of harvested
@@ -196,15 +186,14 @@ personalization is My Yahoo!, where users customize their screen layout. Persona
 can be seen as a form of clustering, classification, or prediction, where user desires are
 determined based on user behavior or similarity to other users.
 
-## 3. WEB STRUCTURE MINING
+### 3. WEB STRUCTURE MINING
 
 Web structure mining is a process of extracting useful information and patterns from the
 link structure of the World Wide Web. It focuses on analyzing the relationships,
 connections, and hierarchies among web pages, websites, and other entities on the web.
 Web structure mining techniques aim to uncover valuable insights about the organization,
 navigation, and topology of the web.
-## Types of Web Structure Mining:
-
+**Types of Web Structure Mining:**
  Topology-based Mining: This approach focuses on analyzing the topological
 properties of the web graph, such as the distribution of links, connectivity patterns,
 and the overall structure of the web. Techniques such as graph analysis, network
@@ -223,8 +212,7 @@ number and quality of inbound links it receives from other pages. PageRank is a
 
 key component of web search algorithms and is used by search engines to rank
 search results.
-## Applications of Web Structure Mining:
-
+**Applications of Web Structure Mining:**
  Search Engine Optimization (SEO): Understanding the link structure of the web
 and analyzing the link popularity of web pages can help website owners optimize
 their sites for better visibility and ranking in search engine results pages (SERPs).
@@ -243,7 +231,7 @@ interconnected web pages. This is useful for discovering topic-specific
 communities, social networks, and communities of interest within the web.
 
 
-## 4. PAGERANK ALGORITHM
+### 4. PAGERANK ALGORITHM
 
 PageRank is an algorithm developed by Larry Page and Sergey Brin, the founders of
 Google, while they were students at Stanford University. It is a key component of Google's
@@ -252,8 +240,7 @@ pages based on their link structure. PageRank assigns a numerical score to each 
 representing its relative importance within the web graph.
 
 
-## Working of the PageRank algorithm:
-
+**Working of the PageRank algorithm:**
 Basic Concept: PageRank views the web as a graph, where web pages are represented as
 nodes and hyperlinks between pages are represented as directed edges. In this graph, a link
 from page A to page B is interpreted as a vote of confidence or endorsement from page A
@@ -279,9 +266,7 @@ Interpretation: The PageRank score of a page represents its relative importance 
 within the web graph. Pages with higher PageRank scores are considered more influential or
 trustworthy, and are more likely to appear higher in search engine results.
 
-## Applications:
-
-
+**Applications:**
  PageRank is a key factor used by Google and other search engines to rank search results.
 Pages with higher PageRank scores are more likely to be displayed at the top of search
 results for relevant queries.
@@ -289,7 +274,7 @@ results for relevant queries.
 social network analysis, and network visualization.
 
 
-## 5. WEB USAGE MINING – Preprocessing and Data Structures
+### 5. WEB USAGE MINING – Preprocessing and Data Structures
 
 
 Web usage mining is the process of discovering patterns and trends in user interactions with
@@ -298,10 +283,10 @@ web content. It involves analyzing web server logs, user clickstream data, and o
 data to extract valuable insights. Preprocessing and data structures play a crucial role in web
 usage mining to clean, transform, and organize the raw data for analysis.
 
-#### i.   PREPROCESSING:
+- **i.   PREPROCESSING:**
 
 Data Cleaning: This involves removing noise and inconsistencies from the raw web
-## usage data. Common cleaning tasks include:
+usage data. Common cleaning tasks include:
 
 
  Removing duplicate records: Eliminating duplicate entries in web server logs or
@@ -316,7 +301,7 @@ a website. Sessionization involves grouping related user interactions (page view
 clicks, etc.) into sessions based on timestamps and session timeout thresholds.
 
 Data Transformation: Transforming raw web usage data into a suitable format for
-## analysis. This may involve:
+analysis. This may involve:
 
 
  Encoding categorical variables: Converting categorical variables such as URLs,
@@ -324,7 +309,7 @@ page titles, or user IDs into numerical or categorical representations.
  Normalizing or scaling numerical features: Bringing numerical features to a
 common scale to avoid bias in analysis.
 Feature Engineering: Creating new features or aggregating existing features to
-## capture relevant information. For example:
+capture relevant information. For example:
 
 
  Calculating session duration: Determining the length of time a user spends on a
@@ -334,13 +319,11 @@ within a session.
  Generating summary statistics: Computing metrics such as page views per
 session, time spent on each page, or bounce rates.
 
-#### ii.   DATA STRUCTURES:
+- **ii.   DATA STRUCTURES:**
 
 Session-based Data Structures: Web usage data is often organized into session-based
 structures to represent user interactions during a visit to a website. Common session-
-## based data structures include:
-
-
+**based data structures include:**
  Session records: Individual records containing information about each user
 session, including session ID, start time, end time, and user actions.
  Session sequences: Sequences of user actions within a session, represented as
@@ -350,9 +333,7 @@ between web pages, with nodes representing pages and edges representing
 transitions.
 Clickstream Data Structures: Clickstream data structures are used to represent user
 interactions with web content, particularly in e-commerce and online retail applications.
-## Examples include:
-
-
+**Examples include:**
  Clickstream paths: Paths followed by users through a website, represented as
 sequences of page views, clicks, and other actions.
  Clickstream matrices: Matrices representing user transitions between web pages
@@ -360,7 +341,7 @@ or categories, with rows and columns corresponding to source and destination
 pages, and cells containing counts or probabilities of transitions.
 Feature-based Data Structures: Feature-based data structures organize web usage
 data into feature vectors or matrices, where each feature represents a characteristic of
-## user behavior. Examples include:
+user behavior. Examples include:
 
 
  Feature vectors: Vectors representing individual user sessions or web pages,
@@ -369,24 +350,22 @@ with features such as page views, time spent, bounce rates, and conversion rates
 multiple sessions or pages, with rows corresponding to sessions or pages and
 columns corresponding to features.
 
-## SECTION 2: TEXT MINING
+### SECTION 2: TEXT MINING
 
 
 
-## 1. TEXT DATA ANALYSIS
+### 1. TEXT DATA ANALYSIS
 
 Text data analysis in text mining involves several steps and techniques to extract useful
 insights and patterns from unstructured or semi-structured textual data. Here's an overview
-### of how text data analysis is carried out in text mining:
-
+**of how text data analysis is carried out in text mining:**
 i.      Data Collection: The first step in text mining is to collect the textual data from various
 sources such as websites, documents, social media platforms, emails, or other text-
 based sources.
-#### ii.      Text Preprocessing: Text preprocessing involves cleaning and preparing the text data
+- **ii.      Text Preprocessing: Text preprocessing involves cleaning and preparing the text data**
 
 for analysis by removing noise and irrelevant information. Common preprocessing
-## steps include:
-
+**steps include:**
  Tokenization: Splitting the text into individual words or tokens.
  Lowercasing: Converting all text to lowercase to standardize the text.
  Removing Stopwords: Removing common words (e.g., "the", "is", "and") that
@@ -397,7 +376,7 @@ normalize variations (e.g., "running" → "run").
 characters and punctuation marks.
  Spell Checking: Correcting spelling errors to improve accuracy.
 iii.      Text Representation: Text data needs to be represented in a numerical or structured
-### format suitable for analysis. Common techniques for text representation include:
+format suitable for analysis. Common techniques for text representation include:
 
  Bag-of-Words (BoW): Representing text as a matrix where each row
 corresponds to a document and each column corresponds to a unique word in
@@ -413,7 +392,7 @@ Techniques like Word2Vec, GloVe, and FastText are commonly used to generate
 word embeddings.
 iv.      Statistical Analysis and Machine Learning: Once the text data is preprocessed and
 represented, various statistical analysis and machine learning techniques can be applied
-### for further analysis. Common tasks in text mining include:
+for further analysis. Common tasks in text mining include:
 
  Text Classification: Categorizing text documents into predefined categories or
 classes (e.g., spam detection, sentiment analysis, topic classification).
@@ -428,14 +407,14 @@ documents using techniques such as Latent Dirichlet Allocation (LDA) or Non-
 negative Matrix Factorization (NMF).
 
 
-#### v.       Evaluation and Interpretation: After applying text mining techniques, the results
+- **v.       Evaluation and Interpretation: After applying text mining techniques, the results**
 
 need to be evaluated and interpreted to assess their quality and relevance. Evaluation
 metrics depend on the specific task being performed, such as accuracy, precision, recall,
 F1-score, or perplexity for topic modeling.
 
 
-#### vi.      Visualization and Reporting: Visualization techniques are used to represent the results
+- **vi.      Visualization and Reporting: Visualization techniques are used to represent the results**
 
 of text mining analysis in a visual format, making it easier to interpret and communicate
 insights. Word clouds, bar charts, heatmaps, and network graphs are common
@@ -448,75 +427,75 @@ evaluation, interpretation, visualization, and reporting. These techniques enabl
 extraction of valuable insights and patterns from unstructured textual data, facilitating
 decision-making and knowledge discovery in various domains.
 
-## 2. BASIC MEASURES OF TEXT RETRIEVAL
+### 2. BASIC MEASURES OF TEXT RETRIEVAL
 
-#### i.     Term Frequency (TF):
+- **i.     Term Frequency (TF):**
 
  Term Frequency measures how often a term appears in a document.
  It indicates the importance of a term within a document.
  It is calculated as the frequency of a term in a document divided by the total
 number of terms in the document.
-#### ii.      Inverse Document Frequency (IDF):
+- **ii.      Inverse Document Frequency (IDF):**
 
  Inverse Document Frequency measures how important a term is across all
 documents in a collection.
  It helps in identifying the uniqueness of a term in the entire corpus.
  It is calculated as the logarithm of the total number of documents divided by the
 number of documents containing the term.
-#### iii.     Term Frequency-Inverse Document Frequency (TF-IDF):
+- **iii.     Term Frequency-Inverse Document Frequency (TF-IDF):**
 
  TF-IDF combines the TF and IDF measures to determine the relevance of a term
 within a document relative to a collection of documents.
  It is calculated by multiplying the TF of a term in a document by its IDF across
 all documents.
-#### iv.      Cosine Similarity:
+- **iv.      Cosine Similarity:**
 
  Cosine Similarity measures the similarity between two documents based on the
 cosine of the angle between their respective term frequency vectors.
  It is used to determine the relevance or similarity between a query and
 documents in a collection.
-#### v.      Precision and Recall:
+- **v.      Precision and Recall:**
 
  Precision measures the relevance of retrieved documents, i.e., the proportion of
 relevant documents among the retrieved ones.
  Recall measures the coverage of relevant documents, i.e., the proportion of
 relevant documents that were retrieved among all relevant documents.
-#### vi.      F-score:
+- **vi.      F-score:**
 
  F-score is the harmonic mean of precision and recall.
  It provides a single measure that balances both precision and recall.
  It is calculated as (2×Precision×Recall) / (Precision+Recall).
 
-## 3. TEXT RETRIEVAL METHODS
+### 3. TEXT RETRIEVAL METHODS
 
-#### i.      Keyword-Based Retrieval: Keyword-based retrieval is the simplest form of text
+- **i.      Keyword-Based Retrieval: Keyword-based retrieval is the simplest form of text**
 
 retrieval, where users input keywords or phrases, and the system returns documents
 containing those keywords. It matches the query terms directly with the text in the
 documents. While simple, this method may suffer from issues like ambiguity, where
 the same term can have multiple meanings.
-#### ii.      Boolean Retrieval: Boolean retrieval allows users to construct queries using
+- **ii.      Boolean Retrieval: Boolean retrieval allows users to construct queries using**
 
 Boolean operators (AND, OR, NOT) to specify the relationships between
 keywords. Documents are retrieved based on whether they satisfy the Boolean
 expression specified in the query. While Boolean retrieval is precise, it may result
 in either too few or too many documents being retrieved, depending on the query
 structure.
-#### iii.      Vector Space Model (VSM): The vector space model represents documents and
+- **iii.      Vector Space Model (VSM): The vector space model represents documents and**
 
 queries as vectors in a high-dimensional space, where each dimension corresponds
 to a term in the vocabulary. The similarity between documents and queries is
 computed using measures such as cosine similarity. VSM is effective in capturing
 semantic similarity between documents and queries but may suffer from the curse
 of dimensionality.
-#### iv.       Term Frequency-Inverse Document Frequency (TF-IDF): TF-IDF is a
+- **iv.       Term Frequency-Inverse Document Frequency (TF-IDF): TF-IDF is a**
 
 statistical measure used to evaluate the importance of a term within a document
 relative to a collection of documents. It assigns higher weights to terms that appear
 frequently within a document but infrequently across the entire document
 collection. TF-IDF helps to identify key terms in documents and is commonly used
 in ranking documents for text retrieval.
-#### v.       Probabilistic Retrieval Models: Probabilistic retrieval models, such as the
+- **v.       Probabilistic Retrieval Models: Probabilistic retrieval models, such as the**
 
 Binary Independence Model (BIM) and the Okapi BM25 model, calculate the
 probability that a document is relevant to a query based on various factors, including
@@ -524,13 +503,13 @@ term frequency, document length, and term specificity. These models estimate the
 likelihood of relevance and rank documents accordingly.
 
 
-## 4. TEXT INDEXING TECHNIQUES
+### 4. TEXT INDEXING TECHNIQUES
 
 
 Text indexing techniques are methods used to efficiently organize and retrieve textual
 information from large collections of documents.
 
-## 1. Inverted Indexing:
+### 1. Inverted Indexing:
 
 
 - Definition: Inverted indexing is a technique where a data structure, typically a hash
@@ -550,7 +529,7 @@ information from large collections of documents.
     documents containing the term "apple," along with their respective document
     identifiers.
 
-## 2. Forward Indexing:
+### 2. Forward Indexing:
 
 
 - Definition: Forward indexing is a technique where each document in the collection is
@@ -567,7 +546,7 @@ information from large collections of documents.
 - Example: Given a document ID, the forward index would return the full text content
     of the corresponding document.
 
-## 3. Full-Text Indexing:
+### 3. Full-Text Indexing:
 
 
 - Definition: Full-text indexing is a technique that combines elements of both inverted
@@ -587,7 +566,7 @@ information from large collections of documents.
 
 
 
-## 5. QUERY PROCESSING TECHNIQUES
+### 5. QUERY PROCESSING TECHNIQUES
 
 In the context of text mining, query processing refers to the set of techniques and
 procedures used to handle user queries and retrieve relevant information from a
@@ -596,7 +575,7 @@ matching them with relevant documents or information in the text corpus, and ret
 the most relevant results to the user. Query processing plays a crucial role in enabling
 users to effectively search for and retrieve information from large volumes of textual
 data.
-#### i.      Parsing and Tokenizing Queries:
+- **i.      Parsing and Tokenizing Queries:**
 
  Parsing: Parsing involves breaking down a query into its constituent parts, such
 as keywords, operators, and phrases. It analyzes the syntactic structure of the
@@ -608,7 +587,7 @@ processed and analyzed independently.
 and intent of the query. By breaking the query into its component parts and
 individual words, the system can effectively analyze and interpret the user's
 information needs.
-#### ii.      Identifying Keywords and Phrases:
+- **ii.      Identifying Keywords and Phrases:**
 
  Keyword Identification: Once the query is parsed and tokenized, the system
 identifies relevant keywords that are key to retrieving relevant information from
@@ -622,7 +601,7 @@ context. This helps in capturing more nuanced information needs.
 the user's intent and the context of the query. By focusing on these key elements,
 the system can better match the query with relevant documents or information
 in the database.
-#### iii.   Expanding or Reformulating Queries:
+- **iii.   Expanding or Reformulating Queries:**
 
  Query Expansion: In some cases, the original query may not effectively
 capture the user's information needs or may not retrieve the desired results.
@@ -636,7 +615,7 @@ relevance and accuracy of search results by improving the match between the
 query and the available information. By expanding or refining the query, the
 system can retrieve a more comprehensive and relevant set of documents, better
 meeting the user's information needs.
-#### iv.    Retrieval Models and Ranking:
+- **iv.    Retrieval Models and Ranking:**
 
 Text mining systems often use retrieval models such as Boolean retrieval, vector
 space models, or probabilistic retrieval models to match queries with relevant
@@ -644,7 +623,7 @@ documents in the text corpus. Documents are ranked based on their relevance to
 the query, with higher-ranked documents considered more relevant to the user's
 information needs. Retrieval models and ranking algorithms play a crucial role
 in determining the order in which search results are presented to the user.
-#### v.    Evaluation and Optimization: Query processing techniques are evaluated based
+- **v.    Evaluation and Optimization: Query processing techniques are evaluated based**
 
 on metrics such as precision, recall, and F1-score, which measure the effectiveness
 of the system in retrieving relevant information. Techniques for optimizing query

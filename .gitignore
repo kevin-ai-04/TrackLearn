@@ -16,3 +16,5 @@ pnpm-debug.log*
 .env.production.local
 tsconfig.tsbuildinfo
 temp-reference/
+fix_md.js
+test.js
