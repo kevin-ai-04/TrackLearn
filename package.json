@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "seed:mongodb": "node scripts/seed-mongodb.mjs"
+    "seed:mongodb": "node --env-file=.env.local scripts/seed-mongodb.mjs"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.2",

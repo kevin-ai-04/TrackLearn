@@ -128,6 +128,16 @@ async function assertOwnedEntry(userId: string, entryId: string) {
   return entry;
 }
 
+async function assertPublicEntry(entryId: string) {
+  const entry = await getEntryById(entryId);
+
+  if (!entry || entry.visibility !== "public") {
+    throw new Error("Public entry not found.");
+  }
+
+  return entry;
+}
+
 function getReviewResetFields<T extends { publishedEntryId?: string | null; publishedSubjectId?: string | null }>(
   document: T,
 ) {
@@ -139,6 +149,12 @@ function getReviewResetFields<T extends { publishedEntryId?: string | null; publ
   }
 
   return {};
+}
+
+function getPublicEntryPath(subjectSlug: string, kind: EntryKind, entrySlug: string) {
+  return kind === "module"
+    ? `/${subjectSlug}/${entrySlug}`
+    : `/${subjectSlug}/materials/${entrySlug}`;
 }
 
 export async function createSubjectForUser(userId: string, formData: FormData) {
@@ -295,6 +311,48 @@ export async function deleteEntryForUser(userId: string, entryId: string) {
   await db.collection<EntryDocument>("entries").deleteOne({
     _id: entry._id,
   });
+}
+
+export async function updatePublicEntryAsAdmin(entryId: string, formData: FormData) {
+  assertDatabaseConfigured();
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const entry = await assertPublicEntry(entryId);
+  const subject = await getSubjectById(entry.subjectId);
+
+  if (!subject || subject.visibility !== "public") {
+    throw new Error("Parent public subject not found.");
+  }
+
+  const now = new Date().toISOString();
+  const title = parseRequiredText(formData.get("title"), "Entry title");
+  const slug = normalizeRouteSegment(parseOptionalText(formData.get("slug")) ?? title);
+  const description = parseOptionalText(formData.get("description"));
+  const order = parseOptionalNumber(formData.get("order"));
+  const markdown = parseRequiredText(formData.get("markdown"), "Markdown content");
+  const kind = parseRequiredText(formData.get("kind"), "Entry kind") as EntryKind;
+
+  await db.collection<EntryDocument>("entries").updateOne(
+    { _id: entry._id },
+    {
+      $set: {
+        kind,
+        title,
+        slug,
+        description,
+        order,
+        markdown,
+        headings: extractMarkdownHeadings(markdown),
+        updatedAt: now,
+      },
+    },
+  );
+
+  return {
+    subjectSlug: subject.slug,
+    previousPath: getPublicEntryPath(subject.slug, entry.kind, entry.slug),
+    nextPath: getPublicEntryPath(subject.slug, kind, slug),
+  };
 }
 
 async function createPublicationRequest(

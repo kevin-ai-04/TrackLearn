@@ -472,6 +472,36 @@ export async function getOwnedEntryById(userId: string, entryId: string) {
   return mapEntryContent(entry, subject);
 }
 
+export async function getPublicEntryById(entryId: string) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const entry = await db.collection<EntryDocument>("entries").findOne({
+    _id: new ObjectId(entryId),
+    visibility: "public",
+  });
+
+  if (!entry) {
+    return null;
+  }
+
+  const subject = await db.collection<SubjectDocument>("subjects").findOne({
+    _id: new ObjectId(entry.subjectId),
+    visibility: "public",
+  });
+
+  if (!subject) {
+    return null;
+  }
+
+  return mapEntryContent(entry, subject);
+}
+
 export async function getUserLinkedEntries(userId: string, publicEntryId: string) {
   noStore();
 

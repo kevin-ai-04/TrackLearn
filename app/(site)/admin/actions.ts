@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-helpers";
-import { reviewPublicationRequest, unpublishPublicContent } from "@/lib/content-management";
+import {
+  reviewPublicationRequest,
+  unpublishPublicContent,
+  updatePublicEntryAsAdmin,
+} from "@/lib/content-management";
 
 export async function reviewRequestAction(requestId: string, formData: FormData) {
   const viewer = await requireAdmin();
@@ -34,4 +38,17 @@ export async function unpublishEntryAction(entryId: string) {
   await unpublishPublicContent({ entryId });
   revalidatePath("/admin");
   redirect("/admin");
+}
+
+export async function updatePublicEntryAction(entryId: string, formData: FormData) {
+  await requireAdmin();
+  const result = await updatePublicEntryAsAdmin(entryId, formData);
+
+  revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath(`/${result.subjectSlug}`);
+  revalidatePath(result.previousPath);
+  revalidatePath(result.nextPath);
+
+  redirect(`/admin?editEntryId=${entryId}`);
 }

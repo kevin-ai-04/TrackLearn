@@ -68,10 +68,24 @@ export function AppShell({
   }, [isDesktop, sidebarOpen]);
 
   useEffect(() => {
-    if (!isDesktop) {
-      setSidebarOpen(false);
+    if (isDesktop) {
+      return;
     }
-  }, [isDesktop, currentSubjectSlug, currentModuleSlug, currentMaterialSlug]);
+
+    setSidebarOpen(false);
+  }, [isDesktop]);
+
+  useEffect(() => {
+    if (!isDesktop) {
+      return;
+    }
+
+    if (!currentModuleSlug && !currentMaterialSlug) {
+      return;
+    }
+
+    setSidebarOpen(true);
+  }, [isDesktop, currentModuleSlug, currentMaterialSlug]);
 
   const desktopSidebarVisible = isDesktop && sidebarOpen;
 

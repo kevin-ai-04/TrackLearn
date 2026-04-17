@@ -1,88 +1,95 @@
 # TrackLearn Project Description
 
-## Purpose
+## What This Project Is
 
-TrackLearn is a MongoDB-backed study platform built with Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, Auth.js, and markdown tooling.
+TrackLearn is a Next.js App Router study platform with three active surfaces:
 
-The app now supports three product areas:
+- public study content
+- optional account features for private content and synced progress
+- an admin moderation dashboard for publishing user content
 
-- a public study catalog
-- a signed-in private user library for custom content
-- an admin moderation dashboard for publication requests
+MongoDB is the primary backend. The `data/subjects` directory is used for seeding the public catalog and as a runtime fallback only when MongoDB is not configured.
 
-The repository `data/subjects` directory is no longer the live runtime source of truth. It is the seed/import source for the public catalog.
+## Runtime Model
 
-## Runtime Architecture
+### Public catalog
 
-### Public content
+- Public subjects, modules, and materials are read through `lib/content.ts`.
+- If `MONGODB_URI` is configured, public catalog reads come from MongoDB.
+- If MongoDB is not configured, public catalog reads fall back to `lib/fs-content.ts`.
+- Public routes are server-rendered and dynamic.
 
-Public subjects, modules, and materials are read through [lib/content.ts](<lib/content.ts>).
+### Auth and roles
 
-At runtime:
+- Auth is configured in `auth.ts` with Auth.js, Google, and the MongoDB adapter.
+- User roles are stored on `users.role`.
+- Supported roles are `"user"` and `"admin"`.
+- Signing in is optional for browsing and settings.
+- `/my-library` requires login.
+- `/admin` requires an authenticated admin user.
 
-1. If MongoDB is configured, public catalog reads come from MongoDB.
-2. If MongoDB is not configured, public pages fall back to filesystem seed data through [lib/fs-content.ts](<lib/fs-content.ts>).
+### Private content
 
-This fallback is mainly for local resilience. The intended production path is MongoDB-backed content.
+Logged-in users can create:
 
-### Authentication
+- private subjects
+- private modules
+- private materials
+- private companion notes linked to public entries
 
-Auth is configured in [auth.ts](<auth.ts>) using:
+All user-created content starts private.
 
-- Auth.js / NextAuth
-- Google provider
-- MongoDB adapter
+### Moderated publishing
 
-Supporting files:
+- Users can submit private subjects or entries for review.
+- Submission creates a `publicationRequests` document with a snapshot of the submitted content.
+- Admin approval creates or updates a separate public copy.
+- The original private record remains the author-owned working copy.
+- Later edits to the private source do not change the live public copy until a new review is approved.
 
-- [app/api/auth/[...nextauth]/route.ts](<app/api/auth/[...nextauth]/route.ts>)
-- [lib/auth-helpers.ts](<lib/auth-helpers.ts>)
-- [types/next-auth.d.ts](<types/next-auth.d.ts>)
+### Study progress
 
-User roles are stored on Mongo `users` documents with:
+- Guests use local browser persistence.
+- Signed-in users load and save progress through `/api/user-progress`.
+- Remote progress is stored in MongoDB in `userProgress`.
+- On first authenticated load, local progress is merged into the account once if remote progress has not already been migrated.
 
-- `role: "user" | "admin"`
+## Main Routes
 
-### Private content and moderation
+### Public
 
-Private content creation, review submission, approval, rejection, and unpublish logic lives in:
+- `/` home page
+- `/settings` public settings and progress page
+- `/login` sign-in page
+- `/:subject` public subject page
+- `/:subject/:module` public module page
+- `/:subject/materials/:material` public material page
 
-- [lib/content-management.ts](<lib/content-management.ts>)
+### Compatibility
 
-This file is the main mutation layer for:
+- `/user` redirects to `/settings`
 
-- private subject CRUD
-- private entry CRUD
-- markdown upload/paste parsing
-- publication request creation
-- admin review decisions
-- creation/updating of public copies
-- unpublishing public records
+### Auth-required
 
-### Progress sync
+- `/my-library` private library overview and creation forms
+- `/my-library/subjects/[subjectId]` private subject editor
+- `/my-library/entries/[entryId]` private entry editor
 
-Study-state helpers remain in:
+### Admin-required
 
-- [lib/history.ts](<lib/history.ts>)
-- [hooks/useStudyHistory.ts](<hooks/useStudyHistory.ts>)
-- [types/history.ts](<types/history.ts>)
+- `/admin` moderation dashboard and public catalog management
 
-But the persistence model changed:
+## Core Data Model
 
-- guests use browser-local persistence
-- signed-in users load/save through [app/api/user-progress/route.ts](<app/api/user-progress/route.ts>)
-- Mongo persistence helpers live in [lib/user-progress-store.ts](<lib/user-progress-store.ts>)
-
-The provider still applies theme/font on the client, but signed-in state is account-backed and merged once from local state on first login.
-
-## Mongo Collections
-
-Application data uses these collections:
+### Auth.js collections
 
 - `users`
 - `accounts`
 - `sessions`
 - `verificationTokens`
+
+### Application collections
+
 - `subjects`
 - `entries`
 - `publicationRequests`
@@ -92,7 +99,7 @@ Application data uses these collections:
 
 Represents both public and private subjects.
 
-Important fields:
+Key fields:
 
 - `title`
 - `slug`
@@ -104,16 +111,19 @@ Important fields:
 - `sourceSubjectId`
 - `publishedSubjectId`
 - `publishedFromRequestId`
-- timestamps and review metadata
+- `publishedAt`
+- `lastSubmittedAt`
+- `lastReviewedAt`
+- `reviewNotes`
 
 ### `entries`
 
 Represents both modules and materials.
 
-Important fields:
+Key fields:
 
 - `subjectId`
-- `kind: "module" | "material"`
+- `kind`
 - `title`
 - `slug`
 - `description`
@@ -123,16 +133,20 @@ Important fields:
 - `visibility`
 - `status`
 - `ownerUserId`
-- `linkedPublicEntryId`
 - `sourceEntryId`
+- `linkedPublicEntryId`
 - `publishedEntryId`
-- timestamps and review metadata
+- `publishedFromRequestId`
+- `publishedAt`
+- `lastSubmittedAt`
+- `lastReviewedAt`
+- `reviewNotes`
 
 ### `publicationRequests`
 
-Represents moderation requests for private content becoming public or updating public copies.
+Tracks review workflow for publishing or updating public content.
 
-Important fields:
+Key fields:
 
 - `requesterUserId`
 - `reviewerUserId`
@@ -142,156 +156,160 @@ Important fields:
 - `status`
 - `reviewNotes`
 - `snapshot`
-- timestamps
+- `reviewedAt`
 
 ### `userProgress`
 
-Stores the normalized `StudyHistoryState` per user.
+Stores account-backed study state.
 
-Important fields:
+Key fields:
 
 - `userId`
 - `state`
 - `migratedFromLocalAt`
 - `updatedAt`
 
-## Routes and Responsibilities
+## Content and Access Rules
 
-### Public pages
+### Visibility
 
-- [app/(site)/page.tsx](<app/(site)/page.tsx>) - homepage
-- [app/(site)/[subject]/page.tsx](<app/(site)/[subject]/page.tsx>) - public subject overview
-- [app/(site)/[subject]/[module]/page.tsx](<app/(site)/[subject]/[module]/page.tsx>) - public module page
-- [app/(site)/[subject]/materials/[material]/page.tsx](<app/(site)/[subject]/materials/[material]/page.tsx>) - public material page
+- Public catalog content is readable by anyone.
+- Private content is readable only by its owner.
 
-All public content routes are now dynamic server-rendered pages, not static filesystem-generated routes.
+### Status values
 
-Public module/material pages also surface user-linked private notes when the viewer is signed in.
+- `draft`
+- `pending_review`
+- `published`
+- `changes_requested`
 
-### Auth and account pages
+### Request status values
 
-- [app/(site)/login/page.tsx](<app/(site)/login/page.tsx>) - Google login entry
-- [app/(site)/user/page.tsx](<app/(site)/user/page.tsx>) - signed-in dashboard
-- [app/(site)/my-library/page.tsx](<app/(site)/my-library/page.tsx>) - library overview
-- [app/(site)/my-library/subjects/[subjectId]/page.tsx](<app/(site)/my-library/subjects/[subjectId]/page.tsx>) - subject editor
-- [app/(site)/my-library/entries/[entryId]/page.tsx](<app/(site)/my-library/entries/[entryId]/page.tsx>) - entry editor
+- `pending`
+- `approved`
+- `rejected`
 
-### Admin pages
+### Publishing rules
 
-- [app/(site)/admin/page.tsx](<app/(site)/admin/page.tsx>) - moderation dashboard
-- [app/(site)/admin/actions.ts](<app/(site)/admin/actions.ts>) - review and unpublish server actions
+- A private subject can be submitted for publication.
+- A private entry can be submitted for publication.
+- A private entry may optionally link to a public entry through `linkedPublicEntryId`.
+- Approval publishes a separate public record, not the same private record flipped to public.
+- Unpublishing removes the public copy and resets the private source back to draft.
 
-## Content Reading Layer
+## Important Server Modules
 
-[lib/content.ts](<lib/content.ts>) is the runtime repository layer.
+### `auth.ts`
 
-Key responsibilities:
+- Auth.js setup
+- Google provider
+- MongoDB adapter
+- session and JWT role hydration
 
-- fetch public navigation tree
-- fetch public subject/module/material content
-- fetch owned private subjects/entries
-- fetch linked private notes for a signed-in user
-- list publication requests
-- list published catalog items for admins
+### `lib/auth-helpers.ts`
 
-Important behavior:
+- `getViewer()`
+- `requireUser()`
+- `requireAdmin()`
 
-- it uses MongoDB when configured
-- it falls back to [lib/fs-content.ts](<lib/fs-content.ts>) for public seed content only
-- it maps Mongo documents into the shared `types/content.ts` shapes consumed by the UI
+### `lib/content.ts`
 
-## Filesystem Seed Layer
+Read-only repository layer for:
 
-[lib/fs-content.ts](<lib/fs-content.ts>) preserves the original filesystem parsing logic.
+- public navigation tree
+- subject/module/material lookup
+- user library reads
+- publication request listing
+- published catalog listing
 
-It is now used for:
+### `lib/content-management.ts`
 
-- local public-content fallback when MongoDB is missing
-- seed/import parity with `data/subjects`
+Write layer for:
 
-The Mongo seed script is:
+- creating, editing, and deleting private subjects
+- creating, editing, and deleting private entries
+- markdown text and file ingestion
+- submission for review
+- admin review decisions
+- public copy creation and updates
+- unpublish actions
 
-- [scripts/seed-mongodb.mjs](<scripts/seed-mongodb.mjs>)
+### `lib/mongodb.ts`
 
-That script:
+- MongoDB client creation
+- database access
+- app index creation
+- environment capability checks
 
-1. reads `data/subjects`
-2. parses subject/module/material metadata
-3. reads markdown
-4. extracts heading metadata
-5. upserts public `subjects` and `entries` into MongoDB
+### `lib/user-progress-store.ts`
 
-## UI Composition
+- load and save helpers for `userProgress`
 
-The main shell remains [components/layout/AppShell.tsx](<components/layout/AppShell.tsx>).
+### `hooks/useStudyHistory.ts`
 
-Supporting pieces:
+Client-side progress state source of truth for the UI:
 
-- [components/layout/AppTopBar.tsx](<components/layout/AppTopBar.tsx>) now includes auth-aware navigation and sign-out
-- [components/layout/Providers.tsx](<components/layout/Providers.tsx>) now wraps both `SessionProvider` and `StudyHistoryProvider`
-- [components/content/ModuleHeader.tsx](<components/content/ModuleHeader.tsx>) still owns visit/done/revision interactions
-- [components/content/ContentViewer.tsx](<components/content/ContentViewer.tsx>) still renders markdown
+- local hydration
+- remote sync for authenticated users
+- one-time local-to-remote merge
+- theme and font preference application
 
-## Study History Behavior
+## API and Server Action Entry Points
 
-The current behavior is:
+### Route handlers
 
-- `StudyHistoryProvider` hydrates from browser-local state first
-- if the user is authenticated, it loads remote progress from `/api/user-progress`
-- if no prior remote migration happened, it merges the initial local state into the account once
-- later changes debounce-save back to the server
-- local persistence is still maintained for resilience and guest mode
+- `app/api/auth/[...nextauth]/route.ts`
+- `app/api/user-progress/route.ts`
 
-This means UI components should keep using `useStudyHistory()` instead of bypassing the provider.
+### User library server actions
 
-## Important Constraints
+- `app/(site)/my-library/actions.ts`
 
-- Public content is intended to be Mongo-backed.
-- Private content is private by default.
-- Approved content becomes a separate public copy.
-- User edits after approval do not auto-update public records.
-- A new review cycle is required after post-approval edits.
-- Markdown uploads are text-only in v1.
-- No object storage layer exists yet for binary assets.
+### Admin server actions
+
+- `app/(site)/admin/actions.ts`
+
+## Seed and Fallback Content
+
+### Seed source
+
+- `data/subjects`
+
+### Seed script
+
+- `scripts/seed-mongodb.mjs`
+
+The seed script reads `data/subjects`, parses metadata and markdown, extracts headings, and upserts public `subjects` and `entries` into MongoDB.
 
 ## Environment Requirements
 
-Required env vars for full functionality:
+Full functionality requires:
 
 - `MONGODB_URI`
-- `MONGODB_DB` optional, defaults to `tracklearn`
 - `AUTH_SECRET`
 - `AUTH_GOOGLE_ID`
 - `AUTH_GOOGLE_SECRET`
 
-Without MongoDB:
+Optional:
 
-- public browsing still works via filesystem fallback
-- auth, private library, moderation, and remote progress sync do not
+- `MONGODB_DB` defaults to `tracklearn`
+
+Behavior without MongoDB:
+
+- public catalog still works through filesystem fallback
+- login, private library, admin moderation, and remote progress sync do not work
 
 ## Files to Read First
 
-If another coding agent needs fast orientation, start with:
+For fast orientation, open these in order:
 
-1. [project-description.md](<project-description.md>)
-2. [auth.ts](<auth.ts>)
-3. [lib/content.ts](<lib/content.ts>)
-4. [lib/content-management.ts](<lib/content-management.ts>)
-5. [hooks/useStudyHistory.ts](<hooks/useStudyHistory.ts>)
-6. [app/(site)/my-library/page.tsx](<app/(site)/my-library/page.tsx>)
-7. [app/(site)/admin/page.tsx](<app/(site)/admin/page.tsx>)
-
-## Current Status
-
-The implemented scaffold now includes:
-
-- Mongo-backed public content reads
-- Google auth with Mongo adapter
-- role-based admin access
-- private subject and entry authoring
-- markdown paste/upload for private entries
-- companion notes linked to public entries
-- publication request workflow
-- admin moderation dashboard
-- signed-in progress sync with guest local fallback
-- seed import from `data/subjects`
+1. `project-description.md`
+2. `auth.ts`
+3. `lib/auth-helpers.ts`
+4. `lib/content.ts`
+5. `lib/content-management.ts`
+6. `lib/mongodb.ts`
+7. `hooks/useStudyHistory.ts`
+8. `app/(site)/settings/page.tsx`
+9. `app/(site)/my-library/page.tsx`
+10. `app/(site)/admin/page.tsx`
