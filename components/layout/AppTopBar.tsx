@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
@@ -21,6 +21,18 @@ const themeOptions: Array<{ label: string; value: ThemeMode }> = [
   { label: "Reading", value: "reading" },
 ];
 
+function getNextTheme(mode: ThemeMode): ThemeMode {
+  if (mode === "light") {
+    return "dark";
+  }
+
+  if (mode === "dark") {
+    return "reading";
+  }
+
+  return "light";
+}
+
 export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarProps) {
   const pathname = usePathname();
   const { state, setFont, setTheme } = useStudyHistory();
@@ -33,6 +45,7 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
   const nextFont: ReadingFont = state.preferences.font === "outfit" ? "serif" : "outfit";
   const isAuthenticated = status === "authenticated" && Boolean(session?.user?.id);
   const isAdmin = session?.user?.role === "admin";
+  const nextTheme = getNextTheme(state.preferences.theme);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -171,18 +184,12 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
           <Link href="/" className="text-lg font-semibold tracking-tight">
             TrackLearn
           </Link>
-          <nav className="hidden items-center gap-2 text-sm text-[var(--muted)] sm:flex">
+          <nav className="hidden items-center gap-2 text-sm text-[var(--muted)] md:flex">
             <Link className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]" href="/">
               Home
             </Link>
             {isAuthenticated ? (
               <>
-                <Link
-                  className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                  href="/settings"
-                >
-                  Settings
-                </Link>
                 <Link
                   className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
                   href="/my-library"
@@ -201,29 +208,15 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
             ) : (
               <Link
                 className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                href="/settings"
+                href="/login"
               >
-                Settings
+                Login
               </Link>
             )}
           </nav>
         </div>
 
         <div className="flex items-center gap-2">
-          {isAuthenticated ? (
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="button-secondary px-4 py-3 text-sm font-semibold"
-            >
-              Sign Out
-            </button>
-          ) : (
-            <Link href="/settings" className="button-secondary px-4 py-3 text-sm font-semibold">
-              Settings
-            </Link>
-          )}
-
           <button
             type="button"
             onClick={() => setFont(nextFont)}
@@ -243,7 +236,17 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
             </span>
           </button>
 
-          <div className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel)] p-1 shadow-panel">
+          <button
+            type="button"
+            onClick={() => setTheme(nextTheme)}
+            className="button-secondary inline-flex h-11 w-11 items-center justify-center rounded-full md:hidden"
+            aria-label={`Switch display mode to ${nextTheme}`}
+            title={`Switch display mode to ${nextTheme}`}
+          >
+            <ThemeModeIcon mode={state.preferences.theme} />
+          </button>
+
+          <div className="hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel)] p-1 shadow-panel md:flex">
             {themeOptions.map((option) => (
               <button
                 key={option.value}

@@ -33,23 +33,19 @@ export function HomeDashboard({ subjects }: HomeDashboardProps) {
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted)]">
               Browse the shared study catalog, keep your progress synced when signed in, and build
-              private subjects or notes in your library. Repository content under <code>/data/subjects</code>{" "}
-              remains the seed source for the public catalog.
+              private subjects or notes in your library.
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/settings" className="button-secondary px-4 py-3 text-sm font-semibold">
-                Open Settings
-              </Link>
-              {latestVisit && latestModule ? (
+            {latestVisit && latestModule ? (
+              <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   href={latestModule.href}
                   className="button-primary px-4 py-3 text-sm font-semibold"
                 >
                   Continue {latestModule.title}
                 </Link>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="rounded-[2rem] border border-[var(--border)] bg-[var(--panel-alt)] p-5">

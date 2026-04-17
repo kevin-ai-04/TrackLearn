@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { ModuleList } from "@/components/sidebar/ModuleList";
 import { SubjectList } from "@/components/sidebar/SubjectList";
@@ -15,6 +18,7 @@ interface SidebarProps {
   currentPathLabel: string;
   currentPathHint?: string;
   headings: HeadingItem[];
+  navigationPlacement?: "top" | "bottom";
 }
 
 export function Sidebar({
@@ -25,8 +29,69 @@ export function Sidebar({
   currentPathLabel,
   currentPathHint,
   headings,
+  navigationPlacement = "bottom",
 }: SidebarProps) {
+  const pathname = usePathname();
+  const { data: session, status } = useSession();
   const currentSubject = subjects.find((subject) => subject.slug === currentSubjectSlug);
+  const isAuthenticated = status === "authenticated" && Boolean(session?.user?.id);
+  const isAdmin = session?.user?.role === "admin";
+
+  const primaryLinks = [
+    { href: "/", label: "Home" },
+    ...(isAuthenticated ? [{ href: "/my-library", label: "My Library" }] : [{ href: "/login", label: "Login" }]),
+    ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
+  ];
+
+  const secondaryLinks = [{ href: "/settings", label: "Settings" }];
+
+  const isActiveLink = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
+  const navigationCard = (
+    <section className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
+        Navigate
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {primaryLinks.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "rounded-full px-3 py-2 text-sm font-semibold transition",
+              isActiveLink(item.href)
+                ? "bg-[var(--accent)] text-white"
+                : "button-secondary text-[var(--foreground)]",
+            )}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
+      <div className="mt-3 border-t border-[var(--border)] pt-3">
+        {secondaryLinks.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "inline-flex rounded-full px-3 py-2 text-sm font-semibold transition",
+              isActiveLink(item.href)
+                ? "bg-[var(--accent)] text-white"
+                : "button-secondary text-[var(--foreground)]",
+            )}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
 
   return (
     <div
@@ -36,6 +101,8 @@ export function Sidebar({
       )}
     >
       <section className="panel flex min-h-0 flex-col gap-5 overflow-hidden rounded-[2rem] p-5">
+        {navigationPlacement === "top" ? navigationCard : null}
+
         <div className="rounded-[1.5rem] bg-[var(--panel-alt)] p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
             Current Path
@@ -46,10 +113,9 @@ export function Sidebar({
           ) : null}
         </div>
 
-        <SubjectList subjects={subjects} activeSubjectSlug={currentSubjectSlug} />
-
-        {currentSubject ? (
-          <div className="min-h-0 overflow-y-auto pr-1">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pr-1">
+          <SubjectList subjects={subjects} activeSubjectSlug={currentSubjectSlug} />
+          {currentSubject ? (
             <ModuleList
               subjectSlug={currentSubject.slug}
               materials={currentSubject.materials}
@@ -57,10 +123,11 @@ export function Sidebar({
               activeModuleSlug={currentModuleSlug}
               activeMaterialSlug={currentMaterialSlug}
             />
-          </div>
-        ) : null}
+          ) : null}
+          <HistoryPanel subjects={subjects} />
+        </div>
 
-        <HistoryPanel subjects={subjects} />
+        {navigationPlacement === "bottom" ? navigationCard : null}
       </section>
 
       {headings.length ? (

@@ -78,6 +78,7 @@ export function MobileSidebar({
                 currentPathLabel={currentPathLabel}
                 currentPathHint={currentPathHint}
                 headings={headings}
+                navigationPlacement="top"
               />
             </div>
           </motion.aside>

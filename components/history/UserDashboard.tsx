@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { ImportExportDialog } from "@/components/history/ImportExportDialog";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
@@ -30,6 +31,7 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
   const { hydrated, isAuthenticated, state, syncStatus, setFont, setTheme, resetState } = useStudyHistory();
   const [dialogMode, setDialogMode] = useState<"import" | "export" | null>(null);
   const [isResetPending, setIsResetPending] = useState(false);
+  const [isSignOutPending, setIsSignOutPending] = useState(false);
 
   const subjectMetrics = subjects.map((subject) => {
     const records = subject.modules.map((module) => state.modules[`${subject.slug}::${module.slug}`]);
@@ -64,6 +66,15 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
 
     resetState();
     setIsResetPending(false);
+  };
+
+  const handleSignOutClick = async () => {
+    if (!isSignOutPending) {
+      setIsSignOutPending(true);
+      return;
+    }
+
+    await signOut({ callbackUrl: "/" });
   };
 
   return (
@@ -112,12 +123,38 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
                 <Link href="/login" className="button-primary px-4 py-3 text-sm font-semibold">
                   Go To Login
                 </Link>
-              ) : (
+              ) : null}
+            </div>
+            {isAuthenticated ? (
+              <div className="mt-4 flex flex-wrap gap-3">
                 <Link href="/my-library" className="button-secondary px-4 py-3 text-sm font-semibold">
                   Open My Library
                 </Link>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={handleSignOutClick}
+                  className={`px-4 py-3 text-sm font-semibold transition ${
+                    isSignOutPending ? "rounded-full bg-rose-600 text-white hover:bg-rose-700" : "button-secondary"
+                  }`}
+                >
+                  {isSignOutPending ? "Confirm Sign Out" : "Sign Out"}
+                </button>
+                {isSignOutPending ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsSignOutPending(false)}
+                    className="button-secondary px-4 py-3 text-sm font-semibold"
+                  >
+                    Cancel
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+            {isSignOutPending ? (
+              <p className="mt-4 text-sm text-rose-600">
+                Signing out will end the current session on this device.
+              </p>
+            ) : null}
           </div>
         </section>
 
