@@ -26,7 +26,7 @@ const fontOptions: Array<{ label: string; value: ReadingFont; description: strin
 ];
 
 export function UserDashboard({ subjects }: UserDashboardProps) {
-  const { hydrated, state, setFont, setTheme, resetState } = useStudyHistory();
+  const { hydrated, isAuthenticated, state, syncStatus, setFont, setTheme, resetState } = useStudyHistory();
   const [dialogMode, setDialogMode] = useState<"import" | "export" | null>(null);
   const [isResetPending, setIsResetPending] = useState(false);
 
@@ -73,11 +73,11 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
             User Dashboard
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Local progress, preferences, and portable study state.
+            Progress, preferences, and portable study state.
           </h1>
           <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--muted)]">
-            All tracking stays in the browser. Export it as readable text or CSV, then import it
-            later on the same device or a different one.
+            Signed-in progress syncs to your account. Guest progress stays in the browser. You can
+            still export readable text and import it later on the same device or a different one.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -154,8 +154,8 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
             </p>
             <h2 className="mt-2 text-xl font-semibold">Import or export progress</h2>
             <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-              Text export preserves preferences, recent activity, and per-module state. CSV focuses
-              on module status rows and can be used in spreadsheets.
+              Text export preserves preferences, recent activity, and per-module state in a single
+              portable snapshot.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -206,7 +206,16 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
             ) : null}
 
             <p className="mt-5 text-sm text-[var(--muted)]">
-              Storage status: {hydrated ? "Loaded from browser persistence." : "Hydrating local state..."}
+              Storage status:{" "}
+              {!hydrated
+                ? "Hydrating study state..."
+                : isAuthenticated
+                  ? syncStatus === "error"
+                    ? "Signed in, but sync failed."
+                    : syncStatus === "syncing"
+                      ? "Syncing account state..."
+                      : "Connected to account sync."
+                  : "Using browser-local state."}
             </p>
           </section>
         </div>

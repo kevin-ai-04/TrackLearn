@@ -59,6 +59,8 @@ export interface ModuleReference {
 
 export interface StudyHistoryContextValue {
   hydrated: boolean;
+  isAuthenticated: boolean;
+  syncStatus: "local" | "syncing" | "synced" | "error";
   state: StudyHistoryState;
   markVisited: (moduleRef: ModuleReference) => void;
   setDone: (moduleRef: ModuleReference, value?: boolean) => void;
@@ -67,8 +69,6 @@ export interface StudyHistoryContextValue {
   setFont: (font: ReadingFont) => void;
   getModuleRecord: (subjectSlug: string, moduleSlug: string) => ModuleHistoryRecord | undefined;
   exportText: () => string;
-  exportCsv: () => string;
   importText: (raw: string, mode: ImportMode) => ImportValidationResult;
-  importCsv: (raw: string, mode: ImportMode) => ImportValidationResult;
   resetState: () => void;
 }

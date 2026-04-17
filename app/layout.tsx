@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Outfit, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
+import { auth } from "@/auth";
 import { Providers } from "@/components/layout/Providers";
 
 const outfit = Outfit({
@@ -45,11 +46,13 @@ const themeBootstrap = `
   })();
 `;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html
       lang="en"
@@ -60,7 +63,7 @@ export default function RootLayout({
         <Script id="tracklearn-theme-bootstrap" strategy="beforeInteractive">
           {themeBootstrap}
         </Script>
-        <Providers>{children}</Providers>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   );

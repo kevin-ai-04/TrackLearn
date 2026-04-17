@@ -10,10 +10,8 @@ import type {
 import { normalizeRouteSegment } from "@/lib/utils";
 
 const STORAGE_KEY = "tracklearn.study-history.v1";
-const COOKIE_KEY = "tracklearn_study_history_v1";
 const HISTORY_VERSION = 1 as const;
 const MAX_RECENT_ACTIVITY = 24;
-const MAX_COOKIE_LENGTH = 3500;
 
 function isThemeMode(value: unknown): value is ThemeMode {
   return value === "light" || value === "dark" || value === "reading";
@@ -102,27 +100,6 @@ export function normalizeHistoryState(value: unknown): StudyHistoryState {
   };
 }
 
-function readCookie(name: string) {
-  if (typeof document === "undefined") {
-    return null;
-  }
-
-  const value = document.cookie
-    .split("; ")
-    .find((part) => part.startsWith(`${name}=`))
-    ?.split("=")[1];
-
-  return value ? decodeURIComponent(value) : null;
-}
-
-function writeCookie(name: string, value: string) {
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax`;
-}
-
 export function loadHistoryState(): StudyHistoryState {
   if (typeof window === "undefined") {
     return createEmptyHistoryState();
@@ -134,26 +111,10 @@ export function loadHistoryState(): StudyHistoryState {
       return normalizeHistoryState(JSON.parse(raw));
     }
   } catch {
-    // Fall through to cookie storage.
-  }
-
-  try {
-    const cookieValue = readCookie(COOKIE_KEY);
-    if (cookieValue) {
-      return normalizeHistoryState(JSON.parse(cookieValue));
-    }
-  } catch {
-    // Ignore invalid cookie state and continue with defaults.
+    // Ignore invalid local storage state and continue with defaults.
   }
 
   return createEmptyHistoryState();
-}
-
-function buildCookieSnapshot(state: StudyHistoryState): StudyHistoryState {
-  return {
-    ...state,
-    recentActivity: state.recentActivity.slice(0, 10),
-  };
 }
 
 export function persistHistoryState(state: StudyHistoryState) {
@@ -167,14 +128,8 @@ export function persistHistoryState(state: StudyHistoryState) {
   try {
     window.localStorage.setItem(STORAGE_KEY, serialized);
   } catch {
-    // Cookie backup is handled below.
+    // Ignore persistence errors.
   }
-
-  const cookieSource = JSON.stringify(buildCookieSnapshot(normalized));
-  writeCookie(
-    COOKIE_KEY,
-    cookieSource.length > MAX_COOKIE_LENGTH ? JSON.stringify(createEmptyHistoryState()) : cookieSource,
-  );
 }
 
 function mergeRecentActivity(existing: StudyHistoryState["recentActivity"], incoming: StudyHistoryState["recentActivity"]) {
@@ -346,78 +301,6 @@ export function exportHistoryAsText(state: StudyHistoryState) {
   );
 }
 
-function escapeCsv(value: string | number | boolean | null) {
-  const normalized = value === null ? "" : String(value);
-  if (normalized.includes(",") || normalized.includes("\"") || normalized.includes("\n")) {
-    return `"${normalized.replaceAll("\"", "\"\"")}"`;
-  }
-  return normalized;
-}
-
-export function exportHistoryAsCsv(state: StudyHistoryState) {
-  const header = [
-    "subject_slug",
-    "module_slug",
-    "visited",
-    "last_visited_timestamp",
-    "done",
-    "need_revision",
-  ];
-
-  const rows = Object.values(state.modules)
-    .sort((left, right) => `${left.subjectSlug}/${left.moduleSlug}`.localeCompare(`${right.subjectSlug}/${right.moduleSlug}`))
-    .map((record) =>
-      [
-        escapeCsv(record.subjectSlug),
-        escapeCsv(record.moduleSlug),
-        escapeCsv(record.visited),
-        escapeCsv(record.lastVisitedAt),
-        escapeCsv(record.done),
-        escapeCsv(record.needsRevision),
-      ].join(","),
-    );
-
-  return [header.join(","), ...rows].join("\n");
-}
-
-function parseCsvLine(line: string) {
-  const values: string[] = [];
-  let current = "";
-  let inQuotes = false;
-
-  for (let index = 0; index < line.length; index += 1) {
-    const character = line[index];
-    const nextCharacter = line[index + 1];
-
-    if (character === "\"") {
-      if (inQuotes && nextCharacter === "\"") {
-        current += "\"";
-        index += 1;
-        continue;
-      }
-
-      inQuotes = !inQuotes;
-      continue;
-    }
-
-    if (character === "," && !inQuotes) {
-      values.push(current);
-      current = "";
-      continue;
-    }
-
-    current += character;
-  }
-
-  values.push(current);
-  return values;
-}
-
-function parseBoolean(value: string) {
-  const normalized = value.trim().toLowerCase();
-  return normalized === "true" || normalized === "1" || normalized === "yes";
-}
-
 export function parseTextImport(raw: string): ImportValidationResult {
   if (!raw.trim()) {
     return {
@@ -442,90 +325,4 @@ export function parseTextImport(raw: string): ImportValidationResult {
       message: "The pasted text export is not valid JSON.",
     };
   }
-}
-
-export function parseCsvImport(raw: string): ImportValidationResult {
-  if (!raw.trim()) {
-    return {
-      valid: false,
-      message: "Paste CSV content before importing.",
-    };
-  }
-
-  const lines = raw
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  if (lines.length < 2) {
-    return {
-      valid: false,
-      message: "The CSV input needs a header row and at least one data row.",
-    };
-  }
-
-  const headers = parseCsvLine(lines[0]).map((value) => value.trim().toLowerCase());
-  const requiredHeaders = [
-    "subject_slug",
-    "module_slug",
-    "visited",
-    "last_visited_timestamp",
-    "done",
-    "need_revision",
-  ];
-
-  const missingHeader = requiredHeaders.find((header) => !headers.includes(header));
-  if (missingHeader) {
-    return {
-      valid: false,
-      message: `CSV is missing the required "${missingHeader}" column.`,
-    };
-  }
-
-  const headerIndex = Object.fromEntries(headers.map((header, index) => [header, index]));
-  const state = createEmptyHistoryState();
-
-  lines.slice(1).forEach((line) => {
-    const values = parseCsvLine(line);
-    const subjectSlug = values[headerIndex.subject_slug]?.trim();
-    const moduleSlug = normalizeRouteSegment(values[headerIndex.module_slug]?.trim() ?? "");
-
-    if (!subjectSlug || !moduleSlug) {
-      return;
-    }
-
-    const key = getModuleKey(subjectSlug, moduleSlug);
-    const visited = parseBoolean(values[headerIndex.visited] ?? "");
-    const lastVisitedAt = values[headerIndex.last_visited_timestamp]?.trim() || null;
-    const done = parseBoolean(values[headerIndex.done] ?? "");
-    const needsRevision = parseBoolean(values[headerIndex.need_revision] ?? "");
-
-    state.modules[key] = {
-      subjectSlug,
-      moduleSlug,
-      visited,
-      visitCount: visited ? 1 : 0,
-      lastVisitedAt,
-      done,
-      needsRevision,
-    };
-
-    if (lastVisitedAt) {
-      state.recentActivity.push({
-        subjectSlug,
-        moduleSlug,
-        visitedAt: lastVisitedAt,
-      });
-    }
-  });
-
-  state.recentActivity = state.recentActivity
-    .sort((left, right) => right.visitedAt.localeCompare(left.visitedAt))
-    .slice(0, MAX_RECENT_ACTIVITY);
-
-  return {
-    valid: true,
-    message: `Loaded ${Object.keys(state.modules).length} module rows from CSV.`,
-    state,
-  };
 }

@@ -2,284 +2,296 @@
 
 ## Purpose
 
-TrackLearn is a filesystem-driven study and documentation app built with Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, and markdown tooling. The application is designed so that new content can be added by editing only the `/data` directory. No CMS, database, or server-side user storage is required.
+TrackLearn is a MongoDB-backed study platform built with Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, Auth.js, and markdown tooling.
 
-## Content Structure
+The app now supports three product areas:
 
-The content model is strict and follows this hierarchy:
+- a public study catalog
+- a signed-in private user library for custom content
+- an admin moderation dashboard for publication requests
 
-```text
-/data
-  /subjects
-    /[subjectSlug]
-      meta.json
-      /materials
-        /[materialSlug]
-          meta.json
-          content.md
-      /modules
-        /[moduleSlug]
-          meta.json
-          content.md
-```
+The repository `data/subjects` directory is no longer the live runtime source of truth. It is the seed/import source for the public catalog.
 
-### Subject metadata
+## Runtime Architecture
 
-Each subject must contain `meta.json` with at least:
+### Public content
 
-- `title`
+Public subjects, modules, and materials are read through [lib/content.ts](<lib/content.ts>).
 
-Optional fields:
+At runtime:
 
-- `order`
-- `description`
+1. If MongoDB is configured, public catalog reads come from MongoDB.
+2. If MongoDB is not configured, public pages fall back to filesystem seed data through [lib/fs-content.ts](<lib/fs-content.ts>).
 
-### Module metadata
+This fallback is mainly for local resilience. The intended production path is MongoDB-backed content.
 
-Each module must contain `meta.json` with at least:
+### Authentication
 
-- `title`
+Auth is configured in [auth.ts](<auth.ts>) using:
 
-Optional fields:
+- Auth.js / NextAuth
+- Google provider
+- MongoDB adapter
 
-- `order`
-- `description`
+Supporting files:
 
-Each module must also contain `content.md`.
+- [app/api/auth/[...nextauth]/route.ts](<app/api/auth/[...nextauth]/route.ts>)
+- [lib/auth-helpers.ts](<lib/auth-helpers.ts>)
+- [types/next-auth.d.ts](<types/next-auth.d.ts>)
 
-### Material metadata
+User roles are stored on Mongo `users` documents with:
 
-Each material must contain `meta.json` with at least:
+- `role: "user" | "admin"`
 
-- `title`
+### Private content and moderation
 
-Optional fields:
+Private content creation, review submission, approval, rejection, and unpublish logic lives in:
 
-- `order`
-- `description`
+- [lib/content-management.ts](<lib/content-management.ts>)
 
-Each material must also contain `content.md`.
+This file is the main mutation layer for:
 
-The filesystem itself defines the route structure and content tree. No `.txt` index files are used.
+- private subject CRUD
+- private entry CRUD
+- markdown upload/paste parsing
+- publication request creation
+- admin review decisions
+- creation/updating of public copies
+- unpublishing public records
 
-## Build-Time Content Loading
+### Progress sync
 
-The build-time content pipeline lives in [lib/content.ts](<lib/content.ts>).
-
-### What it does
-
-1. Reads `data/subjects`.
-2. Discovers all subject folders.
-3. Reads each subject `meta.json`.
-4. Reads each material folder under `materials`.
-5. Reads each material `meta.json` and `content.md`.
-6. Reads each module folder under `modules`.
-7. Reads each module `meta.json` and `content.md`.
-8. Extracts h1-h3 headings from markdown.
-9. Sorts subjects, materials, and modules by `order`, then by `title`.
-10. Produces a normalized content tree used by the app.
-
-### Returned model
-
-The loader returns typed `SubjectContent`, `MaterialContent`, and `ModuleContent` objects from [types/content.ts](<types/content.ts>). Each material and module includes:
-
-- subject and item slugs
-- titles and descriptions
-- raw markdown content
-- extracted heading metadata
-- resolved href
-
-`getAllModuleParams()` is used by the module route to statically pre-render every module page.
-`getAllMaterialParams()` is used by the material route to statically pre-render every material page.
-
-## Markdown Rendering and TOC
-
-Markdown helpers live in [lib/markdown.ts](<lib/markdown.ts>).
-
-### Markdown flow
-
-1. Raw markdown is read at build time.
-2. Headings are parsed from the markdown AST with `remark-parse` and `unist-util-visit`.
-3. Heading IDs are generated with `github-slugger` so they stay aligned with `rehype-slug`.
-4. The module page renders markdown with `react-markdown`, `remark-gfm`, `rehype-slug`, and `rehype-autolink-headings`.
-
-### TOC flow
-
-- The module page passes extracted heading data into the sidebar.
-- [components/toc/TableOfContents.tsx](<components/toc/TableOfContents.tsx>) groups headings by level and renders a navigation tree.
-- Clicking a TOC item scrolls smoothly to the target section.
-- An `IntersectionObserver` powers scroll spy and highlights the active section.
-
-## Routing and Rendering
-
-### Pages
-
-- Homepage: [app/(site)/page.tsx](<app/(site)/page.tsx>)
-- User dashboard: [app/(site)/user/page.tsx](<app/(site)/user/page.tsx>)
-- Subject overview: [app/(site)/[subject]/page.tsx](<app/(site)/[subject]/page.tsx>)
-- Material page: [app/(site)/[subject]/materials/[material]/page.tsx](<app/(site)/[subject]/materials/[material]/page.tsx>)
-- Module page: [app/(site)/[subject]/[module]/page.tsx](<app/(site)/[subject]/[module]/page.tsx>)
-
-### Rendering model
-
-- Content discovery happens on the server at build time.
-- Subject and module pages use static generation.
-- Interactive UI pieces are isolated into client components.
-- The markdown viewer itself remains lightweight and receives already-loaded content.
-
-## Layout and UI Composition
-
-The main shell is [components/layout/AppShell.tsx](<components/layout/AppShell.tsx>).
-
-### Shell responsibilities
-
-- renders the sticky top bar
-- manages desktop vs mobile sidebar behavior
-- drives page transition animation
-- passes subject/module context to the sidebar
-
-### Sidebar responsibilities
-
-[components/sidebar/Sidebar.tsx](<components/sidebar/Sidebar.tsx>) owns the left column layout:
-
-- top-left compact path header
-- subject switcher
-- current subject module list
-- recent history panel
-- bottom-left table of contents panel
-
-The mobile version is [components/mobile/MobileSidebar.tsx](<components/mobile/MobileSidebar.tsx>) and uses Framer Motion for the slide-in drawer.
-
-### Content view responsibilities
-
-- [components/content/ModuleHeader.tsx](<components/content/ModuleHeader.tsx>) shows breadcrumbs, module metadata, done toggle, need-revision toggle, and previous/next navigation.
-- [components/content/ContentViewer.tsx](<components/content/ContentViewer.tsx>) renders markdown with readable typography and anchor-enabled headings.
-
-## User Data, Preferences, and History
-
-The local study-state system is split between:
+Study-state helpers remain in:
 
 - [lib/history.ts](<lib/history.ts>)
 - [hooks/useStudyHistory.ts](<hooks/useStudyHistory.ts>)
 - [types/history.ts](<types/history.ts>)
 
-### Stored data
+But the persistence model changed:
 
-The persisted state includes:
+- guests use browser-local persistence
+- signed-in users load/save through [app/api/user-progress/route.ts](<app/api/user-progress/route.ts>)
+- Mongo persistence helpers live in [lib/user-progress-store.ts](<lib/user-progress-store.ts>)
 
-- theme preference
-- reading font preference
-- per-module visited flag
-- visit count
-- last visited timestamp
-- done flag
-- need revision flag
-- recent activity list
+The provider still applies theme/font on the client, but signed-in state is account-backed and merged once from local state on first login.
 
-### Persistence strategy
+## Mongo Collections
 
-- Primary persistence uses `localStorage`.
-- A cookie-backed JSON snapshot is also written for browser-local backup compatibility.
-- The provider restores state on the client after hydration and applies `data-theme` and `data-font` attributes to the document root.
+Application data uses these collections:
 
-### Main state operations
+- `users`
+- `accounts`
+- `sessions`
+- `verificationTokens`
+- `subjects`
+- `entries`
+- `publicationRequests`
+- `userProgress`
 
-`lib/history.ts` contains pure helpers for:
+### `subjects`
 
-- loading persisted state
-- normalizing imported or stored data
-- marking module visits
-- toggling done / need revision
-- updating theme and font preferences
-- exporting text and CSV
-- importing and merging or replacing state
+Represents both public and private subjects.
 
-`useStudyHistory` wraps those helpers in a React context so UI components can read and update state without duplicating storage logic.
+Important fields:
 
-## Import / Export Flow
+- `title`
+- `slug`
+- `description`
+- `order`
+- `visibility`
+- `status`
+- `ownerUserId`
+- `sourceSubjectId`
+- `publishedSubjectId`
+- `publishedFromRequestId`
+- timestamps and review metadata
 
-[components/history/ImportExportDialog.tsx](<components/history/ImportExportDialog.tsx>) handles client-side import/export UX.
+### `entries`
 
-### Export
+Represents both modules and materials.
 
-- Text export serializes the full state as readable JSON.
-- CSV export serializes per-module progress rows with:
-  - `subject_slug`
-  - `module_slug`
-  - `visited`
-  - `last_visited_timestamp`
-  - `done`
-  - `need_revision`
+Important fields:
 
-### Import
+- `subjectId`
+- `kind: "module" | "material"`
+- `title`
+- `slug`
+- `description`
+- `order`
+- `markdown`
+- `headings`
+- `visibility`
+- `status`
+- `ownerUserId`
+- `linkedPublicEntryId`
+- `sourceEntryId`
+- `publishedEntryId`
+- timestamps and review metadata
 
-- Text import parses the JSON export and restores full state.
-- CSV import parses module rows and restores module-level progress data.
-- Merge and replace behaviors are supported.
-- CSV merge intentionally preserves existing preferences because CSV does not carry theme/font data.
+### `publicationRequests`
 
-## Homepage and User Dashboard
+Represents moderation requests for private content becoming public or updating public copies.
 
-### Homepage
+Important fields:
 
-[components/home/HomeDashboard.tsx](<components/home/HomeDashboard.tsx>) provides:
+- `requesterUserId`
+- `reviewerUserId`
+- `subjectId`
+- `entryId`
+- `requestType`
+- `status`
+- `reviewNotes`
+- `snapshot`
+- timestamps
 
-- subject discovery overview
-- recent work continuation
-- subject entry cards
-- local history preview
+### `userProgress`
 
-### User dashboard
+Stores the normalized `StudyHistoryState` per user.
 
-[components/history/UserDashboard.tsx](<components/history/UserDashboard.tsx>) provides:
+Important fields:
 
-- aggregate progress summary
-- subject-by-subject metrics
-- theme selection
-- font selection
-- import/export actions
-- recent activity view
+- `userId`
+- `state`
+- `migratedFromLocalAt`
+- `updatedAt`
 
-## Design Decisions
+## Routes and Responsibilities
 
-### Why filesystem-first
+### Public pages
 
-The user wanted new content to require only `/data` edits. The architecture keeps content ownership separate from UI logic and removes the need for a content backend.
+- [app/(site)/page.tsx](<app/(site)/page.tsx>) - homepage
+- [app/(site)/[subject]/page.tsx](<app/(site)/[subject]/page.tsx>) - public subject overview
+- [app/(site)/[subject]/[module]/page.tsx](<app/(site)/[subject]/[module]/page.tsx>) - public module page
+- [app/(site)/[subject]/materials/[material]/page.tsx](<app/(site)/[subject]/materials/[material]/page.tsx>) - public material page
 
-### Why static generation
+All public content routes are now dynamic server-rendered pages, not static filesystem-generated routes.
 
-Subjects and modules are deterministic from the repository contents, so static generation is the simplest and most scalable choice. It also keeps runtime logic light.
+Public module/material pages also surface user-linked private notes when the viewer is signed in.
 
-### Why client-only local history
+### Auth and account pages
 
-Progress, preferences, and revision flags are explicitly user-local. Keeping them in browser persistence avoids authentication, server storage, and privacy complexity.
+- [app/(site)/login/page.tsx](<app/(site)/login/page.tsx>) - Google login entry
+- [app/(site)/user/page.tsx](<app/(site)/user/page.tsx>) - signed-in dashboard
+- [app/(site)/my-library/page.tsx](<app/(site)/my-library/page.tsx>) - library overview
+- [app/(site)/my-library/subjects/[subjectId]/page.tsx](<app/(site)/my-library/subjects/[subjectId]/page.tsx>) - subject editor
+- [app/(site)/my-library/entries/[entryId]/page.tsx](<app/(site)/my-library/entries/[entryId]/page.tsx>) - entry editor
 
-### Why separate server and client layers
+### Admin pages
 
-Build-time content loading and static routing belong on the server side. Progress tracking, theme switching, TOC highlighting, and import/export are inherently interactive and remain client-side.
+- [app/(site)/admin/page.tsx](<app/(site)/admin/page.tsx>) - moderation dashboard
+- [app/(site)/admin/actions.ts](<app/(site)/admin/actions.ts>) - review and unpublish server actions
+
+## Content Reading Layer
+
+[lib/content.ts](<lib/content.ts>) is the runtime repository layer.
+
+Key responsibilities:
+
+- fetch public navigation tree
+- fetch public subject/module/material content
+- fetch owned private subjects/entries
+- fetch linked private notes for a signed-in user
+- list publication requests
+- list published catalog items for admins
+
+Important behavior:
+
+- it uses MongoDB when configured
+- it falls back to [lib/fs-content.ts](<lib/fs-content.ts>) for public seed content only
+- it maps Mongo documents into the shared `types/content.ts` shapes consumed by the UI
+
+## Filesystem Seed Layer
+
+[lib/fs-content.ts](<lib/fs-content.ts>) preserves the original filesystem parsing logic.
+
+It is now used for:
+
+- local public-content fallback when MongoDB is missing
+- seed/import parity with `data/subjects`
+
+The Mongo seed script is:
+
+- [scripts/seed-mongodb.mjs](<scripts/seed-mongodb.mjs>)
+
+That script:
+
+1. reads `data/subjects`
+2. parses subject/module/material metadata
+3. reads markdown
+4. extracts heading metadata
+5. upserts public `subjects` and `entries` into MongoDB
+
+## UI Composition
+
+The main shell remains [components/layout/AppShell.tsx](<components/layout/AppShell.tsx>).
+
+Supporting pieces:
+
+- [components/layout/AppTopBar.tsx](<components/layout/AppTopBar.tsx>) now includes auth-aware navigation and sign-out
+- [components/layout/Providers.tsx](<components/layout/Providers.tsx>) now wraps both `SessionProvider` and `StudyHistoryProvider`
+- [components/content/ModuleHeader.tsx](<components/content/ModuleHeader.tsx>) still owns visit/done/revision interactions
+- [components/content/ContentViewer.tsx](<components/content/ContentViewer.tsx>) still renders markdown
+
+## Study History Behavior
+
+The current behavior is:
+
+- `StudyHistoryProvider` hydrates from browser-local state first
+- if the user is authenticated, it loads remote progress from `/api/user-progress`
+- if no prior remote migration happened, it merges the initial local state into the account once
+- later changes debounce-save back to the server
+- local persistence is still maintained for resilience and guest mode
+
+This means UI components should keep using `useStudyHistory()` instead of bypassing the provider.
+
+## Important Constraints
+
+- Public content is intended to be Mongo-backed.
+- Private content is private by default.
+- Approved content becomes a separate public copy.
+- User edits after approval do not auto-update public records.
+- A new review cycle is required after post-approval edits.
+- Markdown uploads are text-only in v1.
+- No object storage layer exists yet for binary assets.
+
+## Environment Requirements
+
+Required env vars for full functionality:
+
+- `MONGODB_URI`
+- `MONGODB_DB` optional, defaults to `tracklearn`
+- `AUTH_SECRET`
+- `AUTH_GOOGLE_ID`
+- `AUTH_GOOGLE_SECRET`
+
+Without MongoDB:
+
+- public browsing still works via filesystem fallback
+- auth, private library, moderation, and remote progress sync do not
 
 ## Files to Read First
 
-If another coding agent needs fast orientation, start with these files:
+If another coding agent needs fast orientation, start with:
 
 1. [project-description.md](<project-description.md>)
-2. [lib/content.ts](<lib/content.ts>)
-3. [lib/history.ts](<lib/history.ts>)
-4. [hooks/useStudyHistory.ts](<hooks/useStudyHistory.ts>)
-5. [components/layout/AppShell.tsx](<components/layout/AppShell.tsx>)
-6. [app/(site)/[subject]/[module]/page.tsx](<app/(site)/[subject]/[module]/page.tsx>)
+2. [auth.ts](<auth.ts>)
+3. [lib/content.ts](<lib/content.ts>)
+4. [lib/content-management.ts](<lib/content-management.ts>)
+5. [hooks/useStudyHistory.ts](<hooks/useStudyHistory.ts>)
+6. [app/(site)/my-library/page.tsx](<app/(site)/my-library/page.tsx>)
+7. [app/(site)/admin/page.tsx](<app/(site)/admin/page.tsx>)
 
 ## Current Status
 
-At this stage, the scaffold includes:
+The implemented scaffold now includes:
 
-- a complete content directory structure with sample subjects and modules
-- a build-time filesystem loader
-- static subject and module routes
-- a responsive two-column documentation layout
-- a mobile drawer sidebar
-- markdown rendering with heading anchors
-- TOC extraction and scroll spy
-- local progress and preference persistence
-- import/export support for text and CSV
-- a dedicated user dashboard
+- Mongo-backed public content reads
+- Google auth with Mongo adapter
+- role-based admin access
+- private subject and entry authoring
+- markdown paste/upload for private entries
+- companion notes linked to public entries
+- publication request workflow
+- admin moderation dashboard
+- signed-in progress sync with guest local fallback
+- seed import from `data/subjects`

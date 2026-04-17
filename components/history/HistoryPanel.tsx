@@ -42,7 +42,7 @@ export function HistoryPanel({
 
       {!hydrated ? (
         <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
-          Loading local study history...
+          Loading study history...
         </div>
       ) : recentItems.length ? (
         <div className="space-y-2">

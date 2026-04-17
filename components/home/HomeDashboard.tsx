@@ -12,7 +12,7 @@ interface HomeDashboardProps {
 }
 
 export function HomeDashboard({ subjects }: HomeDashboardProps) {
-  const { hydrated, state } = useStudyHistory();
+  const { hydrated, isAuthenticated, state } = useStudyHistory();
   const latestVisit = hydrated ? state.recentActivity[0] : null;
   const latestModule = latestVisit
     ? subjects
@@ -32,9 +32,9 @@ export function HomeDashboard({ subjects }: HomeDashboardProps) {
               TrackLearn
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted)]">
-              Track subjects from one homepage and keep content fully filesystem-driven. Add or
-              edit material inside <code>/data/subjects</code>, and TrackLearn discovers subjects,
-              modules, materials, headings, and routes automatically at build time.
+              Browse the shared study catalog, keep your progress synced when signed in, and build
+              private subjects or notes in your library. Repository content under <code>/data/subjects</code>{" "}
+              remains the seed source for the public catalog.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -62,13 +62,13 @@ export function HomeDashboard({ subjects }: HomeDashboardProps) {
                 <p className="mt-2 text-sm text-[var(--muted)]">{latestModule.subjectTitle}</p>
                 <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
                   Pick up from the last module you visited, with status and recent history already
-                  restored from local storage and cookie-backed persistence.
+                  restored from {isAuthenticated ? "your synced account state." : "local browser storage."}
                 </p>
               </>
             ) : (
               <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
                 No recent module yet. Open a subject below and the app will start tracking your
-                progress locally on this device.
+                progress {isAuthenticated ? "on your account." : "locally on this device."}
               </p>
             )}
           </div>

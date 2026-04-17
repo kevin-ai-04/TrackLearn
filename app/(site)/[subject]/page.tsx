@@ -10,12 +10,7 @@ interface SubjectPageProps {
   }>;
 }
 
-export async function generateStaticParams() {
-  const subjects = await getNavigationTree();
-  return subjects.map((subject) => ({ subject: subject.slug }));
-}
-
-export const dynamicParams = false;
+export const dynamic = "force-dynamic";
 
 export default async function SubjectPage({ params }: SubjectPageProps) {
   const resolvedParams = await params;
@@ -48,7 +43,7 @@ export default async function SubjectPage({ params }: SubjectPageProps) {
           ) : null}
           <p className="mt-5 text-sm text-[var(--muted)]">
             This subject contains {formatCount(subject.materials.length, "material")} and{" "}
-            {formatCount(subject.modules.length, "module")} discovered from the filesystem.
+            {formatCount(subject.modules.length, "module")} in the shared catalog.
           </p>
         </section>
 

@@ -13,9 +13,8 @@ interface ImportExportDialogProps {
 }
 
 export function ImportExportDialog({ open, mode, onClose }: ImportExportDialogProps) {
-  const { exportText, exportCsv, importText, importCsv } = useStudyHistory();
+  const { exportText, importText } = useStudyHistory();
   const [textInput, setTextInput] = useState("");
-  const [csvInput, setCsvInput] = useState("");
   const [importMode, setImportMode] = useState<ImportMode>("merge");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -28,7 +27,6 @@ export function ImportExportDialog({ open, mode, onClose }: ImportExportDialogPr
   }, [open]);
 
   const textExport = exportText();
-  const csvExport = exportCsv();
 
   const handleCopy = async () => {
     try {
@@ -40,23 +38,8 @@ export function ImportExportDialog({ open, mode, onClose }: ImportExportDialogPr
     }
   };
 
-  const handleDownloadCsv = () => {
-    const blob = new Blob([csvExport], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = "tracklearn-progress.csv";
-    anchor.click();
-    URL.revokeObjectURL(url);
-  };
-
   const runTextImport = () => {
     const result = importText(textInput, importMode);
-    setFeedback(result.message);
-  };
-
-  const runCsvImport = () => {
-    const result = importCsv(csvInput, importMode);
     setFeedback(result.message);
   };
 
@@ -92,7 +75,7 @@ export function ImportExportDialog({ open, mode, onClose }: ImportExportDialogPr
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold">
                     {mode === "export"
-                      ? "Move your local study state anywhere."
+                      ? "Move your study state anywhere."
                       : "Restore or merge study state from pasted data."}
                   </h2>
                 </div>
@@ -107,26 +90,14 @@ export function ImportExportDialog({ open, mode, onClose }: ImportExportDialogPr
               </div>
 
               {mode === "export" ? (
-                <div className="mt-6 space-y-5">
+                <div className="mt-6">
                   <div className="space-y-3">
                     <div className="flex flex-wrap gap-2">
                       <button type="button" onClick={handleCopy} className="button-primary px-4 py-3 text-sm font-semibold">
                         {copied ? "Copied" : "Copy Text Export"}
                       </button>
-                      <button
-                        type="button"
-                        onClick={handleDownloadCsv}
-                        className="button-secondary px-4 py-3 text-sm font-semibold"
-                      >
-                        Download CSV
-                      </button>
                     </div>
                     <textarea readOnly value={textExport} className="field min-h-56 font-mono text-xs" />
-                  </div>
-
-                  <div className="space-y-3">
-                    <p className="text-sm font-semibold">CSV Preview</p>
-                    <textarea readOnly value={csvExport} className="field min-h-40 font-mono text-xs" />
                   </div>
                 </div>
               ) : (
@@ -162,22 +133,6 @@ export function ImportExportDialog({ open, mode, onClose }: ImportExportDialogPr
                     />
                     <button type="button" onClick={runTextImport} className="button-primary px-4 py-3 text-sm font-semibold">
                       Import Text Data
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="text-sm font-semibold" htmlFor="csv-import">
-                      CSV content
-                    </label>
-                    <textarea
-                      id="csv-import"
-                      value={csvInput}
-                      onChange={(event) => setCsvInput(event.target.value)}
-                      placeholder="Paste CSV data here"
-                      className="field min-h-44 font-mono text-xs"
-                    />
-                    <button type="button" onClick={runCsvImport} className="button-secondary px-4 py-3 text-sm font-semibold">
-                      Import CSV Data
                     </button>
                   </div>
                 </div>

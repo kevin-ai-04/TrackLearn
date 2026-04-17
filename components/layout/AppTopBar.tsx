@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
@@ -23,12 +24,15 @@ const themeOptions: Array<{ label: string; value: ThemeMode }> = [
 export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarProps) {
   const pathname = usePathname();
   const { state, setFont, setTheme } = useStudyHistory();
+  const { data: session, status } = useSession();
   const [hidden, setHidden] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const lastScrollYRef = useRef(0);
   const navigationStartedAtRef = useRef<number | null>(null);
   const navigationResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextFont: ReadingFont = state.preferences.font === "outfit" ? "serif" : "outfit";
+  const isAuthenticated = status === "authenticated" && Boolean(session?.user?.id);
+  const isAdmin = session?.user?.role === "admin";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -171,13 +175,55 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
             <Link className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]" href="/">
               Home
             </Link>
-            <Link className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]" href="/user">
-              User
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
+                  href="/user"
+                >
+                  User
+                </Link>
+                <Link
+                  className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
+                  href="/my-library"
+                >
+                  My Library
+                </Link>
+                {isAdmin ? (
+                  <Link
+                    className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
+                    href="/admin"
+                  >
+                    Admin
+                  </Link>
+                ) : null}
+              </>
+            ) : (
+              <Link
+                className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
+                href="/login"
+              >
+                Login
+              </Link>
+            )}
           </nav>
         </div>
 
         <div className="flex items-center gap-2">
+          {isAuthenticated ? (
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="button-secondary px-4 py-3 text-sm font-semibold"
+            >
+              Sign Out
+            </button>
+          ) : (
+            <Link href="/login" className="button-secondary px-4 py-3 text-sm font-semibold">
+              Sign In
+            </Link>
+          )}
+
           <button
             type="button"
             onClick={() => setFont(nextFont)}

@@ -5,17 +5,18 @@ import {
   createElement,
   useContext,
   useEffect,
+  useRef,
   useState,
   type PropsWithChildren,
 } from "react";
+import { useSession } from "next-auth/react";
 import {
   createEmptyHistoryState,
-  exportHistoryAsCsv,
   exportHistoryAsText,
+  getModuleKey,
   loadHistoryState,
   mergeHistoryStates,
   normalizeHistoryState,
-  parseCsvImport,
   parseTextImport,
   persistHistoryState,
   setFontPreference,
@@ -41,12 +42,28 @@ function applyDocumentPreferences(state: StudyHistoryState) {
   document.documentElement.dataset.font = state.preferences.font;
 }
 
+function hasMeaningfulHistory(state: StudyHistoryState) {
+  return (
+    Object.keys(state.modules).length > 0 ||
+    state.recentActivity.length > 0 ||
+    state.preferences.theme !== "light" ||
+    state.preferences.font !== "outfit"
+  );
+}
+
 export function StudyHistoryProvider({ children }: PropsWithChildren) {
+  const { data: session, status: sessionStatus } = useSession();
   const [state, setState] = useState<StudyHistoryState>(createEmptyHistoryState);
   const [hydrated, setHydrated] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<"local" | "syncing" | "synced" | "error">("local");
+  const [remoteReady, setRemoteReady] = useState(false);
+  const localBootStateRef = useRef<StudyHistoryState>(createEmptyHistoryState());
+  const migratedFromLocalAtRef = useRef<string | null>(null);
+  const lastRemoteSerializedRef = useRef<string | null>(null);
 
   useEffect(() => {
     const loaded = normalizeHistoryState(loadHistoryState());
+    localBootStateRef.current = loaded;
     setState(loaded);
     applyDocumentPreferences(loaded);
     setHydrated(true);
@@ -61,8 +78,131 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
     applyDocumentPreferences(state);
   }, [hydrated, state]);
 
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    if (sessionStatus !== "authenticated" || !session?.user?.id) {
+      setRemoteReady(false);
+      setSyncStatus("local");
+      migratedFromLocalAtRef.current = null;
+      lastRemoteSerializedRef.current = null;
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadRemoteProgress = async () => {
+      setSyncStatus("syncing");
+
+      try {
+        const response = await fetch("/api/user-progress", {
+          method: "GET",
+          cache: "no-store",
+          credentials: "same-origin",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to load remote progress.");
+        }
+
+        const payload = (await response.json()) as {
+          state?: unknown;
+          migratedFromLocalAt?: string | null;
+        };
+
+        let remoteState = normalizeHistoryState(payload.state);
+        let migratedFromLocalAt = payload.migratedFromLocalAt ?? null;
+
+        if (!migratedFromLocalAt && hasMeaningfulHistory(localBootStateRef.current)) {
+          remoteState = mergeHistoryStates(remoteState, localBootStateRef.current, "merge");
+          migratedFromLocalAt = new Date().toISOString();
+
+          await fetch("/api/user-progress", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              state: remoteState,
+              migratedFromLocalAt,
+            }),
+          });
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        migratedFromLocalAtRef.current = migratedFromLocalAt;
+        lastRemoteSerializedRef.current = JSON.stringify(normalizeHistoryState(remoteState));
+        setState(remoteState);
+        setRemoteReady(true);
+        setSyncStatus("synced");
+      } catch {
+        if (!cancelled) {
+          setRemoteReady(false);
+          setSyncStatus("error");
+        }
+      }
+    };
+
+    void loadRemoteProgress();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, session?.user?.id, sessionStatus]);
+
+  useEffect(() => {
+    if (!hydrated || sessionStatus !== "authenticated" || !session?.user?.id || !remoteReady) {
+      return;
+    }
+
+    const serialized = JSON.stringify(normalizeHistoryState(state));
+
+    if (serialized === lastRemoteSerializedRef.current) {
+      return;
+    }
+
+    setSyncStatus("syncing");
+
+    const timeout = window.setTimeout(async () => {
+      try {
+        const response = await fetch("/api/user-progress", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            state,
+            migratedFromLocalAt: migratedFromLocalAtRef.current,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to save remote progress.");
+        }
+
+        lastRemoteSerializedRef.current = serialized;
+        setSyncStatus("synced");
+      } catch {
+        setSyncStatus("error");
+      }
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [hydrated, remoteReady, session?.user?.id, sessionStatus, state]);
+
   const value: StudyHistoryContextValue = {
     hydrated,
+    isAuthenticated: sessionStatus === "authenticated" && Boolean(session?.user?.id),
+    syncStatus,
     state,
     markVisited(moduleRef: ModuleReference) {
       setState((current) => updateModuleVisit(current, moduleRef));
@@ -80,13 +220,10 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
       setState((current) => setFontPreference(current, font));
     },
     getModuleRecord(subjectSlug: string, moduleSlug: string) {
-      return state.modules[`${subjectSlug}::${moduleSlug}`];
+      return state.modules[getModuleKey(subjectSlug, moduleSlug)];
     },
     exportText() {
       return exportHistoryAsText(state);
-    },
-    exportCsv() {
-      return exportHistoryAsCsv(state);
     },
     importText(raw: string, mode: ImportMode): ImportValidationResult {
       const parsed = parseTextImport(raw);
@@ -95,23 +232,6 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
       }
 
       setState((current) => mergeHistoryStates(current, parsed.state!, mode));
-      return parsed;
-    },
-    importCsv(raw: string, mode: ImportMode): ImportValidationResult {
-      const parsed = parseCsvImport(raw);
-      if (!parsed.valid || !parsed.state) {
-        return parsed;
-      }
-
-      setState((current) => {
-        const merged = mergeHistoryStates(current, parsed.state!, mode);
-        return mode === "merge"
-          ? {
-              ...merged,
-              preferences: current.preferences,
-            }
-          : merged;
-      });
       return parsed;
     },
     resetState() {

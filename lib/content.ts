@@ -1,37 +1,35 @@
 import "server-only";
 
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
-import { cache } from "react";
-import { extractMarkdownHeadings } from "@/lib/markdown";
+import { ObjectId } from "mongodb";
+import { unstable_noStore as noStore } from "next/cache";
+import { ensureAppIndexes, getDatabase, isDatabaseConfigured } from "@/lib/mongodb";
+import {
+  getFilesystemMaterialBySlugs,
+  getFilesystemModuleBySlugs,
+  getFilesystemNavigationTree,
+  getFilesystemSubjectBySlug,
+} from "@/lib/fs-content";
 import { normalizeRouteSegment } from "@/lib/utils";
+import type { Viewer } from "@/lib/auth-helpers";
 import type {
   ContentMeta,
+  EntryContent,
+  EntrySummary,
   MaterialContent,
   MaterialSummary,
   ModuleContent,
   ModuleSummary,
+  PublicationRequestSummary,
   SubjectContent,
   SubjectSummary,
+  UserLibraryData,
 } from "@/types/content";
-
-const SUBJECTS_ROOT = path.join(process.cwd(), "data", "subjects");
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function parseMeta(meta: unknown, label: string): ContentMeta {
-  if (!isRecord(meta) || typeof meta.title !== "string" || !meta.title.trim()) {
-    throw new Error(`Invalid metadata in ${label}: "title" is required.`);
-  }
-
-  return {
-    title: meta.title.trim(),
-    order: typeof meta.order === "number" ? meta.order : undefined,
-    description: typeof meta.description === "string" ? meta.description.trim() : undefined,
-  };
-}
+import type {
+  AuthUserDocument,
+  EntryDocument,
+  PublicationRequestDocument,
+  SubjectDocument,
+} from "@/types/database";
 
 function sortByOrderThenTitle<T extends ContentMeta>(items: T[]) {
   return [...items].sort((left, right) => {
@@ -46,184 +44,188 @@ function sortByOrderThenTitle<T extends ContentMeta>(items: T[]) {
   });
 }
 
-async function loadJson(filePath: string) {
-  const raw = await readFile(filePath, "utf8");
-  return JSON.parse(raw) as unknown;
-}
+function mapEntrySummary(entry: EntryDocument, subject: SubjectDocument): EntrySummary {
+  const base = {
+    id: entry._id.toHexString(),
+    title: entry.title,
+    order: entry.order,
+    description: entry.description,
+    slug: entry.slug,
+    subjectId: subject._id.toHexString(),
+    subjectSlug: subject.slug,
+    subjectTitle: subject.title,
+    headings: entry.headings,
+    href:
+      entry.kind === "module"
+        ? `/${subject.slug}/${entry.slug}`
+        : `/${subject.slug}/materials/${entry.slug}`,
+    visibility: entry.visibility,
+    status: entry.status,
+    ownerUserId: entry.ownerUserId,
+    sourceEntryId: entry.sourceEntryId,
+    linkedPublicEntryId: entry.linkedPublicEntryId,
+    publishedEntryId: entry.publishedEntryId,
+    publishedFromRequestId: entry.publishedFromRequestId,
+    publishedAt: entry.publishedAt,
+    lastSubmittedAt: entry.lastSubmittedAt,
+    lastReviewedAt: entry.lastReviewedAt,
+    reviewNotes: entry.reviewNotes,
+    createdAt: entry.createdAt,
+    updatedAt: entry.updatedAt,
+  };
 
-async function readChildDirectories(rootDir: string) {
-  try {
-    const entries = await readdir(rootDir, { withFileTypes: true });
-    return entries.filter((entry) => entry.isDirectory());
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      (error as { code?: string }).code === "ENOENT"
-    ) {
-      return [];
-    }
-
-    throw error;
+  if (entry.kind === "module") {
+    return {
+      ...base,
+      kind: "module",
+    } satisfies ModuleSummary;
   }
-}
 
-async function loadModule(subjectSlug: string, subjectTitle: string, moduleDirName: string) {
-  const moduleDir = path.join(SUBJECTS_ROOT, subjectSlug, "modules", moduleDirName);
-  const meta = parseMeta(await loadJson(path.join(moduleDir, "meta.json")), moduleDir);
-  const content = await readFile(path.join(moduleDir, "content.md"), "utf8");
-  const moduleSlug = normalizeRouteSegment(moduleDirName);
-
-  const moduleContent: ModuleContent = {
-    ...meta,
-    slug: moduleSlug,
-    subjectSlug,
-    subjectTitle,
-    content,
-    headings: extractMarkdownHeadings(content),
-    href: `/${subjectSlug}/${moduleSlug}`,
-  };
-
-  return moduleContent;
-}
-
-async function loadMaterial(subjectSlug: string, subjectTitle: string, materialDirName: string) {
-  const materialDir = path.join(SUBJECTS_ROOT, subjectSlug, "materials", materialDirName);
-  const meta = parseMeta(await loadJson(path.join(materialDir, "meta.json")), materialDir);
-  const content = await readFile(path.join(materialDir, "content.md"), "utf8");
-  const materialSlug = normalizeRouteSegment(materialDirName);
-
-  const materialContent: MaterialContent = {
-    ...meta,
-    slug: materialSlug,
-    subjectSlug,
-    subjectTitle,
-    content,
-    headings: extractMarkdownHeadings(content),
-    href: `/${subjectSlug}/materials/${materialSlug}`,
-  };
-
-  return materialContent;
-}
-
-async function loadSubject(subjectSlug: string) {
-  const subjectDir = path.join(SUBJECTS_ROOT, subjectSlug);
-  const meta = parseMeta(await loadJson(path.join(subjectDir, "meta.json")), subjectDir);
-  const [materialEntries, moduleEntries] = await Promise.all([
-    readChildDirectories(path.join(subjectDir, "materials")),
-    readChildDirectories(path.join(subjectDir, "modules")),
-  ]);
-
-  const uniqueMaterialEntries = materialEntries.reduce<Map<string, (typeof materialEntries)[number]>>(
-    (collection, entry) => {
-      const materialSlug = normalizeRouteSegment(entry.name);
-      const existingEntry = collection.get(materialSlug);
-
-      if (!existingEntry || (entry.name === materialSlug && existingEntry.name !== materialSlug)) {
-        collection.set(materialSlug, entry);
-      }
-
-      return collection;
-    },
-    new Map(),
-  );
-
-  const uniqueModuleEntries = moduleEntries.reduce<Map<string, (typeof moduleEntries)[number]>>(
-    (collection, entry) => {
-      const moduleSlug = normalizeRouteSegment(entry.name);
-      const existingEntry = collection.get(moduleSlug);
-
-      if (!existingEntry || (entry.name === moduleSlug && existingEntry.name !== moduleSlug)) {
-        collection.set(moduleSlug, entry);
-      }
-
-      return collection;
-    },
-    new Map(),
-  );
-
-  const [materials, modules] = await Promise.all([
-    Promise.all(
-      Array.from(uniqueMaterialEntries.values()).map((entry) =>
-        loadMaterial(subjectSlug, meta.title, entry.name),
-      ),
-    ),
-    Promise.all(
-      Array.from(uniqueModuleEntries.values()).map((entry) =>
-        loadModule(subjectSlug, meta.title, entry.name),
-      ),
-    ),
-  ]);
-
-  const subject: SubjectContent = {
-    ...meta,
-    slug: subjectSlug,
-    materials: sortByOrderThenTitle(materials),
-    modules: sortByOrderThenTitle(modules),
-  };
-
-  return subject;
-}
-
-export const getContentTree = cache(async () => {
-  const subjectEntries = await readdir(SUBJECTS_ROOT, { withFileTypes: true });
-  const subjects = await Promise.all(
-    subjectEntries.filter((entry) => entry.isDirectory()).map((entry) => loadSubject(entry.name)),
-  );
-
-  return sortByOrderThenTitle(subjects);
-});
-
-function toMaterialSummary(material: MaterialContent): MaterialSummary {
   return {
-    title: material.title,
-    order: material.order,
-    description: material.description,
-    slug: material.slug,
-    subjectSlug: material.subjectSlug,
-    subjectTitle: material.subjectTitle,
-    headings: material.headings,
-    href: material.href,
-  };
+    ...base,
+    kind: "material",
+  } satisfies MaterialSummary;
 }
 
-function toModuleSummary(module: ModuleContent): ModuleSummary {
+function mapEntryContent(entry: EntryDocument, subject: SubjectDocument): EntryContent {
+  const summary = mapEntrySummary(entry, subject);
+
+  if (summary.kind === "module") {
+    return {
+      ...summary,
+      content: entry.markdown,
+    } satisfies ModuleContent;
+  }
+
   return {
-    title: module.title,
-    order: module.order,
-    description: module.description,
-    slug: module.slug,
-    subjectSlug: module.subjectSlug,
-    subjectTitle: module.subjectTitle,
-    headings: module.headings,
-    href: module.href,
+    ...summary,
+    content: entry.markdown,
+  } satisfies MaterialContent;
+}
+
+function mapSubjectContent(subject: SubjectDocument, entries: EntryDocument[]): SubjectContent {
+  const modules = sortByOrderThenTitle(
+    entries
+      .filter((entry) => entry.kind === "module")
+      .map((entry) => mapEntryContent(entry, subject) as ModuleContent),
+  );
+  const materials = sortByOrderThenTitle(
+    entries
+      .filter((entry) => entry.kind === "material")
+      .map((entry) => mapEntryContent(entry, subject) as MaterialContent),
+  );
+
+  return {
+    id: subject._id.toHexString(),
+    title: subject.title,
+    order: subject.order,
+    description: subject.description,
+    slug: subject.slug,
+    href: `/${subject.slug}`,
+    materials,
+    modules,
+    visibility: subject.visibility,
+    status: subject.status,
+    ownerUserId: subject.ownerUserId,
+    sourceSubjectId: subject.sourceSubjectId,
+    publishedSubjectId: subject.publishedSubjectId,
+    publishedFromRequestId: subject.publishedFromRequestId,
+    publishedAt: subject.publishedAt,
+    lastSubmittedAt: subject.lastSubmittedAt,
+    lastReviewedAt: subject.lastReviewedAt,
+    reviewNotes: subject.reviewNotes,
+    createdAt: subject.createdAt,
+    updatedAt: subject.updatedAt,
   };
 }
 
 function toSubjectSummary(subject: SubjectContent): SubjectSummary {
   return {
+    id: subject.id,
     title: subject.title,
     order: subject.order,
     description: subject.description,
     slug: subject.slug,
-    materials: subject.materials.map(toMaterialSummary),
-    modules: subject.modules.map(toModuleSummary),
+    href: subject.href,
+    materials: subject.materials,
+    modules: subject.modules,
+    visibility: subject.visibility,
+    status: subject.status,
+    ownerUserId: subject.ownerUserId,
+    sourceSubjectId: subject.sourceSubjectId,
+    publishedSubjectId: subject.publishedSubjectId,
+    publishedFromRequestId: subject.publishedFromRequestId,
+    publishedAt: subject.publishedAt,
+    lastSubmittedAt: subject.lastSubmittedAt,
+    lastReviewedAt: subject.lastReviewedAt,
+    reviewNotes: subject.reviewNotes,
+    createdAt: subject.createdAt,
+    updatedAt: subject.updatedAt,
   };
 }
 
-export const getNavigationTree = cache(async () => {
-  const subjects = await getContentTree();
-  return subjects.map(toSubjectSummary);
-});
+async function loadPublicContentTreeFromDatabase() {
+  await ensureAppIndexes();
 
-export const getSubjectBySlug = cache(async (subjectSlug: string) => {
-  const subjects = await getContentTree();
-  return subjects.find((subject) => subject.slug === subjectSlug) ?? null;
-});
+  const db = await getDatabase();
+  const subjects = await db.collection<SubjectDocument>("subjects").find({
+    visibility: "public",
+  }).toArray();
 
-export const getModuleBySlugs = cache(async (subjectSlug: string, moduleSlug: string) => {
-  const subject = await getSubjectBySlug(subjectSlug);
+  const subjectIds = subjects.map((subject) => subject._id.toHexString());
+  const entries = subjectIds.length
+    ? await db.collection<EntryDocument>("entries").find({
+        visibility: "public",
+        subjectId: {
+          $in: subjectIds,
+        },
+      }).toArray()
+    : [];
+
+  return sortByOrderThenTitle(
+    subjects.map((subject) =>
+      mapSubjectContent(
+        subject,
+        entries.filter((entry) => entry.subjectId === subject._id.toHexString()),
+      ),
+    ),
+  );
+}
+
+export async function getContentTree(viewer?: Viewer) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return getFilesystemNavigationTree();
+  }
+
+  const content = await loadPublicContentTreeFromDatabase();
+  return content.map(toSubjectSummary);
+}
+
+export async function getNavigationTree(viewer?: Viewer) {
+  return getContentTree(viewer);
+}
+
+export async function getSubjectBySlug(subjectSlug: string, viewer?: Viewer) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return getFilesystemSubjectBySlug(subjectSlug);
+  }
+
+  const subjects = await loadPublicContentTreeFromDatabase();
+  return subjects.find((subject) => subject.slug === normalizeRouteSegment(subjectSlug)) ?? null;
+}
+
+export async function getModuleBySlugs(subjectSlug: string, moduleSlug: string, viewer?: Viewer) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return getFilesystemModuleBySlugs(subjectSlug, moduleSlug);
+  }
+
+  const subject = await getSubjectBySlug(subjectSlug, viewer);
 
   if (!subject) {
     return null;
@@ -244,10 +246,16 @@ export const getModuleBySlugs = cache(async (subjectSlug: string, moduleSlug: st
     previousModule: currentIndex > 0 ? subject.modules[currentIndex - 1] : null,
     nextModule: currentIndex < subject.modules.length - 1 ? subject.modules[currentIndex + 1] : null,
   };
-});
+}
 
-export const getMaterialBySlugs = cache(async (subjectSlug: string, materialSlug: string) => {
-  const subject = await getSubjectBySlug(subjectSlug);
+export async function getMaterialBySlugs(subjectSlug: string, materialSlug: string, viewer?: Viewer) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return getFilesystemMaterialBySlugs(subjectSlug, materialSlug);
+  }
+
+  const subject = await getSubjectBySlug(subjectSlug, viewer);
 
   if (!subject) {
     return null;
@@ -264,10 +272,320 @@ export const getMaterialBySlugs = cache(async (subjectSlug: string, materialSlug
     subject,
     material,
   };
-});
+}
+
+async function getSubjectsByIds(subjectIds: string[]) {
+  if (!subjectIds.length) {
+    return [];
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+
+  return db.collection<SubjectDocument>("subjects").find({
+    _id: {
+      $in: subjectIds.map((subjectId) => new ObjectId(subjectId)),
+    },
+  }).toArray();
+}
+
+async function getUsersByIds(userIds: string[]) {
+  if (!userIds.length || !isDatabaseConfigured()) {
+    return [];
+  }
+
+  const db = await getDatabase();
+  return db.collection<AuthUserDocument>("users").find({
+    _id: {
+      $in: userIds.map((userId) => new ObjectId(userId)),
+    },
+  }).toArray();
+}
+
+function mapPublicationRequest(
+  request: PublicationRequestDocument,
+  users: AuthUserDocument[],
+): PublicationRequestSummary {
+  const requester = users.find((user) => user._id.toHexString() === request.requesterUserId);
+
+  return {
+    id: request._id.toHexString(),
+    requestType: request.requestType,
+    status: request.status,
+    requesterUserId: request.requesterUserId,
+    requesterName: requester?.name ?? null,
+    requesterEmail: requester?.email ?? null,
+    reviewerUserId: request.reviewerUserId,
+    subjectId: request.subjectId,
+    entryId: request.entryId,
+    reviewNotes: request.reviewNotes,
+    snapshot: request.snapshot,
+    createdAt: request.createdAt,
+    updatedAt: request.updatedAt,
+    reviewedAt: request.reviewedAt,
+  };
+}
+
+export async function listUserLibrary(userId: string): Promise<UserLibraryData> {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return {
+      ownedSubjects: [],
+      ownedEntries: [],
+      publicSubjects: await getNavigationTree(),
+      publicEntries: [],
+      publicationRequests: [],
+    };
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+
+  const [ownedSubjectDocs, publicSubjectDocs, ownedEntryDocs, publicEntryDocs, requestDocs] =
+    await Promise.all([
+      db.collection<SubjectDocument>("subjects").find({
+        ownerUserId: userId,
+        visibility: "private",
+      }).toArray(),
+      db.collection<SubjectDocument>("subjects").find({
+        visibility: "public",
+      }).toArray(),
+      db.collection<EntryDocument>("entries").find({
+        ownerUserId: userId,
+        visibility: "private",
+      }).toArray(),
+      db.collection<EntryDocument>("entries").find({
+        visibility: "public",
+      }).toArray(),
+      db.collection<PublicationRequestDocument>("publicationRequests").find({
+        requesterUserId: userId,
+      }).sort({ createdAt: -1 }).toArray(),
+    ]);
+
+  const subjectDocsById = new Map(
+    [...ownedSubjectDocs, ...publicSubjectDocs].map((subject) => [subject._id.toHexString(), subject]),
+  );
+
+  const ownedSubjects = sortByOrderThenTitle(
+    ownedSubjectDocs.map((subject) =>
+      toSubjectSummary(
+        mapSubjectContent(
+          subject,
+          ownedEntryDocs.filter((entry) => entry.subjectId === subject._id.toHexString()),
+        ),
+      ),
+    ),
+  );
+
+  const publicSubjects = sortByOrderThenTitle(
+    publicSubjectDocs.map((subject) =>
+      toSubjectSummary(
+        mapSubjectContent(
+          subject,
+          publicEntryDocs.filter((entry) => entry.subjectId === subject._id.toHexString()),
+        ),
+      ),
+    ),
+  );
+
+  const ownedEntries = sortByOrderThenTitle(
+    ownedEntryDocs.flatMap((entry) => {
+      const subject = subjectDocsById.get(entry.subjectId);
+      return subject ? [mapEntrySummary(entry, subject)] : [];
+    }),
+  );
+
+  const publicEntries = sortByOrderThenTitle(
+    publicEntryDocs.flatMap((entry) => {
+      const subject = subjectDocsById.get(entry.subjectId);
+      return subject ? [mapEntrySummary(entry, subject)] : [];
+    }),
+  );
+
+  const users = await getUsersByIds([userId]);
+
+  return {
+    ownedSubjects,
+    ownedEntries,
+    publicSubjects,
+    publicEntries,
+    publicationRequests: requestDocs.map((request) => mapPublicationRequest(request, users)),
+  };
+}
+
+export async function getOwnedSubjectById(userId: string, subjectId: string) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const subject = await db.collection<SubjectDocument>("subjects").findOne({
+    _id: new ObjectId(subjectId),
+    ownerUserId: userId,
+    visibility: "private",
+  });
+
+  if (!subject) {
+    return null;
+  }
+
+  const entries = await db.collection<EntryDocument>("entries").find({
+    ownerUserId: userId,
+    visibility: "private",
+    subjectId,
+  }).toArray();
+
+  return mapSubjectContent(subject, entries);
+}
+
+export async function getOwnedEntryById(userId: string, entryId: string) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const entry = await db.collection<EntryDocument>("entries").findOne({
+    _id: new ObjectId(entryId),
+    ownerUserId: userId,
+    visibility: "private",
+  });
+
+  if (!entry) {
+    return null;
+  }
+
+  const subject = await db.collection<SubjectDocument>("subjects").findOne({
+    _id: new ObjectId(entry.subjectId),
+  });
+
+  if (!subject) {
+    return null;
+  }
+
+  return mapEntryContent(entry, subject);
+}
+
+export async function getUserLinkedEntries(userId: string, publicEntryId: string) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return [];
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const entries = await db.collection<EntryDocument>("entries").find({
+    ownerUserId: userId,
+    visibility: "private",
+    linkedPublicEntryId: publicEntryId,
+  }).toArray();
+  const subjects = await getSubjectsByIds([...new Set(entries.map((entry) => entry.subjectId))]);
+  const subjectById = new Map(subjects.map((subject) => [subject._id.toHexString(), subject]));
+
+  return sortByOrderThenTitle(
+    entries.flatMap((entry) => {
+      const subject = subjectById.get(entry.subjectId);
+      return subject ? [mapEntrySummary(entry, subject)] : [];
+    }),
+  );
+}
+
+export async function listPublicationRequests(
+  filters: {
+    status?: string;
+    requestType?: string;
+    requesterUserId?: string;
+  } = {},
+) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return [];
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const query: Record<string, string> = {};
+
+  if (filters.status && filters.status !== "all") {
+    query.status = filters.status;
+  }
+
+  if (filters.requestType && filters.requestType !== "all") {
+    query.requestType = filters.requestType;
+  }
+
+  if (filters.requesterUserId) {
+    query.requesterUserId = filters.requesterUserId;
+  }
+
+  const requests = await db.collection<PublicationRequestDocument>("publicationRequests").find(query).sort({
+    createdAt: -1,
+  }).toArray();
+
+  const users = await getUsersByIds(
+    [
+      ...new Set(
+        requests
+          .flatMap((request) => [request.requesterUserId, request.reviewerUserId ?? ""])
+          .filter(Boolean),
+      ),
+    ],
+  );
+
+  return requests.map((request) => mapPublicationRequest(request, users));
+}
+
+export async function getPublicationRequestById(requestId: string) {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const request = await db.collection<PublicationRequestDocument>("publicationRequests").findOne({
+    _id: new ObjectId(requestId),
+  });
+
+  if (!request) {
+    return null;
+  }
+
+  const users = await getUsersByIds(
+    [request.requesterUserId, request.reviewerUserId ?? ""].filter(Boolean),
+  );
+
+  return mapPublicationRequest(request, users);
+}
+
+export async function listPublishedCatalog() {
+  noStore();
+
+  if (!isDatabaseConfigured()) {
+    return {
+      subjects: await getNavigationTree(),
+      entries: [],
+    };
+  }
+
+  const subjects = await getNavigationTree();
+  return {
+    subjects,
+    entries: sortByOrderThenTitle(subjects.flatMap((subject) => [...subject.modules, ...subject.materials])),
+  };
+}
 
 export async function getAllModuleParams() {
-  const subjects = await getContentTree();
+  const subjects = await getNavigationTree();
 
   return subjects.flatMap((subject) =>
     subject.modules.map((module) => ({
@@ -278,7 +596,7 @@ export async function getAllModuleParams() {
 }
 
 export async function getAllMaterialParams() {
-  const subjects = await getContentTree();
+  const subjects = await getNavigationTree();
 
   return subjects.flatMap((subject) =>
     subject.materials.map((material) => ({
