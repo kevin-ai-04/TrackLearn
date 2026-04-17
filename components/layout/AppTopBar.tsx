@@ -179,9 +179,9 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
               <>
                 <Link
                   className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                  href="/user"
+                  href="/settings"
                 >
-                  User
+                  Settings
                 </Link>
                 <Link
                   className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
@@ -201,9 +201,9 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
             ) : (
               <Link
                 className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                href="/login"
+                href="/settings"
               >
-                Login
+                Settings
               </Link>
             )}
           </nav>
@@ -219,8 +219,8 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
               Sign Out
             </button>
           ) : (
-            <Link href="/login" className="button-secondary px-4 py-3 text-sm font-semibold">
-              Sign In
+            <Link href="/settings" className="button-secondary px-4 py-3 text-sm font-semibold">
+              Settings
             </Link>
           )}
 

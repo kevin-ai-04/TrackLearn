@@ -38,8 +38,8 @@ export function HomeDashboard({ subjects }: HomeDashboardProps) {
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/user" className="button-secondary px-4 py-3 text-sm font-semibold">
-                Open User Dashboard
+              <Link href="/settings" className="button-secondary px-4 py-3 text-sm font-semibold">
+                Open Settings
               </Link>
               {latestVisit && latestModule ? (
                 <Link

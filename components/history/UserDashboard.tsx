@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { ImportExportDialog } from "@/components/history/ImportExportDialog";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
@@ -70,14 +71,14 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
       <div className="space-y-4">
         <section className="panel rounded-[2rem] p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-            User Dashboard
+            Settings
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Progress, preferences, and portable study state.
+            Reading preferences, study progress, and optional account sync.
           </h1>
           <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--muted)]">
-            Signed-in progress syncs to your account. Guest progress stays in the browser. You can
-            still export readable text and import it later on the same device or a different one.
+            You can use TrackLearn without logging in. Guest progress stays in the browser, while
+            signing in adds account sync, private notes, custom content, and moderation workflows.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -92,6 +93,30 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
             <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
               <p className="text-sm text-[var(--muted)]">Need revision</p>
               <p className="mt-2 text-3xl font-semibold">{summary.needsRevision}</p>
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">
+                  {isAuthenticated ? "Account sync is enabled." : "Login to sync data across all devices."}
+                </p>
+                <p className="mt-1 text-sm text-[var(--muted)]">
+                  {isAuthenticated
+                    ? "Your progress and preferences can sync to your account, and private library tools are available."
+                    : "Keep using local settings, or sign in when you want synced progress and personal content tools."}
+                </p>
+              </div>
+              {!isAuthenticated ? (
+                <Link href="/login" className="button-primary px-4 py-3 text-sm font-semibold">
+                  Go To Login
+                </Link>
+              ) : (
+                <Link href="/my-library" className="button-secondary px-4 py-3 text-sm font-semibold">
+                  Open My Library
+                </Link>
+              )}
             </div>
           </div>
         </section>
