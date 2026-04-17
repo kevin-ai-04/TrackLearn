@@ -38,7 +38,9 @@ const providers = isGoogleAuthConfigured()
     ]
   : [];
 
-const adapter = isDatabaseConfigured() ? MongoDBAdapter(getMongoClient()) : undefined;
+const adapter = isDatabaseConfigured() 
+  ? MongoDBAdapter(getMongoClient(), { databaseName: process.env.MONGODB_DB ?? "tracklearn" }) 
+  : undefined;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter,
