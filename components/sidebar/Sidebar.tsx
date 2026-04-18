@@ -42,7 +42,7 @@ interface SidebarProps {
   currentPathLabel: string;
   currentPathHint?: string;
   headings: HeadingItem[];
-  navigationPlacement?: "top" | "bottom";
+  navigationPlacement?: "top" | "none";
 }
 
 export function Sidebar({
@@ -53,7 +53,7 @@ export function Sidebar({
   currentPathLabel,
   currentPathHint,
   headings,
-  navigationPlacement = "bottom",
+  navigationPlacement = "none",
 }: SidebarProps) {
   const pathname = usePathname();
   const { data: sessionData, isPending } = authClient.useSession();
@@ -82,13 +82,13 @@ export function Sidebar({
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
         Navigate
       </p>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-4 grid gap-2.5">
         {primaryLinks.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "rounded-full px-3 py-2 text-sm font-semibold transition",
+              "inline-flex min-h-11 items-center justify-between rounded-[1rem] px-4 py-3 text-sm font-semibold transition",
               isActiveLink(item.href)
                 ? "bg-[var(--accent)] text-white"
                 : "button-secondary text-[var(--foreground)]",
@@ -98,13 +98,13 @@ export function Sidebar({
           </Link>
         ))}
       </div>
-      <div className="mt-3 border-t border-[var(--border)] pt-3">
+      <div className="mt-4 border-t border-[var(--border)] pt-4">
         {secondaryLinks.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "inline-flex rounded-full px-3 py-2 text-sm font-semibold transition",
+              "inline-flex min-h-11 w-full items-center justify-between rounded-[1rem] px-4 py-3 text-sm font-semibold transition",
               isActiveLink(item.href)
                 ? "bg-[var(--accent)] text-white"
                 : "button-secondary text-[var(--foreground)]",
@@ -150,8 +150,6 @@ export function Sidebar({
           ) : null}
           <HistoryPanel subjects={subjects} />
         </div>
-
-        {navigationPlacement === "bottom" ? navigationCard : null}
       </section>
 
       {headings.length ? (

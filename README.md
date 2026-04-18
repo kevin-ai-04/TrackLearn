@@ -73,6 +73,7 @@ BETTER_AUTH_URL=
 ```
 
 `BETTER_AUTH_URL` is strongly recommended so OAuth callbacks and redirects resolve consistently outside local inference.
+If it is unset, the app now falls back to `NEXT_PUBLIC_BETTER_AUTH_URL`, then `VERCEL_URL`, then `http://localhost:3000` for local builds.
 
 Recommended first-time catalog seed:
 

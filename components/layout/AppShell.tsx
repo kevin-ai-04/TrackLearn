@@ -147,7 +147,6 @@ export function AppShell({
                   currentPathLabel={currentPathLabel}
                   currentPathHint={currentPathHint}
                   headings={headings}
-                  navigationPlacement="bottom"
                 />
               </div>
             </aside>

@@ -9,6 +9,15 @@ import {
   isGoogleAuthConfigured,
 } from "@/lib/mongodb";
 
+function resolveBaseUrl() {
+  const configuredBaseUrl =
+    process.env.BETTER_AUTH_URL ??
+    process.env.NEXT_PUBLIC_BETTER_AUTH_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
+
+  return configuredBaseUrl ?? "http://localhost:3000";
+}
+
 const database = isDatabaseConfigured()
   ? mongodbAdapter(getDatabaseInstance(), {
       client: getMongoClientInstance(),
@@ -18,6 +27,7 @@ const database = isDatabaseConfigured()
 
 export const auth = betterAuth({
   appName: "TrackLearn",
+  baseURL: resolveBaseUrl(),
   basePath: "/api/auth",
   database,
   user: {
