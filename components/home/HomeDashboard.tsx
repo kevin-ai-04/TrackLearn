@@ -1,11 +1,22 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
 import { formatCount, normalizeRouteSegment } from "@/lib/utils";
 import type { SubjectSummary } from "@/types/content";
+
+const HistoryPanel = dynamic(
+  () => import("@/components/history/HistoryPanel").then((mod) => mod.HistoryPanel),
+  {
+    loading: () => (
+      <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+        Loading recent activity...
+      </div>
+    ),
+  },
+);
 
 interface HomeDashboardProps {
   subjects: SubjectSummary[];

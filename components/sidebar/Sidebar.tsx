@@ -1,14 +1,38 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { ModuleList } from "@/components/sidebar/ModuleList";
 import { SubjectList } from "@/components/sidebar/SubjectList";
-import { NavigationTree } from "@/components/toc/NavigationTree";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import type { HeadingItem, SubjectSummary } from "@/types/content";
+
+const HistoryPanel = dynamic(
+  () => import("@/components/history/HistoryPanel").then((mod) => mod.HistoryPanel),
+  {
+    loading: () => (
+      <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+        Loading activity...
+      </div>
+    ),
+  },
+);
+
+const NavigationTree = dynamic(
+  () => import("@/components/toc/NavigationTree").then((mod) => mod.NavigationTree),
+  {
+    loading: () => (
+      <div className="space-y-3 animate-pulse">
+        <div className="h-3 w-24 rounded-full bg-[var(--panel-alt)]" />
+        <div className="h-4 w-full rounded-full bg-[var(--panel-alt)]" />
+        <div className="h-4 w-5/6 rounded-full bg-[var(--panel-alt)]" />
+        <div className="h-4 w-2/3 rounded-full bg-[var(--panel-alt)]" />
+      </div>
+    ),
+  },
+);
 
 interface SidebarProps {
   subjects: SubjectSummary[];

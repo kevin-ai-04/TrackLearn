@@ -18,6 +18,8 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - If `MONGODB_URI` is configured, public catalog reads come from MongoDB.
 - If MongoDB is not configured, public catalog reads fall back to `lib/fs-content.ts`.
 - Public routes are server-rendered and dynamic.
+- Route transitions under `app/(site)` expose a loading fallback with a thin teal progress line under the top bar when the next page is still resolving.
+- Non-critical client panels such as sidebar utilities, recent activity panels, and import/export dialogs are lazy-loaded to reduce the initial client bundle.
 
 ### Auth and roles
 

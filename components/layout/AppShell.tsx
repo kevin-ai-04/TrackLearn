@@ -1,12 +1,31 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState, type ReactNode } from "react";
 import { AppTopBar } from "@/components/layout/AppTopBar";
-import { MobileSidebar } from "@/components/mobile/MobileSidebar";
-import { Sidebar } from "@/components/sidebar/Sidebar";
 import type { HeadingItem, SubjectSummary } from "@/types/content";
 
 const DESKTOP_SIDEBAR_OPEN_STORAGE_KEY = "tracklearn:desktop-sidebar-open";
+
+const MobileSidebar = dynamic(
+  () => import("@/components/mobile/MobileSidebar").then((mod) => mod.MobileSidebar),
+  { ssr: false },
+);
+
+const Sidebar = dynamic(
+  () => import("@/components/sidebar/Sidebar").then((mod) => mod.Sidebar),
+  {
+    loading: () => (
+      <div className="panel h-full animate-pulse rounded-[2rem] p-5">
+        <div className="space-y-4">
+          <div className="h-20 rounded-[1.5rem] bg-[var(--panel-alt)]" />
+          <div className="h-40 rounded-[1.5rem] bg-[var(--panel-alt)]" />
+          <div className="h-28 rounded-[1.5rem] bg-[var(--panel-alt)]" />
+        </div>
+      </div>
+    ),
+  },
+);
 
 interface AppShellProps {
   subjects: SubjectSummary[];
@@ -16,6 +35,7 @@ interface AppShellProps {
   currentPathLabel: string;
   currentPathHint?: string;
   headings?: HeadingItem[];
+  loading?: boolean;
   children: ReactNode;
 }
 
@@ -27,6 +47,7 @@ export function AppShell({
   currentPathLabel,
   currentPathHint,
   headings = [],
+  loading = false,
   children,
 }: AppShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -94,6 +115,7 @@ export function AppShell({
       <AppTopBar
         onToggleSidebar={() => setSidebarOpen((current) => !current)}
         sidebarOpen={sidebarOpen}
+        loading={loading}
       />
 
       <MobileSidebar

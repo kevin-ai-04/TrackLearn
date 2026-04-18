@@ -13,6 +13,7 @@ import type { ReadingFont, ThemeMode } from "@/types/history";
 interface AppTopBarProps {
   onToggleSidebar?: () => void;
   sidebarOpen?: boolean;
+  loading?: boolean;
 }
 
 const themeOptions: Array<{ label: string; value: ThemeMode }> = [
@@ -33,7 +34,14 @@ function getNextTheme(mode: ThemeMode): ThemeMode {
   return "light";
 }
 
-export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarProps) {
+const NAVIGATION_REVEAL_DELAY_MS = 140;
+const NAVIGATION_MIN_VISIBLE_MS = 320;
+
+export function AppTopBar({
+  onToggleSidebar,
+  sidebarOpen = false,
+  loading = false,
+}: AppTopBarProps) {
   const pathname = usePathname();
   const { state, setFont, setTheme } = useStudyHistory();
   const { data: sessionData, isPending } = authClient.useSession();
@@ -41,11 +49,13 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
   const [isNavigating, setIsNavigating] = useState(false);
   const lastScrollYRef = useRef(0);
   const navigationStartedAtRef = useRef<number | null>(null);
+  const navigationRevealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigationResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextFont: ReadingFont = state.preferences.font === "outfit" ? "serif" : "outfit";
   const isAuthenticated = !isPending && Boolean(sessionData?.user?.id);
   const isAdmin = sessionData?.user?.role === "admin";
   const nextTheme = getNextTheme(state.preferences.theme);
+  const showLoadingLine = loading || isNavigating;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,9 +82,19 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
   }, [sidebarOpen]);
 
   useEffect(() => {
+    if (navigationRevealTimerRef.current) {
+      clearTimeout(navigationRevealTimerRef.current);
+      navigationRevealTimerRef.current = null;
+    }
+
+    if (!isNavigating) {
+      navigationStartedAtRef.current = null;
+      return;
+    }
+
     const startedAt = navigationStartedAtRef.current;
     const elapsed = startedAt ? Date.now() - startedAt : 0;
-    const remaining = Math.max(0, 420 - elapsed);
+    const remaining = Math.max(0, NAVIGATION_MIN_VISIBLE_MS - elapsed);
 
     if (navigationResetTimerRef.current) {
       clearTimeout(navigationResetTimerRef.current);
@@ -135,13 +155,23 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
       }
 
       navigationStartedAtRef.current = Date.now();
-      setIsNavigating(true);
+      if (navigationRevealTimerRef.current) {
+        clearTimeout(navigationRevealTimerRef.current);
+      }
+      navigationRevealTimerRef.current = setTimeout(() => {
+        setIsNavigating(true);
+        navigationRevealTimerRef.current = null;
+      }, NAVIGATION_REVEAL_DELAY_MS);
     };
 
     document.addEventListener("click", handleDocumentClick);
 
     return () => {
       document.removeEventListener("click", handleDocumentClick);
+      if (navigationRevealTimerRef.current) {
+        clearTimeout(navigationRevealTimerRef.current);
+        navigationRevealTimerRef.current = null;
+      }
       if (navigationResetTimerRef.current) {
         clearTimeout(navigationResetTimerRef.current);
         navigationResetTimerRef.current = null;
@@ -269,13 +299,16 @@ export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarPro
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[3px] overflow-hidden">
-        {isNavigating ? (
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[2px] overflow-hidden">
+        {showLoadingLine ? (
           <motion.div
-            className="h-full w-1/3 rounded-full bg-[var(--accent)] shadow-[0_0_10px_rgba(15,118,110,0.45)]"
-            initial={{ x: "-120%" }}
-            animate={{ x: "320%" }}
-            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 0.9, ease: "easeInOut" }}
+            className="h-full w-1/2 bg-[linear-gradient(90deg,transparent,var(--accent),transparent)] opacity-80"
+            initial={{ x: "-60%" }}
+            animate={{ x: "220%" }}
+            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, ease: "easeInOut" }}
+            style={{
+              boxShadow: "0 0 10px color-mix(in srgb, var(--accent) 42%, transparent)",
+            }}
           />
         ) : null}
       </div>

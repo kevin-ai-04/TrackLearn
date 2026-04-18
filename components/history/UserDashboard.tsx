@@ -1,17 +1,32 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { HistoryPanel } from "@/components/history/HistoryPanel";
-import { ImportExportDialog } from "@/components/history/ImportExportDialog";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
 import { authClient } from "@/lib/auth-client";
 import { formatCount, formatDateTime } from "@/lib/utils";
 import type { SubjectSummary } from "@/types/content";
 import type { ReadingFont, ThemeMode } from "@/types/history";
+
+const HistoryPanel = dynamic(
+  () => import("@/components/history/HistoryPanel").then((mod) => mod.HistoryPanel),
+  {
+    loading: () => (
+      <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+        Loading recent study activity...
+      </div>
+    ),
+  },
+);
+
+const ImportExportDialog = dynamic(
+  () => import("@/components/history/ImportExportDialog").then((mod) => mod.ImportExportDialog),
+  { ssr: false },
+);
 
 interface UserDashboardProps {
   subjects: SubjectSummary[];
