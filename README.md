@@ -8,7 +8,6 @@ TrackLearn is a Next.js study platform with:
 - admin moderation for publishing private content into the shared catalog
 - synced signed-in progress with guest local fallback
 
-The repository `data/subjects` folder is still the seed source for the public catalog, but the live app now serves content through a Mongo-backed runtime layer.
 
 ## Features
 
@@ -71,9 +70,6 @@ AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
 BETTER_AUTH_URL=
 ```
-
-`BETTER_AUTH_URL` is strongly recommended so OAuth callbacks and redirects resolve consistently outside local inference.
-If it is unset, the app now falls back to `NEXT_PUBLIC_BETTER_AUTH_URL`, then `VERCEL_URL`, then `http://localhost:3000` for local builds.
 
 Recommended first-time catalog seed:
 
@@ -161,7 +157,7 @@ That script:
 
 User roles live in MongoDB on the `user` collection.
 
-To promote an account to admin in v1, update that user document and set:
+To promote an account to admin, update that user document and set:
 
 ```json
 {
@@ -176,9 +172,3 @@ To promote an account to admin in v1, update that user document and set:
 - `npm run start` - run the production server
 - `npm run typecheck` - run TypeScript checks
 - `npm run seed:mongodb` - import `data/subjects` into MongoDB as public catalog content
-
-## Notes
-
-- If MongoDB is not configured, public browsing falls back to the repository seed content.
-- Auth, private libraries, admin moderation, and synced progress require MongoDB.
-- Markdown-only uploads are supported in v1. Images and large attachments are out of scope for now.
