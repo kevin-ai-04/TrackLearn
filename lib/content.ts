@@ -482,6 +482,59 @@ export async function getOwnedEntryById(userId: string, entryId: string) {
   return mapEntryContent(entry, subject);
 }
 
+export async function getSubjectByIdForAdmin(subjectId: string) {
+  noStore();
+
+  if (!isDatabaseConfigured() || !subjectId) {
+    return null;
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const subject = await db.collection<SubjectDocument>("subjects").findOne({
+    _id: new ObjectId(subjectId),
+  });
+
+  if (!subject) {
+    return null;
+  }
+
+  const entries = await db.collection<EntryDocument>("entries").find({
+    subjectId,
+    visibility: subject.visibility,
+  }).toArray();
+
+  return mapSubjectContent(subject, entries);
+}
+
+export async function getEntryByIdForAdmin(entryId: string) {
+  noStore();
+
+  if (!isDatabaseConfigured() || !entryId) {
+    return null;
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const entry = await db.collection<EntryDocument>("entries").findOne({
+    _id: new ObjectId(entryId),
+  });
+
+  if (!entry) {
+    return null;
+  }
+
+  const subject = await db.collection<SubjectDocument>("subjects").findOne({
+    _id: new ObjectId(entry.subjectId),
+  });
+
+  if (!subject) {
+    return null;
+  }
+
+  return mapEntryContent(entry, subject);
+}
+
 export async function getPublicEntryById(entryId: string) {
   noStore();
 

@@ -8,6 +8,7 @@ import {
 } from "@/app/(site)/library/actions";
 import { requireUser } from "@/lib/auth-helpers";
 import { getNavigationTree, getOwnedSubjectById } from "@/lib/content";
+import { formatContentStatus } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,7 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{subject.title}</h1>
           <p className="mt-3 text-sm text-[var(--muted)]">
-            Status: {subject.status.replaceAll("_", " ")}
+            Status: {formatContentStatus(subject.status)}
           </p>
         </section>
 
@@ -69,6 +70,12 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
               <button type="submit" className="button-primary px-4 py-3 text-sm font-semibold">
                 Save Subject
               </button>
+              <Link
+                href={`/library/manage?tab=entry&subjectId=${subject.id}`}
+                className="button-secondary px-4 py-3 text-sm font-semibold"
+              >
+                Create Entry In This Subject
+              </Link>
               <button
                 formAction={boundSubmitSubjectAction}
                 className="button-secondary px-4 py-3 text-sm font-semibold"
@@ -107,7 +114,7 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
                     <p className="mt-1 text-sm text-[var(--muted)]">{entry.kind}</p>
                   </div>
                   <span className="status-pill bg-[var(--accent-soft)] text-[var(--accent-strong)]">
-                    {entry.status.replaceAll("_", " ")}
+                    {formatContentStatus(entry.status)}
                   </span>
                 </div>
               </Link>

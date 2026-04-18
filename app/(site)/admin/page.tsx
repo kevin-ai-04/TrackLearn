@@ -10,9 +10,11 @@ import {
 } from "@/app/(site)/admin/actions";
 import { requireAdmin } from "@/lib/auth-helpers";
 import {
+  getEntryByIdForAdmin,
   getNavigationTree,
   getPublicationRequestById,
   getPublicEntryById,
+  getSubjectByIdForAdmin,
   listPublicationRequests,
   listPublishedCatalog,
 } from "@/lib/content";
@@ -150,6 +152,19 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     listPublishedCatalog(),
     filters.editEntryId ? getPublicEntryById(filters.editEntryId) : null,
   ]);
+
+  const selectedSourceSubject = selectedRequest?.subjectId
+    ? await getSubjectByIdForAdmin(selectedRequest.subjectId)
+    : null;
+  const selectedPublishedSubject = selectedSourceSubject?.publishedSubjectId
+    ? await getSubjectByIdForAdmin(selectedSourceSubject.publishedSubjectId)
+    : null;
+  const selectedSourceEntry = selectedRequest?.entryId
+    ? await getEntryByIdForAdmin(selectedRequest.entryId)
+    : null;
+  const selectedPublishedEntry = selectedSourceEntry?.publishedEntryId
+    ? await getPublicEntryById(selectedSourceEntry.publishedEntryId)
+    : null;
 
   const adminFilters: AdminQueryParams = {
     status: filters.status,
@@ -313,7 +328,100 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     ) : null}
                   </div>
 
-                  {selectedRequest.snapshot.markdown ? (
+                  {selectedRequest.requestType === "update_published_content" &&
+                  selectedPublishedSubject &&
+                  !selectedRequest.entryId ? (
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      <section className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                          Current Public Subject
+                        </p>
+                        <p className="mt-3">
+                          <span className="font-semibold">Title:</span> {selectedPublishedSubject.title}
+                        </p>
+                        <p className="mt-2">
+                          <span className="font-semibold">Slug:</span> {selectedPublishedSubject.slug}
+                        </p>
+                        <p className="mt-2">
+                          <span className="font-semibold">Description:</span>{" "}
+                          {selectedPublishedSubject.description ?? "No description"}
+                        </p>
+                      </section>
+
+                      <section className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                          Proposed Update
+                        </p>
+                        <p className="mt-3">
+                          <span className="font-semibold">Title:</span> {selectedRequest.snapshot.title}
+                        </p>
+                        <p className="mt-2">
+                          <span className="font-semibold">Slug:</span> {selectedRequest.snapshot.slug}
+                        </p>
+                        <p className="mt-2">
+                          <span className="font-semibold">Description:</span>{" "}
+                          {selectedRequest.snapshot.description ?? "No description"}
+                        </p>
+                      </section>
+                    </div>
+                  ) : null}
+
+                  {selectedRequest.requestType === "update_published_content" &&
+                  selectedPublishedEntry &&
+                  selectedRequest.snapshot.markdown ? (
+                    <div className="grid gap-4">
+                      <div className="grid gap-4 lg:grid-cols-2">
+                        <section className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                            Current Public Entry
+                          </p>
+                          <p className="mt-3">
+                            <span className="font-semibold">Title:</span> {selectedPublishedEntry.title}
+                          </p>
+                          <p className="mt-2">
+                            <span className="font-semibold">Slug:</span> {selectedPublishedEntry.slug}
+                          </p>
+                          <p className="mt-2">
+                            <span className="font-semibold">Subject:</span> {selectedPublishedEntry.subjectTitle}
+                          </p>
+                        </section>
+
+                        <section className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                            Proposed Update
+                          </p>
+                          <p className="mt-3">
+                            <span className="font-semibold">Title:</span> {selectedRequest.snapshot.title}
+                          </p>
+                          <p className="mt-2">
+                            <span className="font-semibold">Slug:</span> {selectedRequest.snapshot.slug}
+                          </p>
+                          <p className="mt-2">
+                            <span className="font-semibold">Subject:</span>{" "}
+                            {selectedRequest.snapshot.subjectTitle ?? "No subject snapshot"}
+                          </p>
+                        </section>
+                      </div>
+
+                      <div className="grid gap-4 lg:grid-cols-2">
+                        <div>
+                          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                            Current Public Content
+                          </p>
+                          <ContentViewer content={selectedPublishedEntry.content} />
+                        </div>
+                        <div>
+                          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+                            Proposed Content
+                          </p>
+                          <ContentViewer content={selectedRequest.snapshot.markdown} />
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {selectedRequest.snapshot.markdown &&
+                  !(selectedRequest.requestType === "update_published_content" && selectedPublishedEntry) ? (
                     <ContentViewer content={selectedRequest.snapshot.markdown} />
                   ) : null}
 

@@ -14,7 +14,7 @@ export async function reviewRequestAction(requestId: string, formData: FormData)
   const decision = String(formData.get("decision") ?? "reject") === "approve" ? "approve" : "reject";
   const reviewNotes = String(formData.get("reviewNotes") ?? "");
 
-  await reviewPublicationRequest({
+  const result = await reviewPublicationRequest({
     adminUserId: viewer.userId!,
     requestId,
     decision,
@@ -22,6 +22,14 @@ export async function reviewRequestAction(requestId: string, formData: FormData)
   });
 
   revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/library");
+  if (result.subjectSlug) {
+    revalidatePath(`/${result.subjectSlug}`);
+  }
+  if (result.entryPath) {
+    revalidatePath(result.entryPath);
+  }
   redirect("/admin");
 }
 

@@ -549,6 +549,10 @@ async function approveSubjectRequest(
       },
     },
   );
+
+  return {
+    subjectSlug: subject.slug,
+  };
 }
 
 async function approveEntryRequest(
@@ -636,6 +640,11 @@ async function approveEntryRequest(
       },
     },
   );
+
+  return {
+    entryPath: getPublicEntryPath(sourceSubject.slug, entry.kind, entry.slug),
+    subjectSlug: sourceSubject.slug,
+  };
 }
 
 export async function reviewPublicationRequest(options: {
@@ -657,6 +666,10 @@ export async function reviewPublicationRequest(options: {
 
   const now = new Date().toISOString();
   const normalizedNotes = options.reviewNotes?.trim() || null;
+  const result: {
+    entryPath?: string;
+    subjectSlug?: string;
+  } = {};
 
   await db.collection<PublicationRequestDocument>("publicationRequests").updateOne(
     { _id: request._id },
@@ -676,7 +689,7 @@ export async function reviewPublicationRequest(options: {
 
     if (subject && subject.visibility === "private") {
       if (options.decision === "approve") {
-        await approveSubjectRequest(
+        const approvalResult = await approveSubjectRequest(
           db,
           {
             ...request,
@@ -685,6 +698,7 @@ export async function reviewPublicationRequest(options: {
           subject,
           now,
         );
+        result.subjectSlug = approvalResult.subjectSlug;
       } else {
         await db.collection<SubjectDocument>("subjects").updateOne(
           { _id: subject._id },
@@ -706,7 +720,7 @@ export async function reviewPublicationRequest(options: {
 
     if (entry && entry.visibility === "private") {
       if (options.decision === "approve") {
-        await approveEntryRequest(
+        const approvalResult = await approveEntryRequest(
           db,
           {
             ...request,
@@ -715,6 +729,8 @@ export async function reviewPublicationRequest(options: {
           entry,
           now,
         );
+        result.subjectSlug = approvalResult.subjectSlug;
+        result.entryPath = approvalResult.entryPath;
       } else {
         await db.collection<EntryDocument>("entries").updateOne(
           { _id: entry._id },
@@ -730,6 +746,8 @@ export async function reviewPublicationRequest(options: {
       }
     }
   }
+
+  return result;
 }
 
 export async function unpublishPublicContent(options: {

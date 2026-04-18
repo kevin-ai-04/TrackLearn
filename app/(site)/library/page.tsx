@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { getViewer } from "@/lib/auth-helpers";
 import { getNavigationTree, listUserLibrary } from "@/lib/content";
-import { formatCount } from "@/lib/utils";
+import { formatContentStatus, formatCount } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,11 @@ export default async function LibraryPage() {
     <AppShell
       subjects={subjects}
       currentPathLabel="Library"
-      currentPathHint="Browse the public catalog, then sign in when you want to manage personal subjects."
+      currentPathHint={
+        viewer.isAuthenticated
+          ? "Browse the public catalog, then switch to manage when you want to work on personal subjects."
+          : "Browse the public catalog and shared subjects."
+      }
     >
       <div className="space-y-4">
         <section className="panel rounded-[2rem] p-6 sm:p-8">
@@ -25,25 +29,39 @@ export default async function LibraryPage() {
             Library
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Public subjects, with your personal subjects below.
+            {viewer.isAuthenticated
+              ? "Public subjects, with your personal subjects below."
+              : "Browse the public subject catalog."}
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted)]">
-            The library is open to everyone. Browse the shared subject catalog here, then sign in
-            when you want to create and manage your own personal subjects.
+            {viewer.isAuthenticated
+              ? "The library is open to everyone. Browse the shared subject catalog here, then head to manage when you want to create and edit your personal subjects."
+              : "The library is open to everyone. Browse the shared subject catalog here, or sign in to manage your personal subjects."}
           </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          {!viewer.isAuthenticated ? (
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="/login" className="button-primary px-4 py-3 text-sm font-semibold">
+                Sign In To Manage Personal Subjects
+              </Link>
+            </div>
+          ) : null}
+          <div className={`mt-6 grid gap-3 ${viewer.isAuthenticated ? "sm:grid-cols-3" : "sm:grid-cols-1"}`}>
             <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
               <p className="text-sm text-[var(--muted)]">Public subjects</p>
               <p className="mt-2 text-3xl font-semibold">{library.publicSubjects.length}</p>
             </div>
-            <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
-              <p className="text-sm text-[var(--muted)]">Personal subjects</p>
-              <p className="mt-2 text-3xl font-semibold">{library.ownedSubjects.length}</p>
-            </div>
-            <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
-              <p className="text-sm text-[var(--muted)]">Personal entries</p>
-              <p className="mt-2 text-3xl font-semibold">{library.ownedEntries.length}</p>
-            </div>
+            {viewer.isAuthenticated ? (
+              <>
+                <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
+                  <p className="text-sm text-[var(--muted)]">Personal subjects</p>
+                  <p className="mt-2 text-3xl font-semibold">{library.ownedSubjects.length}</p>
+                </div>
+                <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
+                  <p className="text-sm text-[var(--muted)]">Personal entries</p>
+                  <p className="mt-2 text-3xl font-semibold">{library.ownedEntries.length}</p>
+                </div>
+              </>
+            ) : null}
           </div>
         </section>
 
@@ -91,24 +109,6 @@ export default async function LibraryPage() {
           </div>
         </section>
 
-        {!viewer.isAuthenticated ? (
-          <section className="panel rounded-[2rem] p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Personal Subjects
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold">Sign in to create and manage your own subjects</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-              Your personal subjects, entries, and publication requests are available after you sign
-              in. The public library above stays open either way.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link href="/login" className="button-primary px-4 py-3 text-sm font-semibold">
-                Sign In To Manage Personal Subjects
-              </Link>
-            </div>
-          </section>
-        ) : null}
-
         {viewer.isAuthenticated ? (
           <section className="panel rounded-[2rem] p-6 sm:p-8">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -133,7 +133,7 @@ export default async function LibraryPage() {
                         <h3 className="mt-3 text-2xl font-semibold">{subject.title}</h3>
                       </div>
                       <span className="status-pill bg-[var(--accent-soft)] text-[var(--accent-strong)]">
-                        {subject.status.replaceAll("_", " ")}
+                        {formatContentStatus(subject.status)}
                       </span>
                     </div>
                     {subject.description ? (
@@ -163,27 +163,23 @@ export default async function LibraryPage() {
           </section>
         ) : null}
 
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-            Manage
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold">Create, edit, and submit your personal work</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-            Publication requests, subject creation, and entry creation now live in a separate manage
-            view so the main library can stay focused on browsing.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            {viewer.isAuthenticated ? (
+        {viewer.isAuthenticated ? (
+          <section className="panel rounded-[2rem] p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
+              Manage
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold">Create, edit, and submit your personal work</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
+              Publication requests, subject creation, and entry creation now live in a separate
+              manage view so the main library can stay focused on browsing.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
               <Link href="/library/manage" className="button-primary px-4 py-3 text-sm font-semibold">
                 Manage
               </Link>
-            ) : (
-              <Link href="/login" className="button-primary px-4 py-3 text-sm font-semibold">
-                Sign In To Manage
-              </Link>
-            )}
-          </div>
-        </section>
+            </div>
+          </section>
+        ) : null}
       </div>
     </AppShell>
   );

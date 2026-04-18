@@ -45,7 +45,7 @@ export async function submitSubjectAction(subjectId: string) {
   revalidatePath("/library");
   revalidatePath("/library/manage");
   revalidatePath(`/library/subjects/${subjectId}`);
-  redirect(`/library/subjects/${subjectId}`);
+  redirect(`/library/subjects/${subjectId}?submitted=${Date.now()}`);
 }
 
 export async function createEntryAction(formData: FormData) {
@@ -62,7 +62,7 @@ export async function updateEntryAction(entryId: string, formData: FormData) {
   revalidatePath("/library");
   revalidatePath("/library/manage");
   revalidatePath(`/library/entries/${entryId}`);
-  redirect(`/library/entries/${entryId}`);
+  redirect("/library/manage?saved=entry");
 }
 
 export async function deleteEntryAction(entryId: string) {

@@ -31,3 +31,17 @@ export function formatDateTime(dateString: string | null) {
 export function formatCount(count: number, singular: string, plural = `${singular}s`) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
+
+export function formatContentStatus(status: string) {
+  switch (status) {
+    case "draft":
+    case "changes_requested":
+      return "private";
+    case "pending_review":
+      return "pending approval";
+    case "published":
+      return "public";
+    default:
+      return status.replaceAll("_", " ");
+  }
+}

@@ -1,13 +1,21 @@
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
-import { createEntryAction, createSubjectAction } from "@/app/(site)/library/actions";
+import { ManageComposer } from "@/components/library/ManageComposer";
 import { requireUser } from "@/lib/auth-helpers";
 import { getNavigationTree, listUserLibrary } from "@/lib/content";
+import { formatContentStatus } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function ManagePage() {
+interface ManagePageProps {
+  searchParams: Promise<{
+    saved?: string;
+  }>;
+}
+
+export default async function ManagePage({ searchParams }: ManagePageProps) {
   const viewer = await requireUser();
+  const resolvedSearchParams = await searchParams;
   const [subjects, library] = await Promise.all([
     getNavigationTree(viewer),
     listUserLibrary(viewer.userId),
@@ -20,6 +28,12 @@ export default async function ManagePage() {
       currentPathHint="Create, edit, and submit your personal subjects and entries from one place."
     >
       <div className="space-y-4">
+        {resolvedSearchParams.saved === "entry" ? (
+          <section className="rounded-[1.6rem] border border-emerald-300/60 bg-emerald-100/70 p-4 text-sm text-emerald-900">
+            Entry saved. You are back in Manage.
+          </section>
+        ) : null}
+
         <section className="panel rounded-[2rem] p-6 sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -79,7 +93,7 @@ export default async function ManagePage() {
                           </p>
                         </div>
                         <span className="status-pill bg-[var(--accent-soft)] text-[var(--accent-strong)]">
-                          {subject.status.replaceAll("_", " ")}
+                          {formatContentStatus(subject.status)}
                         </span>
                       </div>
                     </Link>
@@ -115,7 +129,7 @@ export default async function ManagePage() {
                           </p>
                         </div>
                         <span className="status-pill bg-[var(--accent-soft)] text-[var(--accent-strong)]">
-                          {entry.status.replaceAll("_", " ")}
+                          {formatContentStatus(entry.status)}
                         </span>
                       </div>
                     </Link>
@@ -168,97 +182,10 @@ export default async function ManagePage() {
           </section>
         </section>
 
-        <div className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-          <section className="panel rounded-[2rem] p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Create Entry
-            </p>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-              Add a module or material under one of your personal subjects, or attach one to a public subject.
-            </p>
-            <form action={createEntryAction} className="mt-5 space-y-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <input name="title" className="field" placeholder="Module or material title" required />
-                <select name="kind" className="field" defaultValue="module">
-                  <option value="module">Module</option>
-                  <option value="material">Material</option>
-                </select>
-              </div>
-              <input
-                name="order"
-                className="field"
-                inputMode="numeric"
-                placeholder="Optional order"
-              />
-              <select name="subjectId" className="field" required defaultValue="">
-                <option value="" disabled>
-                  Choose a parent subject
-                </option>
-                {library.ownedSubjects.map((subject) => (
-                  <option key={subject.id} value={subject.id}>
-                    Personal: {subject.title}
-                  </option>
-                ))}
-                {library.publicSubjects.map((subject) => (
-                  <option key={subject.id} value={subject.id}>
-                    Public: {subject.title}
-                  </option>
-                ))}
-              </select>
-              <input
-                name="description"
-                className="field"
-                placeholder="Short description"
-              />
-              <textarea
-                name="markdown"
-                className="field min-h-56 font-mono text-sm"
-                placeholder="Paste markdown content"
-              />
-              <div className="space-y-2">
-                <label className="text-sm font-semibold" htmlFor="markdownFile">
-                  Or upload a Markdown file
-                </label>
-                <input
-                  id="markdownFile"
-                  name="markdownFile"
-                  className="field"
-                  type="file"
-                  accept=".md,.markdown,text/markdown"
-                />
-              </div>
-              <button type="submit" className="button-primary px-4 py-3 text-sm font-semibold">
-                Create Entry
-              </button>
-            </form>
-          </section>
-
-          <section className="panel rounded-[2rem] p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Add Personal Subject
-            </p>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-              Start a new personal subject. You can build it out and submit it later when it is ready.
-            </p>
-            <form action={createSubjectAction} className="mt-5 space-y-3">
-              <input name="title" className="field" placeholder="Personal subject title" required />
-              <input
-                name="order"
-                className="field"
-                inputMode="numeric"
-                placeholder="Optional order"
-              />
-              <textarea
-                name="description"
-                className="field min-h-32"
-                placeholder="Short description"
-              />
-              <button type="submit" className="button-primary px-4 py-3 text-sm font-semibold">
-                Create Personal Subject
-              </button>
-            </form>
-          </section>
-        </div>
+        <ManageComposer
+          ownedSubjects={library.ownedSubjects}
+          publicSubjects={library.publicSubjects}
+        />
       </div>
     </AppShell>
   );
