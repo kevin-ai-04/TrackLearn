@@ -43,6 +43,7 @@ interface SidebarProps {
   currentPathHint?: string;
   headings: HeadingItem[];
   navigationPlacement?: "top" | "none";
+  onHeadingSelect?: (id: string) => void;
 }
 
 export function Sidebar({
@@ -54,6 +55,7 @@ export function Sidebar({
   currentPathHint,
   headings,
   navigationPlacement = "none",
+  onHeadingSelect,
 }: SidebarProps) {
   const pathname = usePathname();
   const { data: sessionData, isPending } = authClient.useSession();
@@ -155,7 +157,7 @@ export function Sidebar({
 
       {headings.length ? (
         <section className="panel overflow-y-auto rounded-[2rem] p-5">
-          <NavigationTree headings={headings} />
+          <NavigationTree headings={headings} onHeadingSelect={onHeadingSelect} />
         </section>
       ) : null}
     </div>

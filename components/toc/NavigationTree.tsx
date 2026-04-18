@@ -7,6 +7,7 @@ import type { HeadingItem } from "@/types/content";
 
 interface NavigationTreeProps {
   headings: HeadingItem[];
+  onHeadingSelect?: (id: string) => void;
 }
 
 interface TocNode {
@@ -78,7 +79,7 @@ function containsActiveNode(node: TocNode, activeId: string | null): boolean {
   return node.children.some((child) => child.id === activeId || containsActiveNode(child, activeId));
 }
 
-export function NavigationTree({ headings }: NavigationTreeProps) {
+export function NavigationTree({ headings, onHeadingSelect }: NavigationTreeProps) {
   const [activeId, setActiveId] = useState<string | null>(headings[0]?.id ?? null);
   const outline = useMemo(() => buildOutline(headings), [headings]);
   const [expandedIds, setExpandedIds] = useState<string[]>(() => collectExpandableIds(outline));
@@ -138,6 +139,12 @@ export function NavigationTree({ headings }: NavigationTreeProps) {
   };
 
   const scrollToHeading = (id: string) => {
+    if (onHeadingSelect) {
+      onHeadingSelect(id);
+      setActiveId(id);
+      return;
+    }
+
     const element = document.getElementById(id);
     if (!element) {
       return;

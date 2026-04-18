@@ -28,6 +28,22 @@ export function MobileSidebar({
   currentPathHint,
   headings,
 }: MobileSidebarProps) {
+  const handleHeadingSelect = (id: string) => {
+    onClose();
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const element = document.getElementById(id);
+        if (!element) {
+          return;
+        }
+
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.history.replaceState(null, "", `#${id}`);
+      });
+    });
+  };
+
   useEffect(() => {
     if (!open) {
       return;
@@ -79,6 +95,7 @@ export function MobileSidebar({
                 currentPathHint={currentPathHint}
                 headings={headings}
                 navigationPlacement="top"
+                onHeadingSelect={handleHeadingSelect}
               />
             </div>
           </motion.aside>
