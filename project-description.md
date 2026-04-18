@@ -26,9 +26,19 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - Auth is configured in `auth.ts` with Better Auth, Google, and the MongoDB adapter.
 - User roles are stored on `users.role`.
 - Supported roles are `"user"` and `"admin"`.
+- `/login` should present an explicit role choice before starting Google OAuth.
+- The selected login role should be written to MongoDB on `user.role` as part of sign-in so evaluators can switch between scenarios.
+- Signed-in users should also be able to switch between `user` and `admin` from `/settings` for testing.
 - Signing in is optional for browsing and settings.
 - `/my-library` requires login.
 - `/admin` requires an authenticated admin user.
+
+### Evaluation-mode access
+
+- This project is intentionally not designed for open public self-service use.
+- The current target is controlled evaluator access.
+- Admin self-selection on the login screen is intentional for testing both user and admin flows in the same deployed environment.
+- If the product is later opened to public users, this role-selection behavior should be removed or replaced with a protected admin assignment flow.
 
 ### Private content
 
@@ -60,8 +70,8 @@ All user-created content starts private.
 ### Public
 
 - `/` home page
-- `/settings` public settings and progress page
-- `/login` sign-in page
+- `/settings` public settings and progress page, plus signed-in role switching for evaluator scenarios
+- `/login` sign-in page with role selection for Google OAuth
 - `/:subject` public subject page
 - `/:subject/:module` public module page
 - `/:subject/materials/:material` public material page

@@ -247,6 +247,13 @@ export function AppTopBar({
         </div>
 
         <div className="flex items-center gap-2">
+          <Link
+            href="/settings"
+            className="hidden rounded-full px-3 py-2 text-sm text-[var(--muted)] transition hover:bg-[var(--accent-soft)] md:inline-flex"
+          >
+            Settings
+          </Link>
+
           <button
             type="button"
             onClick={() => setFont(nextFont)}

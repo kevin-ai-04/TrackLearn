@@ -1,7 +1,10 @@
 import { headers } from "next/headers";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { getOAuthState } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
+import { parseUserRole } from "@/lib/auth-roles";
+import { persistUserRole } from "@/lib/auth-role-store";
 import {
   getDatabaseInstance,
   getMongoClientInstance,
@@ -25,11 +28,37 @@ const database = isDatabaseConfigured()
     })
   : undefined;
 
+async function getSelectedRoleFromOAuthState() {
+  const oauthState = await getOAuthState();
+  return parseUserRole(oauthState?.role);
+}
+
+async function syncSelectedRoleForUser(userId: string | null | undefined) {
+  if (!userId || !isDatabaseConfigured()) {
+    return;
+  }
+
+  const selectedRole = await getSelectedRoleFromOAuthState();
+
+  if (!selectedRole) {
+    return;
+  }
+
+  await persistUserRole(userId, selectedRole);
+}
+
 export const auth = betterAuth({
   appName: "TrackLearn",
   baseURL: resolveBaseUrl(),
   basePath: "/api/auth",
   database,
+  session: {
+    // Role switching in this project needs to reflect immediately after a Mongo update.
+    // Cookie-cached session snapshots can keep the previous role around briefly.
+    cookieCache: {
+      enabled: false,
+    },
+  },
   user: {
     additionalFields: {
       role: {
@@ -43,6 +72,35 @@ export const auth = betterAuth({
   account: {
     accountLinking: {
       trustedProviders: ["google"],
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const selectedRole = await getSelectedRoleFromOAuthState();
+
+          if (!selectedRole) {
+            return;
+          }
+
+          return {
+            data: {
+              ...user,
+              role: selectedRole,
+            },
+          };
+        },
+      },
+    },
+    session: {
+      create: {
+        before: async (session) => {
+          await syncSelectedRoleForUser(
+            typeof session.userId === "string" ? session.userId : String(session.userId),
+          );
+        },
+      },
     },
   },
   socialProviders:
