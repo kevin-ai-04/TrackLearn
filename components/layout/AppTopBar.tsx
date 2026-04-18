@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
+import { authClient } from "@/lib/auth-client";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
 import { cn } from "@/lib/utils";
 import type { ReadingFont, ThemeMode } from "@/types/history";
@@ -36,15 +36,15 @@ function getNextTheme(mode: ThemeMode): ThemeMode {
 export function AppTopBar({ onToggleSidebar, sidebarOpen = false }: AppTopBarProps) {
   const pathname = usePathname();
   const { state, setFont, setTheme } = useStudyHistory();
-  const { data: session, status } = useSession();
+  const { data: sessionData, isPending } = authClient.useSession();
   const [hidden, setHidden] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const lastScrollYRef = useRef(0);
   const navigationStartedAtRef = useRef<number | null>(null);
   const navigationResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextFont: ReadingFont = state.preferences.font === "outfit" ? "serif" : "outfit";
-  const isAuthenticated = status === "authenticated" && Boolean(session?.user?.id);
-  const isAdmin = session?.user?.role === "admin";
+  const isAuthenticated = !isPending && Boolean(sessionData?.user?.id);
+  const isAdmin = sessionData?.user?.role === "admin";
   const nextTheme = getNextTheme(state.preferences.theme);
 
   useEffect(() => {

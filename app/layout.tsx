@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Outfit, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
-import { auth } from "@/auth";
 import { Providers } from "@/components/layout/Providers";
 
 const outfit = Outfit({
@@ -51,8 +50,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-
   return (
     <html
       lang="en"
@@ -63,7 +60,7 @@ export default async function RootLayout({
         <Script id="tracklearn-theme-bootstrap" strategy="beforeInteractive">
           {themeBootstrap}
         </Script>
-        <Providers session={session}>{children}</Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

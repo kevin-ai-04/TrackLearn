@@ -95,6 +95,8 @@ export interface AuthUserDocument {
   name?: string | null;
   email?: string | null;
   image?: string | null;
-  emailVerified?: Date | null;
+  emailVerified?: boolean;
   role?: UserRole;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

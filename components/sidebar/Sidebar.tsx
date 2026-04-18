@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { ModuleList } from "@/components/sidebar/ModuleList";
 import { SubjectList } from "@/components/sidebar/SubjectList";
 import { NavigationTree } from "@/components/toc/NavigationTree";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import type { HeadingItem, SubjectSummary } from "@/types/content";
 
@@ -32,10 +32,10 @@ export function Sidebar({
   navigationPlacement = "bottom",
 }: SidebarProps) {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { data: sessionData, isPending } = authClient.useSession();
   const currentSubject = subjects.find((subject) => subject.slug === currentSubjectSlug);
-  const isAuthenticated = status === "authenticated" && Boolean(session?.user?.id);
-  const isAdmin = session?.user?.role === "admin";
+  const isAuthenticated = !isPending && Boolean(sessionData?.user?.id);
+  const isAdmin = sessionData?.user?.role === "admin";
 
   const primaryLinks = [
     { href: "/", label: "Home" },

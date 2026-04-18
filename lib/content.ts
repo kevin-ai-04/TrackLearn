@@ -295,7 +295,7 @@ async function getUsersByIds(userIds: string[]) {
   }
 
   const db = await getDatabase();
-  return db.collection<AuthUserDocument>("users").find({
+  return db.collection<AuthUserDocument>("user").find({
     _id: {
       $in: userIds.map((userId) => new ObjectId(userId)),
     },

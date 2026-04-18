@@ -1,7 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { getSession } from "@/auth";
 import type { UserRole } from "@/types/content";
 
 export interface Viewer {
@@ -13,9 +13,9 @@ export interface Viewer {
 }
 
 export async function getViewer(): Promise<Viewer> {
-  const session = await auth();
+  const session = await getSession();
 
-  if (!session?.user?.id) {
+  if (!session?.user.id) {
     return {
       userId: null,
       role: "user",
@@ -25,7 +25,7 @@ export async function getViewer(): Promise<Viewer> {
 
   return {
     userId: session.user.id,
-    role: session.user.role,
+    role: session.user.role ?? "user",
     name: session.user.name,
     email: session.user.email,
     isAuthenticated: true,

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, signIn } from "@/auth";
+import { auth, getSession } from "@/auth";
 import { isDatabaseConfigured, isGoogleAuthConfigured } from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
@@ -8,13 +8,24 @@ export const dynamic = "force-dynamic";
 async function signInWithGoogle() {
   "use server";
 
-  await signIn("google", { redirectTo: "/my-library" });
+  const result = await auth.api.signInSocial({
+    body: {
+      provider: "google",
+      callbackURL: "/my-library",
+    },
+  });
+
+  if (result.url) {
+    redirect(result.url);
+  }
+
+  throw new Error("Google sign-in did not return a redirect URL.");
 }
 
 export default async function LoginPage() {
-  const session = await auth();
+  const session = await getSession();
 
-  if (session?.user?.id) {
+  if (session?.user.id) {
     redirect("/my-library");
   }
 
@@ -30,7 +41,7 @@ export default async function LoginPage() {
           Sign in to sync progress, manage private notes, and submit content for review.
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)]">
-          TrackLearn uses Google sign-in through Auth.js. Once you sign in, your study progress can
+          TrackLearn uses Google sign-in through Better Auth. Once you sign in, your study progress can
           sync across devices and you can manage private subjects, modules, and materials.
         </p>
 

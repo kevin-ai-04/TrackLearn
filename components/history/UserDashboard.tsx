@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { HistoryPanel } from "@/components/history/HistoryPanel";
 import { ImportExportDialog } from "@/components/history/ImportExportDialog";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
+import { authClient } from "@/lib/auth-client";
 import { formatCount, formatDateTime } from "@/lib/utils";
 import type { SubjectSummary } from "@/types/content";
 import type { ReadingFont, ThemeMode } from "@/types/history";
@@ -28,6 +29,7 @@ const fontOptions: Array<{ label: string; value: ReadingFont; description: strin
 ];
 
 export function UserDashboard({ subjects }: UserDashboardProps) {
+  const router = useRouter();
   const { hydrated, isAuthenticated, state, syncStatus, setFont, setTheme, resetState } = useStudyHistory();
   const [dialogMode, setDialogMode] = useState<"import" | "export" | null>(null);
   const [isResetPending, setIsResetPending] = useState(false);
@@ -74,7 +76,9 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
       return;
     }
 
-    await signOut({ callbackUrl: "/" });
+    await authClient.signOut();
+    router.push("/");
+    router.refresh();
   };
 
   return (

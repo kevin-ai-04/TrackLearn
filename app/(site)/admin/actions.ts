@@ -40,7 +40,7 @@ export async function unpublishEntryAction(entryId: string) {
   redirect("/admin");
 }
 
-export async function updatePublicEntryAction(entryId: string, formData: FormData) {
+export async function updatePublicEntryAction(entryId: string, returnHref: string, formData: FormData) {
   await requireAdmin();
   const result = await updatePublicEntryAsAdmin(entryId, formData);
 
@@ -50,5 +50,6 @@ export async function updatePublicEntryAction(entryId: string, formData: FormDat
   revalidatePath(result.previousPath);
   revalidatePath(result.nextPath);
 
-  redirect(`/admin?editEntryId=${entryId}`);
+  const separator = returnHref.includes("?") ? "&" : "?";
+  redirect(`${returnHref}${separator}editEntryId=${entryId}`);
 }

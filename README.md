@@ -3,7 +3,7 @@
 TrackLearn is a Next.js study platform with:
 
 - a public study catalog backed by MongoDB
-- Google sign-in via Auth.js
+- Google sign-in via Better Auth
 - private user libraries for custom subjects, modules, and materials
 - admin moderation for publishing private content into the shared catalog
 - synced signed-in progress with guest local fallback
@@ -14,7 +14,7 @@ The repository `data/subjects` folder is still the seed source for the public ca
 
 - Public subject, module, and material browsing
 - Markdown rendering with heading extraction and table of contents navigation
-- Google authentication with Mongo-backed sessions
+- Google authentication with Better Auth and Mongo-backed sessions
 - Private user library at `/my-library`
 - Markdown paste and `.md` upload for private entries
 - Publication request workflow with admin approval/rejection
@@ -42,9 +42,8 @@ The repository `data/subjects` folder is still the seed source for the public ca
 - TypeScript
 - Tailwind CSS
 - Framer Motion
-- Auth.js / NextAuth v5 beta
+- Better Auth
 - MongoDB Atlas + MongoDB Node driver
-- `@auth/mongodb-adapter`
 - React Markdown + Remark / Rehype tooling
 
 ## Local Setup
@@ -70,7 +69,10 @@ MONGODB_DB=tracklearn
 AUTH_SECRET=
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
+BETTER_AUTH_URL=
 ```
+
+`BETTER_AUTH_URL` is strongly recommended so OAuth callbacks and redirects resolve consistently outside local inference.
 
 Recommended first-time catalog seed:
 
@@ -156,7 +158,7 @@ That script:
 
 ## Admin Role
 
-User roles live in MongoDB on the `users` collection.
+User roles live in MongoDB on the `user` collection.
 
 To promote an account to admin in v1, update that user document and set:
 

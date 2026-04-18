@@ -4,6 +4,7 @@ import { MongoClient, ServerApiVersion, type Db } from "mongodb";
 
 const databaseName = process.env.MONGODB_DB ?? "tracklearn";
 
+let client: MongoClient | null = null;
 let clientPromise: Promise<MongoClient> | null = null;
 let indexesPromise: Promise<void> | null = null;
 
@@ -15,24 +16,38 @@ export function isGoogleAuthConfigured() {
   return Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
 }
 
-export async function getMongoClient() {
+function createMongoClient() {
+  return new MongoClient(process.env.MONGODB_URI!, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
+}
+
+export function getMongoClientInstance() {
   if (!process.env.MONGODB_URI) {
     throw new Error('Missing environment variable "MONGODB_URI".');
   }
 
-  if (!clientPromise) {
-    const client = new MongoClient(process.env.MONGODB_URI, {
-      serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-      },
-    });
+  if (!client) {
+    client = createMongoClient();
+  }
 
-    clientPromise = client.connect();
+  return client;
+}
+
+export async function getMongoClient() {
+  if (!clientPromise) {
+    clientPromise = getMongoClientInstance().connect();
   }
 
   return clientPromise;
+}
+
+export function getDatabaseInstance(): Db {
+  return getMongoClientInstance().db(databaseName);
 }
 
 export async function getDatabase(): Promise<Db> {
@@ -50,7 +65,7 @@ export async function ensureAppIndexes() {
       const db = await getDatabase();
 
       await Promise.all([
-        db.collection("users").createIndex({ role: 1 }, { name: "users_role_idx" }),
+        db.collection("user").createIndex({ role: 1 }, { name: "user_role_idx" }),
         db.collection("subjects").createIndex(
           { visibility: 1, ownerUserId: 1, slug: 1 },
           { unique: true, name: "subjects_visibility_owner_slug_uq" },

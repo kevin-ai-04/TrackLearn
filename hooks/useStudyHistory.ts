@@ -9,7 +9,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-import { useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import {
   createEmptyHistoryState,
   exportHistoryAsText,
@@ -52,7 +52,7 @@ function hasMeaningfulHistory(state: StudyHistoryState) {
 }
 
 export function StudyHistoryProvider({ children }: PropsWithChildren) {
-  const { data: session, status: sessionStatus } = useSession();
+  const { data: sessionData, isPending: sessionPending } = authClient.useSession();
   const [state, setState] = useState<StudyHistoryState>(createEmptyHistoryState);
   const [hydrated, setHydrated] = useState(false);
   const [syncStatus, setSyncStatus] = useState<"local" | "syncing" | "synced" | "error">("local");
@@ -83,7 +83,11 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    if (sessionStatus !== "authenticated" || !session?.user?.id) {
+    if (sessionPending) {
+      return;
+    }
+
+    if (!sessionData?.user?.id) {
       setRemoteReady(false);
       setSyncStatus("local");
       migratedFromLocalAtRef.current = null;
@@ -154,10 +158,10 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
     return () => {
       cancelled = true;
     };
-  }, [hydrated, session?.user?.id, sessionStatus]);
+  }, [hydrated, sessionData?.user?.id, sessionPending]);
 
   useEffect(() => {
-    if (!hydrated || sessionStatus !== "authenticated" || !session?.user?.id || !remoteReady) {
+    if (!hydrated || sessionPending || !sessionData?.user?.id || !remoteReady) {
       return;
     }
 
@@ -197,11 +201,11 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [hydrated, remoteReady, session?.user?.id, sessionStatus, state]);
+  }, [hydrated, remoteReady, sessionData?.user?.id, sessionPending, state]);
 
   const value: StudyHistoryContextValue = {
     hydrated,
-    isAuthenticated: sessionStatus === "authenticated" && Boolean(session?.user?.id),
+    isAuthenticated: Boolean(sessionData?.user?.id),
     syncStatus,
     state,
     markVisited(moduleRef: ModuleReference) {

@@ -21,7 +21,7 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 
 ### Auth and roles
 
-- Auth is configured in `auth.ts` with Auth.js, Google, and the MongoDB adapter.
+- Auth is configured in `auth.ts` with Better Auth, Google, and the MongoDB adapter.
 - User roles are stored on `users.role`.
 - Supported roles are `"user"` and `"admin"`.
 - Signing in is optional for browsing and settings.
@@ -80,12 +80,12 @@ All user-created content starts private.
 
 ## Core Data Model
 
-### Auth.js collections
+### Better Auth collections
 
-- `users`
-- `accounts`
-- `sessions`
-- `verificationTokens`
+- `user`
+- `account`
+- `session`
+- `verification`
 
 ### Application collections
 
@@ -198,10 +198,16 @@ Key fields:
 
 ### `auth.ts`
 
-- Auth.js setup
-- Google provider
-- MongoDB adapter
-- session and JWT role hydration
+- Better Auth setup
+- Google social provider
+- MongoDB adapter using Better Auth's default Mongo collection names
+- `getSession()` helper for route handlers and server components
+
+### `lib/auth-client.ts`
+
+- Better Auth React client
+- client-side session hook
+- typed role field inference
 
 ### `lib/auth-helpers.ts`
 
@@ -255,7 +261,7 @@ Client-side progress state source of truth for the UI:
 
 ### Route handlers
 
-- `app/api/auth/[...nextauth]/route.ts`
+- `app/api/auth/[...all]/route.ts`
 - `app/api/user-progress/route.ts`
 
 ### User library server actions
@@ -290,6 +296,7 @@ Full functionality requires:
 Optional:
 
 - `MONGODB_DB` defaults to `tracklearn`
+- `BETTER_AUTH_URL` is recommended for stable OAuth callback and redirect handling
 
 Behavior without MongoDB:
 
@@ -302,11 +309,12 @@ For fast orientation, open these in order:
 
 1. `project-description.md`
 2. `auth.ts`
-3. `lib/auth-helpers.ts`
-4. `lib/content.ts`
-5. `lib/content-management.ts`
-6. `lib/mongodb.ts`
-7. `hooks/useStudyHistory.ts`
-8. `app/(site)/settings/page.tsx`
-9. `app/(site)/my-library/page.tsx`
-10. `app/(site)/admin/page.tsx`
+3. `lib/auth-client.ts`
+4. `lib/auth-helpers.ts`
+5. `lib/content.ts`
+6. `lib/content-management.ts`
+7. `lib/mongodb.ts`
+8. `hooks/useStudyHistory.ts`
+9. `app/(site)/settings/page.tsx`
+10. `app/(site)/my-library/page.tsx`
+11. `app/(site)/admin/page.tsx`
