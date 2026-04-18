@@ -4,8 +4,8 @@ TrackLearn is a Next.js study platform with:
 
 - a public study catalog backed by MongoDB
 - Google sign-in via Better Auth
-- private user libraries for custom subjects, modules, and materials
-- admin moderation for publishing private content into the shared catalog
+- personal subject management for custom subjects, modules, and materials
+- admin moderation for publishing personal content into the shared catalog
 - synced signed-in progress with guest local fallback
 
 
@@ -14,8 +14,8 @@ TrackLearn is a Next.js study platform with:
 - Public subject, module, and material browsing
 - Markdown rendering with heading extraction and table of contents navigation
 - Google authentication with Better Auth and Mongo-backed sessions
-- Private user library at `/my-library`
-- Markdown paste and `.md` upload for private entries
+- Public library at `/library` plus signed-in management at `/library/manage`
+- Markdown paste and `.md` upload for personal entries
 - Publication request workflow with admin approval/rejection
 - Admin dashboard for moderation and public catalog management
 - Synced signed-in progress, preferences, and recent activity
@@ -26,9 +26,10 @@ TrackLearn is a Next.js study platform with:
 - `/` - home dashboard
 - `/login` - Google sign-in
 - `/user` - signed-in progress and preferences dashboard
-- `/my-library` - private subjects, entries, and publication requests
-- `/my-library/subjects/:subjectId` - private subject editor
-- `/my-library/entries/:entryId` - private entry editor
+- `/library` - public subject library with signed-in personal subject cards
+- `/library/manage` - personal subjects, entries, and publication requests
+- `/library/subjects/:subjectId` - personal subject editor
+- `/library/entries/:entryId` - personal entry editor
 - `/admin` - admin-only moderation dashboard
 - `/:subject` - public subject overview
 - `/:subject/:module` - public module page
@@ -102,17 +103,17 @@ The shared catalog is stored in MongoDB using:
 Public entries are either:
 
 - imported from `data/subjects` via the seed script
-- approved copies of user-submitted private content
+- approved copies of user-submitted personal content
 
-### Private user content
+### Personal user content
 
 Signed-in users can create:
 
-- private subjects
-- private modules
-- private materials
+- personal subjects
+- personal modules
+- personal materials
 
-All user-created content starts private and stays private until an admin approves a publication request.
+All user-created content starts private in storage and is treated as personal content in the UI until an admin approves a publication request.
 
 ### Moderation
 

@@ -63,7 +63,8 @@ export function Sidebar({
 
   const primaryLinks = [
     { href: "/", label: "Home" },
-    ...(isAuthenticated ? [{ href: "/my-library", label: "My Library" }] : [{ href: "/login", label: "Login" }]),
+    { href: "/library", label: "Library" },
+    ...(!isAuthenticated ? [{ href: "/login", label: "Login" }] : []),
     ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 

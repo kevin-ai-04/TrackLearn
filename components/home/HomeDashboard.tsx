@@ -44,7 +44,7 @@ export function HomeDashboard({ subjects }: HomeDashboardProps) {
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted)]">
               Browse the shared study catalog, keep your progress synced when signed in, and build
-              private subjects or notes in your library.
+              personal subjects or notes in your library.
             </p>
 
             {latestVisit && latestModule ? (

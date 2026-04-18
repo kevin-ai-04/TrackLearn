@@ -218,31 +218,28 @@ export function AppTopBar({
             <Link className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]" href="/">
               Home
             </Link>
-            {isAuthenticated ? (
-              <>
-                <Link
-                  className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                  href="/my-library"
-                >
-                  My Library
-                </Link>
-                {isAdmin ? (
-                  <Link
-                    className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                    href="/admin"
-                  >
-                    Admin
-                  </Link>
-                ) : null}
-              </>
-            ) : (
+            <Link
+              className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
+              href="/library"
+            >
+              Library
+            </Link>
+            {!isAuthenticated ? (
               <Link
                 className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
                 href="/login"
               >
                 Login
               </Link>
-            )}
+            ) : null}
+            {isAdmin ? (
+              <Link
+                className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
+                href="/admin"
+              >
+                Admin
+              </Link>
+            ) : null}
           </nav>
         </div>
 

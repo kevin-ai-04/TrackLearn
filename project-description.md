@@ -5,7 +5,7 @@
 TrackLearn is a Next.js App Router study platform with three active surfaces:
 
 - public study content
-- optional account features for private content and synced progress
+- optional account features for personal content and synced progress
 - an admin moderation dashboard for publishing user content
 
 MongoDB is the primary backend. The `data/subjects` directory is used for seeding the public catalog and as a runtime fallback only when MongoDB is not configured.
@@ -30,7 +30,10 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - The selected login role should be written to MongoDB on `user.role` as part of sign-in so evaluators can switch between scenarios.
 - Signed-in users should also be able to switch between `user` and `admin` from `/settings` for testing.
 - Signing in is optional for browsing and settings.
-- `/my-library` requires login.
+- `/library` is public and shows the public subject catalog plus any signed-in user's personal subjects.
+- `/library/manage` requires login.
+- `/library/subjects/[subjectId]` requires login.
+- `/library/entries/[entryId]` requires login.
 - `/admin` requires an authenticated admin user.
 
 ### Evaluation-mode access
@@ -40,23 +43,23 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - Admin self-selection on the login screen is intentional for testing both user and admin flows in the same deployed environment.
 - If the product is later opened to public users, this role-selection behavior should be removed or replaced with a protected admin assignment flow.
 
-### Private content
+### Personal content
 
 Logged-in users can create:
 
-- private subjects
-- private modules
-- private materials
+- personal subjects
+- personal modules
+- personal materials
 
-All user-created content starts private.
+All user-created content starts with `visibility: "private"` and is treated in the UI as personal content.
 
 ### Moderated publishing
 
-- Users can submit private subjects or entries for review.
+- Users can submit personal subjects or entries for review.
 - Submission creates a `publicationRequests` document with a snapshot of the submitted content.
 - Admin approval creates or updates a separate public copy.
-- The original private record remains the author-owned working copy.
-- Later edits to the private source do not change the live public copy until a new review is approved.
+- The original personal record remains the author-owned working copy.
+- Later edits to the personal source do not change the live public copy until a new review is approved.
 
 ### Study progress
 
@@ -72,6 +75,7 @@ All user-created content starts private.
 - `/` home page
 - `/settings` public settings and progress page, plus signed-in role switching for evaluator scenarios
 - `/login` sign-in page with role selection for Google OAuth
+- `/library` public library view with public subject cards and sign-in prompts for personal management
 - `/:subject` public subject page
 - `/:subject/:module` public module page
 - `/:subject/materials/:material` public material page
@@ -82,9 +86,9 @@ All user-created content starts private.
 
 ### Auth-required
 
-- `/my-library` private library overview and creation forms
-- `/my-library/subjects/[subjectId]` private subject editor
-- `/my-library/entries/[entryId]` private entry editor
+- `/library/manage` personal subject management view with creation forms and publication requests
+- `/library/subjects/[subjectId]` personal subject editor
+- `/library/entries/[entryId]` personal entry editor
 
 ### Admin-required
 
@@ -108,7 +112,7 @@ All user-created content starts private.
 
 ### `subjects`
 
-Represents both public and private subjects.
+Represents both public and personal subjects.
 
 Key fields:
 
@@ -129,7 +133,7 @@ Key fields:
 
 ### `entries`
 
-Represents both modules and materials.
+Represents both public and personal modules and materials.
 
 Key fields:
 
@@ -184,7 +188,7 @@ Key fields:
 ### Visibility
 
 - Public catalog content is readable by anyone.
-- Private content is readable only by its owner.
+- Personal content is readable only by its owner.
 
 ### Status values
 
@@ -201,8 +205,8 @@ Key fields:
 
 ### Publishing rules
 
-- A private subject can be submitted for publication.
-- A private entry can be submitted for publication.
+- A personal subject can be submitted for publication.
+- A personal entry can be submitted for publication.
 - Approval publishes a separate public record, not the same private record flipped to public.
 - Unpublishing removes the public copy and resets the private source back to draft.
 
@@ -241,8 +245,9 @@ Read-only repository layer for:
 
 Write layer for:
 
-- creating, editing, and deleting private subjects
-- creating, editing, and deleting private entries
+- creating, editing, and deleting personal subjects
+- creating, editing, and deleting personal entries
+- public library browsing reads remain in `lib/content.ts`
 - markdown text and file ingestion
 - submission for review
 - admin review decisions
@@ -278,7 +283,7 @@ Client-side progress state source of truth for the UI:
 
 ### User library server actions
 
-- `app/(site)/my-library/actions.ts`
+- `app/(site)/library/actions.ts`
 
 ### Admin server actions
 
@@ -313,7 +318,7 @@ Optional:
 Behavior without MongoDB:
 
 - public catalog still works through filesystem fallback
-- login, private library, admin moderation, and remote progress sync do not work
+- login, personal management, admin moderation, and remote progress sync do not work
 
 ## Files to Read First
 
@@ -328,5 +333,6 @@ For fast orientation, open these in order:
 7. `lib/mongodb.ts`
 8. `hooks/useStudyHistory.ts`
 9. `app/(site)/settings/page.tsx`
-10. `app/(site)/my-library/page.tsx`
-11. `app/(site)/admin/page.tsx`
+10. `app/(site)/library/page.tsx`
+11. `app/(site)/library/manage/page.tsx`
+12. `app/(site)/admin/page.tsx`

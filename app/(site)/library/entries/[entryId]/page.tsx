@@ -4,7 +4,7 @@ import {
   deleteEntryAction,
   submitEntryAction,
   updateEntryAction,
-} from "@/app/(site)/my-library/actions";
+} from "@/app/(site)/library/actions";
 import { requireUser } from "@/lib/auth-helpers";
 import { getNavigationTree, getOwnedEntryById, listUserLibrary } from "@/lib/content";
 
@@ -36,8 +36,8 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
   return (
     <AppShell
       subjects={subjects}
-      currentPathLabel={`My Library - ${entry.title}`}
-      currentPathHint="Edit private markdown content and submit updates for review."
+      currentPathLabel={`Manage - ${entry.title}`}
+      currentPathHint="Edit personal markdown content and submit updates for review."
     >
       <div className="space-y-4">
         <section className="panel rounded-[2rem] p-6 sm:p-8">
@@ -46,7 +46,7 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{entry.title}</h1>
           <p className="mt-3 text-sm text-[var(--muted)]">
-            {entry.subjectTitle} · {entry.kind} · {entry.status.replaceAll("_", " ")}
+            {entry.subjectTitle} / {entry.kind} / {entry.status.replaceAll("_", " ")}
           </p>
         </section>
 
@@ -69,7 +69,7 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
             <select name="subjectId" className="field" defaultValue={entry.subjectId}>
               {library.ownedSubjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
-                  Private: {subject.title}
+                  Personal: {subject.title}
                 </option>
               ))}
               {library.publicSubjects.map((subject) => (
@@ -84,7 +84,6 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
               defaultValue={entry.description ?? ""}
               placeholder="Short description"
             />
-
             <textarea
               name="markdown"
               className="field min-h-72 font-mono text-sm"
@@ -106,10 +105,16 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
               <button type="submit" className="button-primary px-4 py-3 text-sm font-semibold">
                 Save Entry
               </button>
-              <button formAction={boundSubmitEntryAction} className="button-secondary px-4 py-3 text-sm font-semibold">
+              <button
+                formAction={boundSubmitEntryAction}
+                className="button-secondary px-4 py-3 text-sm font-semibold"
+              >
                 Request Public Approval
               </button>
-              <button formAction={boundDeleteEntryAction} className="button-secondary px-4 py-3 text-sm font-semibold">
+              <button
+                formAction={boundDeleteEntryAction}
+                className="button-secondary px-4 py-3 text-sm font-semibold"
+              >
                 Delete Entry
               </button>
             </div>

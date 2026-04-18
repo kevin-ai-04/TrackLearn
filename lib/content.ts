@@ -326,8 +326,18 @@ function mapPublicationRequest(
   };
 }
 
-export async function listUserLibrary(userId: string): Promise<UserLibraryData> {
+export async function listUserLibrary(userId?: string | null): Promise<UserLibraryData> {
   noStore();
+
+  if (!userId) {
+    return {
+      ownedSubjects: [],
+      ownedEntries: [],
+      publicSubjects: await getNavigationTree(),
+      publicEntries: [],
+      publicationRequests: [],
+    };
+  }
 
   if (!isDatabaseConfigured()) {
     return {

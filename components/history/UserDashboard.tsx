@@ -4,10 +4,8 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
-import { authClient } from "@/lib/auth-client";
 import { formatCount, formatDateTime } from "@/lib/utils";
 import type { SubjectSummary } from "@/types/content";
 import type { ReadingFont, ThemeMode } from "@/types/history";
@@ -44,11 +42,9 @@ const fontOptions: Array<{ label: string; value: ReadingFont; description: strin
 ];
 
 export function UserDashboard({ subjects }: UserDashboardProps) {
-  const router = useRouter();
   const { hydrated, isAuthenticated, state, syncStatus, setFont, setTheme, resetState } = useStudyHistory();
   const [dialogMode, setDialogMode] = useState<"import" | "export" | null>(null);
   const [isResetPending, setIsResetPending] = useState(false);
-  const [isSignOutPending, setIsSignOutPending] = useState(false);
 
   const subjectMetrics = subjects.map((subject) => {
     const records = subject.modules.map((module) => state.modules[`${subject.slug}::${module.slug}`]);
@@ -83,17 +79,6 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
 
     resetState();
     setIsResetPending(false);
-  };
-
-  const handleSignOutClick = async () => {
-    if (!isSignOutPending) {
-      setIsSignOutPending(true);
-      return;
-    }
-
-    await authClient.signOut();
-    router.push("/");
-    router.refresh();
   };
 
   return (
@@ -134,7 +119,7 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
                 </p>
                 <p className="mt-1 text-sm text-[var(--muted)]">
                   {isAuthenticated
-                    ? "Your progress and preferences can sync to your account, and private library tools are available."
+                    ? "Your progress and preferences can sync to your account, and personal subject tools are available."
                     : "Keep using local settings, or sign in when you want synced progress and personal content tools."}
                 </p>
               </div>
@@ -144,36 +129,6 @@ export function UserDashboard({ subjects }: UserDashboardProps) {
                 </Link>
               ) : null}
             </div>
-            {isAuthenticated ? (
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Link href="/my-library" className="button-secondary px-4 py-3 text-sm font-semibold">
-                  Open My Library
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleSignOutClick}
-                  className={`px-4 py-3 text-sm font-semibold transition ${
-                    isSignOutPending ? "rounded-full bg-rose-600 text-white hover:bg-rose-700" : "button-secondary"
-                  }`}
-                >
-                  {isSignOutPending ? "Confirm Sign Out" : "Sign Out"}
-                </button>
-                {isSignOutPending ? (
-                  <button
-                    type="button"
-                    onClick={() => setIsSignOutPending(false)}
-                    className="button-secondary px-4 py-3 text-sm font-semibold"
-                  >
-                    Cancel
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-            {isSignOutPending ? (
-              <p className="mt-4 text-sm text-rose-600">
-                Signing out will end the current session on this device.
-              </p>
-            ) : null}
           </div>
         </section>
 

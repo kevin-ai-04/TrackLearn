@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { UserDashboard } from "@/components/history/UserDashboard";
+import { SettingsAccountActions } from "@/components/settings/SettingsAccountActions";
 import { RoleSwitchAutoRefresh } from "@/components/settings/RoleSwitchAutoRefresh";
 import { userRoleOptions } from "@/lib/auth-roles";
 import { getViewer } from "@/lib/auth-helpers";
@@ -17,7 +17,7 @@ export default async function SettingsPage() {
     <AppShell
       subjects={subjects}
       currentPathLabel="Settings"
-      currentPathHint="Theme, reading preferences, and study progress are available to everyone. Signing in enables optional account sync and private content tools."
+      currentPathHint="Theme, reading preferences, and study progress are available to everyone. Signing in enables optional account sync and personal content tools."
     >
       <>
         <RoleSwitchAutoRefresh />
@@ -70,16 +70,7 @@ export default async function SettingsPage() {
               })}
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-3 text-sm">
-              <Link href="/my-library" className="button-secondary px-4 py-3 font-semibold">
-                Open My Library
-              </Link>
-              {viewer.role === "admin" ? (
-                <Link href="/admin" className="button-secondary px-4 py-3 font-semibold">
-                  Open Admin Dashboard
-                </Link>
-              ) : null}
-            </div>
+            <SettingsAccountActions isAdmin={viewer.role === "admin"} />
           </section>
         ) : null}
 

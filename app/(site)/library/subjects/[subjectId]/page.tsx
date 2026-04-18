@@ -5,7 +5,7 @@ import {
   deleteSubjectAction,
   submitSubjectAction,
   updateSubjectAction,
-} from "@/app/(site)/my-library/actions";
+} from "@/app/(site)/library/actions";
 import { requireUser } from "@/lib/auth-helpers";
 import { getNavigationTree, getOwnedSubjectById } from "@/lib/content";
 
@@ -36,8 +36,8 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
   return (
     <AppShell
       subjects={subjects}
-      currentPathLabel={`My Library - ${subject.title}`}
-      currentPathHint="Edit your private subject metadata and submit it for publication when ready."
+      currentPathLabel={`Manage - ${subject.title}`}
+      currentPathHint="Edit your personal subject metadata and submit it for publication when ready."
     >
       <div className="space-y-4">
         <section className="panel rounded-[2rem] p-6 sm:p-8">
@@ -53,7 +53,6 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
         <section className="panel rounded-[2rem] p-6">
           <form action={boundUpdateSubjectAction} className="space-y-3">
             <input name="title" className="field" defaultValue={subject.title} required />
-
             <input
               name="order"
               className="field"
@@ -70,10 +69,16 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
               <button type="submit" className="button-primary px-4 py-3 text-sm font-semibold">
                 Save Subject
               </button>
-              <button formAction={boundSubmitSubjectAction} className="button-secondary px-4 py-3 text-sm font-semibold">
+              <button
+                formAction={boundSubmitSubjectAction}
+                className="button-secondary px-4 py-3 text-sm font-semibold"
+              >
                 Request Public Approval
               </button>
-              <button formAction={boundDeleteSubjectAction} className="button-secondary px-4 py-3 text-sm font-semibold">
+              <button
+                formAction={boundDeleteSubjectAction}
+                className="button-secondary px-4 py-3 text-sm font-semibold"
+              >
                 Delete Subject
               </button>
             </div>
@@ -93,7 +98,7 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
             {[...subject.modules, ...subject.materials].map((entry) => (
               <Link
                 key={entry.id}
-                href={`/my-library/entries/${entry.id}`}
+                href={`/library/entries/${entry.id}`}
                 className="block rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
               >
                 <div className="flex items-start justify-between gap-3">

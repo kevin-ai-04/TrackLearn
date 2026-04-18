@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
-const ROLE_REFRESH_DELAY_MS = 1000;
+const ROLE_REFRESH_DELAY_MS = 300;
 
 export function RoleSwitchAutoRefresh() {
   const pathname = usePathname();

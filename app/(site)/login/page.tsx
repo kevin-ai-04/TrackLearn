@@ -13,7 +13,7 @@ async function signInWithGoogle(selectedRole: UserRole) {
   const result = await auth.api.signInSocial({
     body: {
       provider: "google",
-      callbackURL: selectedRole === "admin" ? "/admin" : "/my-library",
+      callbackURL: selectedRole === "admin" ? "/admin" : "/library",
       additionalData: {
         role: selectedRole,
       },
@@ -31,7 +31,7 @@ export default async function LoginPage() {
   const session = await getSession();
 
   if (session?.user.id) {
-    redirect(session.user.role === "admin" ? "/admin" : "/my-library");
+    redirect(session.user.role === "admin" ? "/admin" : "/library");
   }
 
   const googleReady = isGoogleAuthConfigured() && isDatabaseConfigured();
