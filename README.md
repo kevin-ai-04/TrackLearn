@@ -61,7 +61,7 @@ TrackLearn is designed around a shared learning library plus personal study spac
 
 The home page gives users a quick starting point with subject cards, progress bars, recent activity, and a "Continue Reading" area.
 
-![Home](images\Home.png)
+![Home](images/Home.png)
 
 ### Public library
 
@@ -71,10 +71,10 @@ The library page is the main browsing area for public subjects. Signed-in users 
 
 Subject, module, and material pages are built for reading. Users can move through content with the sidebar, use the table of contents on longer pages, and track study progress from the module header.
 
-![Reader](images\Reader_UI.gif)
+![Reader](images/Reader_UI.gif)
 
 #### Mobile View
-![Mobile View](images\mobile_reader.png)
+![Mobile View](images/mobile_reader.png)
 
 ### Personal workspace
 
