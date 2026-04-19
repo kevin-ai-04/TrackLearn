@@ -1,175 +1,245 @@
 # TrackLearn
 
-TrackLearn is a Next.js study platform with:
+TrackLearn is a study platform for browsing learning content, tracking progress, and building your own private study library.
 
-- a public study catalog backed by MongoDB
-- Google sign-in via Better Auth
-- personal subject management for custom subjects, modules, and materials
-- admin moderation for publishing personal content into the shared catalog
-- synced signed-in progress with guest local fallback
+It supports two usage modes:
+
+- Browse public study content without signing in
+- Sign in to save progress, create private subjects and notes, and submit content for review
+
+Currently hosted at [TrackLearn](https://tracklearn.vercel.app/)
+
+## Overview
+
+TrackLearn is designed around a shared learning library plus personal study space.
+
+- Explore public subjects, modules, and materials
+- Continue where you left off with recent activity and progress tracking
+- Mark modules as done or flag them for revision
+- Choose your reading theme and font
+- Create your own personal subjects, modules, and materials
+- Paste Markdown or upload `.md` files for personal content
+- Submit personal content for publication review
+- Review and moderate submissions from the admin dashboard
+
+## Main Features
+
+### Public learning experience
+
+- Public library anyone can browse
+- Subject overview pages for each topic
+- Module and material pages with clean reading layouts
+- Sidebar navigation for moving between subjects, modules, and materials
+- Table of contents navigation for long Markdown pages
+
+### Study tracking
+
+- Recent activity on the home page
+- Per-subject progress bars
+- "Mark as Done" and "Flag Revision" actions on modules
+- Guest progress saved in the browser
+- Account sync for signed-in users
+
+### Personal workspace
+
+- Create private subjects
+- Add private modules and materials
+- Paste Markdown directly or upload Markdown files
+- Keep personal work private until you are ready
+- Submit content for review when you want it published
+
+### Admin tools
+
+- Review pending publication requests
+- Approve, reject, or request changes
+- Compare submitted updates with the current public version
+- Edit or unpublish public content
+
+## UI Overview
+
+### Home dashboard
+
+The home page gives users a quick starting point with subject cards, progress bars, recent activity, and a "Continue Reading" area.
+
+![Home](images\Home.png)
+
+### Public library
+
+The library page is the main browsing area for public subjects. Signed-in users also see their personal subjects and a shortcut to the manage area.
+
+### Study reader
+
+Subject, module, and material pages are built for reading. Users can move through content with the sidebar, use the table of contents on longer pages, and track study progress from the module header.
+
+![Reader](images\Reader_UI.gif)
+
+#### Mobile View
+![Mobile View](images\mobile_reader.png)
+
+### Personal workspace
+
+The Manage page is where signed-in users create subjects, add entries, upload Markdown, and monitor publication requests.
+
+### Settings and progress
+
+The Settings page includes theme selection, font selection, import/export for progress, reset controls, and synced account state when logged in.
+
+### Admin dashboard
+
+Admins can review submissions, inspect snapshots, edit public entries, and manage the public catalog from one place.
 
 
-## Features
+## Access levels
 
-- Public subject, module, and material browsing
-- Markdown rendering with heading extraction and table of contents navigation
-- Google authentication with Better Auth and Mongo-backed sessions
-- Public library at `/library` plus signed-in management at `/library/manage`
+TrackLearn expands in three layers of access. Each level includes the capabilities of the previous one.
+
+### Guest
+
+Available without authentication:
+
+- Public content browsing
+- Subject and module reading
+- Local progress tracking
+- Theme and font preferences
+
+### Signed in as User
+
+Unlocks the following features:
+
+- Synced progress and preferences
+- Personal subject creation
+- Personal module and material creation
 - Markdown paste and `.md` upload for personal entries
-- Publication request workflow with admin approval/rejection
-- Admin dashboard for moderation and public catalog management
-- Synced signed-in progress, preferences, and recent activity
-- Guest browsing with browser-local study state fallback
+- Publication request workflow
 
-## Routes
+### Signed in as Admin
 
-- `/` - home dashboard
-- `/login` - Google sign-in
-- `/user` - signed-in progress and preferences dashboard
-- `/library` - public subject library with signed-in personal subject cards
-- `/library/manage` - personal subjects, entries, and publication requests
-- `/library/subjects/:subjectId` - personal subject editor
-- `/library/entries/:entryId` - personal entry editor
-- `/admin` - admin-only moderation dashboard
-- `/:subject` - public subject overview
-- `/:subject/:module` - public module page
-- `/:subject/materials/:material` - public material page
+Allows the following:
 
-## Tech Stack
+- Admin dashboard access
+- Publication review and moderation
+- Public catalog editing and unpublishing tools
 
-- Next.js App Router
-- React 19
-- TypeScript
-- Tailwind CSS
-- Framer Motion
-- Better Auth
-- MongoDB Atlas + MongoDB Node driver
-- React Markdown + Remark / Rehype tooling
+## Setup
 
-## Local Setup
+### Local run (basic setup)
 
-Prerequisites:
-
-- Node.js LTS
-- npm
-- MongoDB Atlas database
-- Google OAuth app credentials
-
-Install dependencies:
+1. Install [Node.js LTS](https://nodejs.org/).
+2. Install dependencies:
 
 ```bash
 npm install
 ```
 
-Required environment variables:
-
-```bash
-MONGODB_URI=
-MONGODB_DB=tracklearn
-AUTH_SECRET=
-AUTH_GOOGLE_ID=
-AUTH_GOOGLE_SECRET=
-BETTER_AUTH_URL=
-```
-
-Recommended first-time catalog seed:
-
-```bash
-npm run seed:mongodb
-```
-
-Run locally:
+3. Start the app:
 
 ```bash
 npm run dev
 ```
 
-Production checks:
+4. Open [http://localhost:3000](http://localhost:3000)
+
+The app will still load public study content from `data/subjects` even if MongoDB is not configured.
+
+### Full application setup
+
+This configuration enables authentication, personal content management, moderation, and synced progress.
+
+#### Requirements
+
+- Node.js LTS
+- A MongoDB Atlas database
+- A Google OAuth app
+
+#### Step 1: Install dependencies
 
 ```bash
-npm run typecheck
-npm run build
+npm install
 ```
 
-## Content Model
+#### Step 2: Configure environment variables
 
-### Public catalog
+Create a file named `.env.local` in the project root and copy the values from `.env.example`.
 
-The shared catalog is stored in MongoDB using:
+Example:
 
-- `subjects`
-- `entries`
+```env
+MONGODB_URI=
+MONGODB_DB=tracklearn
+AUTH_SECRET=
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+BETTER_AUTH_URL=http://localhost:3000
+```
 
-Public entries are either:
+Notes:
 
-- imported from `data/subjects` via the seed script
-- approved copies of user-submitted personal content
+- `AUTH_SECRET` should be a long random string
+- `BETTER_AUTH_URL` should stay `http://localhost:3000` for local development
+- `MONGODB_DB` can stay as `tracklearn` unless you want a different database name
 
-### Personal user content
+To generate an auth secret:
 
-Signed-in users can create:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
-- personal subjects
-- personal modules
-- personal materials
-
-All user-created content starts private in storage and is treated as personal content in the UI until an admin approves a publication request.
-
-### Moderation
-
-Publication requests are stored in `publicationRequests`.
-
-Admins can:
-
-- review pending submissions
-- approve or reject with notes
-- publish approved copies into the shared catalog
-- unpublish public subjects or entries
-
-Approved public content is stored as a separate public copy. Later edits to the user’s private draft require a new review cycle before public updates go live.
-
-## Progress and Preferences
-
-TrackLearn supports two modes:
-
-- Guest mode: progress and preferences stay in browser storage
-- Signed-in mode: progress and preferences sync to MongoDB
-
-On first login, existing browser-local history is merged into the account-backed state once.
-
-## Seeding From `/data`
-
-The `data/subjects` directory is used as the seed source for public content.
-
-Seed command:
+#### Step 3: Seed the catalog
 
 ```bash
 npm run seed:mongodb
 ```
 
-That script:
+This imports the public subjects, modules, and materials from `data/subjects` into MongoDB.
 
-- reads subjects, modules, and materials from `data/subjects`
-- extracts markdown headings
-- upserts public records into MongoDB
-- preserves route slugs for the shared catalog
+#### Step 4: Run the app
 
-## Admin Role
-
-User roles live in MongoDB on the `user` collection.
-
-To promote an account to admin, update that user document and set:
-
-```json
-{
-  "role": "admin"
-}
+```bash
+npm run dev
 ```
 
-## Scripts
+Then open [http://localhost:3000](http://localhost:3000)
 
-- `npm run dev` - start the development server
-- `npm run build` - create a production build
-- `npm run start` - run the production server
-- `npm run typecheck` - run TypeScript checks
-- `npm run seed:mongodb` - import `data/subjects` into MongoDB as public catalog content
+## Application Flow
+
+### Guest mode
+
+1. Open the home page
+2. Browse subjects from the library
+3. Read modules and materials
+4. Track progress locally in the browser
+
+### Authenticated users
+
+1. Open `/login`
+2. Choose a role
+3. Sign in with Google
+4. Go to Library or Manage
+5. Create personal subjects and entries
+6. Submit content for review when ready
+
+### Admin mode
+
+1. Sign in as admin
+2. Open `/admin`
+3. Review pending publication requests
+4. Approve, reject, edit, or unpublish content
+
+
+## Tech Stack
+
+TrackLearn is built with:
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Better Auth
+- MongoDB
+
+## Notes
+
+- This project supports guest mode and signed-in mode
+- Public content can come from MongoDB or from the local `data/subjects` fallback
+- The current login flow includes role selection for evaluation and testing purposes
