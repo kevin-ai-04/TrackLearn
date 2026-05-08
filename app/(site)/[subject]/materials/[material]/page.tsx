@@ -1,8 +1,13 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import Link from "next/link";
 import { ContentViewer } from "@/components/content/ContentViewer";
 import { AppShell } from "@/components/layout/AppShell";
+<<<<<<< Updated upstream
+import { getViewer } from "@/lib/auth-helpers";
+=======
 import { requireUser } from "@/lib/auth-helpers";
-import { isCourseInUserLibrary, listSelectedPublicSubjects } from "@/lib/course-library";
+import { getUserCourseSubjectIds, listSelectedPublicSubjects } from "@/lib/course-library";
+>>>>>>> Stashed changes
 import { getMaterialBySlugs, getNavigationTree } from "@/lib/content";
 
 interface MaterialPageProps {
@@ -16,9 +21,9 @@ export const dynamic = "force-dynamic";
 
 export default async function MaterialPage({ params }: MaterialPageProps) {
   const resolvedParams = await params;
-  const viewer = await requireUser();
+  const viewer = await getViewer();
   const [subjects, materialResult] = await Promise.all([
-    getNavigationTree(viewer),
+    getNavigationTree(),
     getMaterialBySlugs(resolvedParams.subject, resolvedParams.material, viewer),
   ]);
 
@@ -27,17 +32,22 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   }
 
   const { subject, material } = materialResult;
-  const isInLibrary = await isCourseInUserLibrary(viewer.userId!, subject.id);
+<<<<<<< Updated upstream
+
+=======
+  const selectedCourseIds = await getUserCourseSubjectIds(viewer.userId!);
+  const isInLibrary = selectedCourseIds.includes(subject.id);
 
   if (!isInLibrary) {
     redirect(`/explore?course=${subject.slug}`);
   }
 
-  const selectedSubjects = await listSelectedPublicSubjects(viewer.userId!, subjects);
+  const selectedSubjects = await listSelectedPublicSubjects(viewer.userId!, subjects, selectedCourseIds);
+>>>>>>> Stashed changes
 
   return (
     <AppShell
-      subjects={selectedSubjects}
+      subjects={subjects}
       currentSubjectSlug={subject.slug}
       currentMaterialSlug={material.slug}
       currentPathLabel={`${subject.title} - ${material.title}`}

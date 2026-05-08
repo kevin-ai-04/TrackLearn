@@ -74,9 +74,25 @@ export async function ensureAppIndexes() {
           { visibility: 1, status: 1, updatedAt: -1 },
           { name: "subjects_visibility_status_updated_idx" },
         ),
+        db.collection("subjects").createIndex(
+          { visibility: 1, order: 1, title: 1 },
+          { name: "subjects_visibility_order_title_idx" },
+        ),
+        db.collection("subjects").createIndex(
+          { ownerUserId: 1, visibility: 1, publishedSubjectId: 1 },
+          { name: "subjects_owner_visibility_published_idx" },
+        ),
         db.collection("entries").createIndex(
           { visibility: 1, ownerUserId: 1, subjectId: 1, kind: 1, slug: 1 },
           { unique: true, name: "entries_visibility_owner_subject_kind_slug_uq" },
+        ),
+        db.collection("entries").createIndex(
+          { visibility: 1, subjectId: 1, order: 1, title: 1 },
+          { name: "entries_visibility_subject_order_title_idx" },
+        ),
+        db.collection("entries").createIndex(
+          { ownerUserId: 1, visibility: 1, subjectId: 1, updatedAt: -1 },
+          { name: "entries_owner_visibility_subject_updated_idx" },
         ),
         db.collection("entries").createIndex(
           { linkedPublicEntryId: 1, ownerUserId: 1, updatedAt: -1 },
@@ -93,14 +109,6 @@ export async function ensureAppIndexes() {
         db.collection("userProgress").createIndex(
           { userId: 1 },
           { unique: true, name: "user_progress_user_uq" },
-        ),
-        db.collection("userCourseLibrary").createIndex(
-          { userId: 1, publicSubjectId: 1 },
-          { unique: true, name: "user_course_library_user_subject_uq" },
-        ),
-        db.collection("userCourseLibrary").createIndex(
-          { publicSubjectId: 1, updatedAt: -1 },
-          { name: "user_course_library_subject_updated_idx" },
         ),
       ]);
     })();

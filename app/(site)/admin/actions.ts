@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth-helpers";
 import {
@@ -8,6 +8,10 @@ import {
   unpublishPublicContent,
   updatePublicEntryAsAdmin,
 } from "@/lib/content-management";
+
+function revalidatePublicContent() {
+  revalidateTag("tracklearn-public-content", "max");
+}
 
 export async function reviewRequestAction(requestId: string, formData: FormData) {
   const viewer = await requireAdmin();
@@ -22,6 +26,7 @@ export async function reviewRequestAction(requestId: string, formData: FormData)
   });
 
   revalidatePath("/admin");
+  revalidatePublicContent();
   revalidatePath("/");
   revalidatePath("/library");
   if (result.subjectSlug) {
@@ -37,6 +42,7 @@ export async function unpublishSubjectAction(subjectId: string) {
   await requireAdmin();
   await unpublishPublicContent({ subjectId });
   revalidatePath("/admin");
+  revalidatePublicContent();
   revalidatePath("/");
   redirect("/admin");
 }
@@ -45,6 +51,7 @@ export async function unpublishEntryAction(entryId: string) {
   await requireAdmin();
   await unpublishPublicContent({ entryId });
   revalidatePath("/admin");
+  revalidatePublicContent();
   redirect("/admin");
 }
 
@@ -53,6 +60,7 @@ export async function updatePublicEntryAction(entryId: string, returnHref: strin
   const result = await updatePublicEntryAsAdmin(entryId, formData);
 
   revalidatePath("/admin");
+  revalidatePublicContent();
   revalidatePath("/");
   revalidatePath(`/${result.subjectSlug}`);
   revalidatePath(result.previousPath);

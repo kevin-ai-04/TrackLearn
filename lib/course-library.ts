@@ -133,9 +133,9 @@ export async function getUserPrivateSubjectForPublicSubject(userId: string, publ
 export async function listSelectedPublicSubjects(
   userId: string,
   publicSubjects: SubjectSummary[],
+  selectedIds?: string[],
 ) {
-  const selectedIds = await getUserCourseSubjectIds(userId);
-  const selectedIdSet = new Set(selectedIds);
+  const selectedIdSet = new Set(selectedIds ?? (await getUserCourseSubjectIds(userId)));
 
   return sortByOrderThenTitle(publicSubjects.filter((subject) => selectedIdSet.has(subject.id)));
 }

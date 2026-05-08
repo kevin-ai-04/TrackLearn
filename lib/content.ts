@@ -1,9 +1,11 @@
 import "server-only";
 
 import { ObjectId } from "mongodb";
-import { unstable_noStore as noStore } from "next/cache";
+import { cache } from "react";
+import { unstable_cache as nextCache, unstable_noStore as noStore } from "next/cache";
 import { ensureAppIndexes, getDatabase, isDatabaseConfigured } from "@/lib/mongodb";
 import {
+  getFilesystemContentTree,
   getFilesystemMaterialBySlugs,
   getFilesystemModuleBySlugs,
   getFilesystemNavigationTree,
@@ -139,6 +141,22 @@ function mapSubjectContent(subject: SubjectDocument, entries: EntryDocument[]): 
   };
 }
 
+function groupEntriesBySubjectId(entries: EntryDocument[]) {
+  const groupedEntries = new Map<string, EntryDocument[]>();
+
+  for (const entry of entries) {
+    const subjectEntries = groupedEntries.get(entry.subjectId);
+
+    if (subjectEntries) {
+      subjectEntries.push(entry);
+    } else {
+      groupedEntries.set(entry.subjectId, [entry]);
+    }
+  }
+
+  return groupedEntries;
+}
+
 function toSubjectSummary(subject: SubjectContent): SubjectSummary {
   return {
     id: subject.id,
@@ -181,25 +199,37 @@ async function loadPublicContentTreeFromDatabase() {
         },
       }).toArray()
     : [];
+  const entriesBySubjectId = groupEntriesBySubjectId(entries);
 
   return sortByOrderThenTitle(
     subjects.map((subject) =>
       mapSubjectContent(
         subject,
-        entries.filter((entry) => entry.subjectId === subject._id.toHexString()),
+        entriesBySubjectId.get(subject._id.toHexString()) ?? [],
       ),
     ),
   );
 }
 
-export async function getContentTree(viewer?: Viewer) {
-  noStore();
+const getCachedPublicContentTreeFromDatabase = nextCache(
+  loadPublicContentTreeFromDatabase,
+  ["tracklearn-public-content-tree"],
+  {
+    revalidate: 300,
+    tags: ["tracklearn-public-content"],
+  },
+);
 
+const getPublicContentTree = cache(async () => {
   if (!isDatabaseConfigured()) {
-    return getFilesystemNavigationTree();
+    return getFilesystemContentTree();
   }
 
-  const content = await loadPublicContentTreeFromDatabase();
+  return getCachedPublicContentTreeFromDatabase();
+});
+
+export async function getContentTree(viewer?: Viewer) {
+  const content = await getPublicContentTree();
   return content.map(toSubjectSummary);
 }
 
@@ -208,13 +238,11 @@ export async function getNavigationTree(viewer?: Viewer) {
 }
 
 export async function getSubjectBySlug(subjectSlug: string, viewer?: Viewer) {
-  noStore();
-
   if (!isDatabaseConfigured()) {
     return getFilesystemSubjectBySlug(subjectSlug);
   }
 
-  const subjects = await loadPublicContentTreeFromDatabase();
+  const subjects = await getPublicContentTree();
   return subjects.find((subject) => subject.slug === normalizeRouteSegment(subjectSlug)) ?? null;
 }
 
@@ -376,13 +404,15 @@ export async function listUserLibrary(userId?: string | null): Promise<UserLibra
   const subjectDocsById = new Map(
     [...ownedSubjectDocs, ...publicSubjectDocs].map((subject) => [subject._id.toHexString(), subject]),
   );
+  const ownedEntriesBySubjectId = groupEntriesBySubjectId(ownedEntryDocs);
+  const publicEntriesBySubjectId = groupEntriesBySubjectId(publicEntryDocs);
 
   const ownedSubjects = sortByOrderThenTitle(
     ownedSubjectDocs.map((subject) =>
       toSubjectSummary(
         mapSubjectContent(
           subject,
-          ownedEntryDocs.filter((entry) => entry.subjectId === subject._id.toHexString()),
+          ownedEntriesBySubjectId.get(subject._id.toHexString()) ?? [],
         ),
       ),
     ),
@@ -393,7 +423,7 @@ export async function listUserLibrary(userId?: string | null): Promise<UserLibra
       toSubjectSummary(
         mapSubjectContent(
           subject,
-          publicEntryDocs.filter((entry) => entry.subjectId === subject._id.toHexString()),
+          publicEntriesBySubjectId.get(subject._id.toHexString()) ?? [],
         ),
       ),
     ),
