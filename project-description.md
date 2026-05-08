@@ -1,5 +1,18 @@
 # TrackLearn Project Description
 
+## Cross-Chat Reuse Instructions
+
+This file is the compact project handoff for new coding-agent chat instances. Read it first to recover the current architecture, access model, workflow rules, and the non-obvious project decisions that are easy to miss when only scanning files.
+
+When maintaining this file in future chats:
+
+- keep durable project behavior, access rules, workflow semantics, and important repo entry points
+- prefer concise bullets over long narrative sections
+- remove duplicated detail that can be rediscovered quickly from the route tree, schema definitions, or UI code
+- keep non-obvious product constraints even if they look unusual in code
+- update stale paths, route names, and behavior notes when implementation changes
+- do not turn this into a changelog; describe the current system only
+
 ## What This Project Is
 
 TrackLearn is a Next.js App Router study platform with three active surfaces:
@@ -17,9 +30,6 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - Public subjects, modules, and materials are read through `lib/content.ts`.
 - If `MONGODB_URI` is configured, public catalog reads come from MongoDB.
 - If MongoDB is not configured, public catalog reads fall back to `lib/fs-content.ts`.
-- Public routes are server-rendered and dynamic.
-- Route transitions under `app/(site)` expose a loading fallback with a thin teal progress line under the top bar when the next page is still resolving.
-- Non-critical client panels such as sidebar utilities, recent activity panels, and import/export dialogs are lazy-loaded to reduce the initial client bundle.
 
 ### Auth and roles
 
@@ -30,7 +40,9 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - The selected login role should be written to MongoDB on `user.role` as part of sign-in so evaluators can switch between scenarios.
 - Signed-in users should also be able to switch between `user` and `admin` from `/settings` for testing.
 - Signing in is optional for browsing and settings.
-- `/library` is public and shows the public subject catalog plus any signed-in user's personal subjects.
+- `/explore` is public and shows the full public course catalog overview.
+- `/library` requires login and shows only public courses the user added from Explore plus the signed-in user's personal subjects.
+- Course content routes require login and require the public course to be in the user's library.
 - `/library/manage` requires login.
 - `/library/subjects/[subjectId]` requires login.
 - `/library/entries/[entryId]` requires login.
@@ -70,91 +82,44 @@ All user-created content starts with `visibility: "private"` and is treated in t
 
 ## Main Routes
 
-### Public
-
-- `/` home page
-- `/settings` public settings and progress page, plus signed-in role switching for evaluator scenarios
-- `/login` sign-in page with role selection for Google OAuth
-- `/library` public library view with public subject cards and sign-in prompts for personal management
-- `/:subject` public subject page
-- `/:subject/:module` public module page
-- `/:subject/materials/:material` public material page
-
-### Compatibility
-
-- `/user` redirects to `/settings`
-
-### Auth-required
-
-- `/library/manage` personal subject management view with creation forms and publication requests
-- `/library/subjects/[subjectId]` personal subject editor
-- `/library/entries/[entryId]` personal entry editor
-
-### Admin-required
-
-- `/admin` moderation dashboard and public catalog management
+- Public browsing lives under `app/(site)` and includes home, settings, login, library, and dynamic public study routes.
+- Home intentionally hides Recent Activity and Subjects for now; those sections are commented out in the home dashboard and should be reimplemented later after the Explore/Library split settles.
+- `/explore` is the public catalog overview and add-to-library surface.
+- `/user` redirects to `/settings`.
+- Personal management routes live under `/library/manage`, `/library/subjects/[subjectId]`, and `/library/entries/[entryId]`.
+- `/admin` is the moderation and public catalog management surface.
 
 ## Core Data Model
-
-### Better Auth collections
-
-- `user`
-- `account`
-- `session`
-- `verification`
 
 ### Application collections
 
 - `subjects`
 - `entries`
 - `publicationRequests`
+- `userCourseLibrary`
 - `userProgress`
 
 ### `subjects`
 
 Represents both public and personal subjects.
 
-Key fields:
+Important fields:
 
-- `title`
-- `slug`
-- `description`
-- `order`
-- `visibility`
-- `status`
-- `ownerUserId`
-- `sourceSubjectId`
-- `publishedSubjectId`
-- `publishedFromRequestId`
-- `publishedAt`
-- `lastSubmittedAt`
-- `lastReviewedAt`
-- `reviewNotes`
+- `visibility`, `status`, and `ownerUserId` control access and lifecycle
+- `sourceSubjectId`, `publishedSubjectId`, and `publishedFromRequestId` link private working copies to public copies and review events
+- `publishedAt`, `lastSubmittedAt`, `lastReviewedAt`, and `reviewNotes` track publication history
 
 ### `entries`
 
 Represents both public and personal modules and materials.
 
-Key fields:
+Important fields:
 
-- `subjectId`
-- `kind`
-- `title`
-- `slug`
-- `description`
-- `order`
-- `markdown`
-- `headings`
-- `visibility`
-- `status`
-- `ownerUserId`
-- `sourceEntryId`
-- `publishedEntryId`
-- `publishedFromRequestId`
-- `publishedAt`
-- `lastSubmittedAt`
-- `lastReviewedAt`
-- `reviewNotes`
+- `subjectId` and `kind` tie each entry to a subject and distinguish modules from materials
+- `markdown` and `headings` store rendered study content structure
+- `visibility`, `status`, and `ownerUserId` control access and lifecycle
+- `sourceEntryId`, `publishedEntryId`, and `publishedFromRequestId` link private working copies to public copies and review events
+- `publishedAt`, `lastSubmittedAt`, `lastReviewedAt`, and `reviewNotes` track publication history
 
 ### `publicationRequests`
 
@@ -176,12 +141,20 @@ Key fields:
 
 Stores account-backed study state.
 
-Key fields:
+Important fields:
 
-- `userId`
-- `state`
-- `migratedFromLocalAt`
-- `updatedAt`
+- `userId` and `state`
+- `migratedFromLocalAt` supports the one-time local-to-remote merge flow
+- `updatedAt` tracks the last synced write
+
+### `userCourseLibrary`
+
+Stores signed-in users' selected public courses.
+
+Important fields:
+
+- `userId` and `publicSubjectId` form the account/course membership
+- `addedAt` and `updatedAt` support library sorting and future sync workflows
 
 ## Content and Access Rules
 
@@ -212,81 +185,20 @@ Key fields:
 
 ## Important Server Modules
 
-### `auth.ts`
+- `auth.ts`: Better Auth setup, Google provider integration, MongoDB adapter, and `getSession()`
+- `lib/auth-client.ts`: Better Auth React client and typed client-side session access
+- `lib/auth-helpers.ts`: `getViewer()`, `requireUser()`, and `requireAdmin()`
+- `lib/content.ts`: read layer for the public catalog, dynamic study lookups, user library reads, and publication request listing
+- `lib/content-management.ts`: write layer for personal content CRUD, ingestion, review submission, admin review decisions, public copy updates, and unpublish flows
+- `lib/mongodb.ts`: MongoDB client, database access, indexes, and environment capability checks
+- `lib/user-progress-store.ts`: load and save helpers for `userProgress`
+- `hooks/useStudyHistory.ts`: client progress state, local hydration, remote sync, migration, and theme/font preference application
 
-- Better Auth setup
-- Google social provider
-- MongoDB adapter using Better Auth's default Mongo collection names
-- `getSession()` helper for route handlers and server components
-
-### `lib/auth-client.ts`
-
-- Better Auth React client
-- client-side session hook
-- typed role field inference
-
-### `lib/auth-helpers.ts`
-
-- `getViewer()`
-- `requireUser()`
-- `requireAdmin()`
-
-### `lib/content.ts`
-
-Read-only repository layer for:
-
-- public navigation tree
-- subject/module/material lookup
-- user library reads
-- publication request listing
-- published catalog listing
-
-### `lib/content-management.ts`
-
-Write layer for:
-
-- creating, editing, and deleting personal subjects
-- creating, editing, and deleting personal entries
-- public library browsing reads remain in `lib/content.ts`
-- markdown text and file ingestion
-- submission for review
-- admin review decisions
-- public copy creation and updates
-- unpublish actions
-
-### `lib/mongodb.ts`
-
-- MongoDB client creation
-- database access
-- app index creation
-- environment capability checks
-
-### `lib/user-progress-store.ts`
-
-- load and save helpers for `userProgress`
-
-### `hooks/useStudyHistory.ts`
-
-Client-side progress state source of truth for the UI:
-
-- local hydration
-- remote sync for authenticated users
-- one-time local-to-remote merge
-- theme and font preference application
-
-## API and Server Action Entry Points
-
-### Route handlers
+## API and Action Entry Points
 
 - `app/api/auth/[...all]/route.ts`
 - `app/api/user-progress/route.ts`
-
-### User library server actions
-
 - `app/(site)/library/actions.ts`
-
-### Admin server actions
-
 - `app/(site)/admin/actions.ts`
 
 ## Seed and Fallback Content

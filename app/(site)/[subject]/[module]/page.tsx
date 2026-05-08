@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import { ContentViewer } from "@/components/content/ContentViewer";
 import { ModuleHeader } from "@/components/content/ModuleHeader";
 import { AppShell } from "@/components/layout/AppShell";
-import { getViewer } from "@/lib/auth-helpers";
+import { requireUser } from "@/lib/auth-helpers";
+import { isCourseInUserLibrary, listSelectedPublicSubjects } from "@/lib/course-library";
 import { getModuleBySlugs, getNavigationTree } from "@/lib/content";
 
 interface ModulePageProps {
@@ -17,9 +17,9 @@ export const dynamic = "force-dynamic";
 
 export default async function ModulePage({ params }: ModulePageProps) {
   const resolvedParams = await params;
-  const viewer = await getViewer();
+  const viewer = await requireUser();
   const [subjects, moduleResult] = await Promise.all([
-    getNavigationTree(),
+    getNavigationTree(viewer),
     getModuleBySlugs(resolvedParams.subject, resolvedParams.module, viewer),
   ]);
 
@@ -28,11 +28,17 @@ export default async function ModulePage({ params }: ModulePageProps) {
   }
 
   const { subject, module, previousModule, nextModule } = moduleResult;
+  const isInLibrary = await isCourseInUserLibrary(viewer.userId!, subject.id);
 
+  if (!isInLibrary) {
+    redirect(`/explore?course=${subject.slug}`);
+  }
+
+  const selectedSubjects = await listSelectedPublicSubjects(viewer.userId!, subjects);
 
   return (
     <AppShell
-      subjects={subjects}
+      subjects={selectedSubjects}
       currentSubjectSlug={subject.slug}
       currentModuleSlug={module.slug}
       currentPathLabel={`${subject.title} - ${module.title}`}

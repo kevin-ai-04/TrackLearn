@@ -14,6 +14,7 @@ interface AppTopBarProps {
   onToggleSidebar?: () => void;
   sidebarOpen?: boolean;
   loading?: boolean;
+  variant?: "app" | "home";
 }
 
 const themeOptions: Array<{ label: string; value: ThemeMode }> = [
@@ -41,6 +42,7 @@ export function AppTopBar({
   onToggleSidebar,
   sidebarOpen = false,
   loading = false,
+  variant = "app",
 }: AppTopBarProps) {
   const pathname = usePathname();
   const { state, setFont, setTheme } = useStudyHistory();
@@ -56,6 +58,7 @@ export function AppTopBar({
   const isAdmin = sessionData?.user?.role === "admin";
   const nextTheme = getNextTheme(state.preferences.theme);
   const showLoadingLine = loading || isNavigating;
+  const isHomeVariant = variant === "home";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -183,70 +186,91 @@ export function AppTopBar({
     <header
       className={cn(
         "relative sticky top-0 z-40 overflow-hidden border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,transparent)] backdrop-blur-md transition-transform duration-300",
+        isHomeVariant &&
+          "absolute inset-x-0 border-transparent bg-accent text-white backdrop-blur-0",
         hidden ? "-translate-y-full" : "translate-y-0",
       )}
     >
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 py-3 md:px-6">
         <div className="flex items-center gap-2 md:gap-3">
-          <button
-            type="button"
-            onClick={onToggleSidebar}
-            className="button-secondary inline-flex h-11 w-11 items-center justify-center text-lg"
-            aria-label={sidebarOpen ? "Hide navigation panel" : "Show navigation panel"}
-            aria-expanded={sidebarOpen}
-            aria-controls="navigation-panel"
-          >
-            <span aria-hidden="true" className="relative block h-4 w-4">
-              {sidebarOpen ? (
-                <>
-                  <span className="absolute left-1/2 top-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
-                  <span className="absolute left-1/2 top-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
-                </>
-              ) : (
-                <>
-                  <span className="absolute left-0 top-0.5 h-0.5 w-4 rounded-full bg-current" />
-                  <span className="absolute left-0 top-1/2 h-0.5 w-4 -translate-y-1/2 rounded-full bg-current" />
-                  <span className="absolute left-0 bottom-0.5 h-0.5 w-4 rounded-full bg-current" />
-                </>
-              )}
-            </span>
-          </button>
-          <Link href="/" className="text-lg font-semibold tracking-tight">
-            TrackLearn
-          </Link>
-          <nav className="hidden items-center gap-2 text-sm text-[var(--muted)] md:flex">
-            <Link className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]" href="/">
-              Home
-            </Link>
-            <Link
-              className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-              href="/library"
-            >
-              Library
-            </Link>
-            {!isAuthenticated ? (
-              <Link
-                className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                href="/login"
+          {!isHomeVariant ? (
+            <>
+              <button
+                type="button"
+                onClick={onToggleSidebar}
+                className="button-secondary inline-flex h-11 w-11 items-center justify-center text-lg"
+                aria-label={sidebarOpen ? "Hide navigation panel" : "Show navigation panel"}
+                aria-expanded={sidebarOpen}
+                aria-controls="navigation-panel"
               >
-                Login
+                <span aria-hidden="true" className="relative block h-4 w-4">
+                  {sidebarOpen ? (
+                    <>
+                      <span className="absolute left-1/2 top-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
+                      <span className="absolute left-1/2 top-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="absolute left-0 top-0.5 h-0.5 w-4 rounded-full bg-current" />
+                      <span className="absolute left-0 top-1/2 h-0.5 w-4 -translate-y-1/2 rounded-full bg-current" />
+                      <span className="absolute left-0 bottom-0.5 h-0.5 w-4 rounded-full bg-current" />
+                    </>
+                  )}
+                </span>
+              </button>
+              <Link href="/" className="text-lg font-semibold tracking-tight">
+                TrackLearn
               </Link>
-            ) : null}
-            {isAdmin ? (
-              <Link
-                className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                href="/admin"
-              >
-                Admin
-              </Link>
-            ) : null}
-          </nav>
+              <nav className="hidden items-center gap-2 text-sm text-[var(--muted)] md:flex">
+                <Link className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]" href="/">
+                  Home
+                </Link>
+                <Link
+                  className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
+                  href="/explore"
+                >
+                  Explore
+                </Link>
+                <Link
+                  className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
+                  href="/library"
+                >
+                  Library
+                </Link>
+              </nav>
+            </>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2">
+          {!isAuthenticated ? (
+            <Link
+              className={cn(
+                "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
+                isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",
+              )}
+              href="/login"
+            >
+              Login
+            </Link>
+          ) : null}
+          {isAdmin ? (
+            <Link
+              className={cn(
+                "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
+                isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",
+              )}
+              href="/admin"
+            >
+              Admin
+            </Link>
+          ) : null}
           <Link
             href="/settings"
-            className="hidden rounded-full px-3 py-2 text-sm text-[var(--muted)] transition hover:bg-[var(--accent-soft)] md:inline-flex"
+            className={cn(
+              "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
+              isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",
+            )}
           >
             Settings
           </Link>
@@ -254,13 +278,20 @@ export function AppTopBar({
           <button
             type="button"
             onClick={() => setFont(nextFont)}
-            className="button-secondary inline-flex h-11 w-11 items-center justify-center rounded-full"
+            className={cn(
+              "button-secondary inline-flex h-11 w-11 items-center justify-center rounded-full",
+              isHomeVariant &&
+                "border-white/60 bg-white/95 text-[#123634] shadow-none hover:bg-white",
+            )}
             aria-label={`Switch font to ${nextFont === "serif" ? "serif" : "sans"} mode`}
             title={`Switch font to ${nextFont === "serif" ? "serif" : "sans"} mode`}
           >
             <span
               aria-hidden="true"
-              className="text-xl font-semibold leading-none text-[var(--foreground)]"
+              className={cn(
+                "text-xl font-semibold leading-none",
+                isHomeVariant ? "text-[#123634]" : "text-[var(--foreground)]",
+              )}
               style={{
                 fontFamily:
                   state.preferences.font === "serif" ? "var(--font-serif)" : "var(--font-sans)",
@@ -273,14 +304,23 @@ export function AppTopBar({
           <button
             type="button"
             onClick={() => setTheme(nextTheme)}
-            className="button-secondary inline-flex h-11 w-11 items-center justify-center rounded-full md:hidden"
+            className={cn(
+              "button-secondary inline-flex h-11 w-11 items-center justify-center rounded-full md:hidden",
+              isHomeVariant &&
+                "border-white/60 bg-white/95 text-[#123634] shadow-none hover:bg-white",
+            )}
             aria-label={`Switch display mode to ${nextTheme}`}
             title={`Switch display mode to ${nextTheme}`}
           >
             <ThemeModeIcon mode={state.preferences.theme} />
           </button>
 
-          <div className="hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel)] p-1 shadow-panel md:flex">
+          <div
+            className={cn(
+              "hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel)] p-1 shadow-panel md:flex",
+              isHomeVariant && "border-white/60 bg-white/95 shadow-none",
+            )}
+          >
             {themeOptions.map((option) => (
               <button
                 key={option.value}
@@ -288,9 +328,13 @@ export function AppTopBar({
                 onClick={() => setTheme(option.value)}
                 className={cn(
                   "inline-flex h-10 w-10 items-center justify-center rounded-full transition",
-                  state.preferences.theme === option.value
-                    ? "bg-[var(--accent)] text-white"
-                    : "text-[var(--muted)] hover:bg-[var(--accent-soft)] hover:text-[var(--foreground)]",
+                  isHomeVariant
+                    ? state.preferences.theme === option.value
+                      ? "bg-[#123634] text-white"
+                      : "text-[#123634] hover:bg-[#0f766e]/10"
+                    : state.preferences.theme === option.value
+                      ? "bg-[var(--accent)] text-white"
+                      : "text-[var(--muted)] hover:bg-[var(--accent-soft)] hover:text-[var(--foreground)]",
                 )}
                 aria-label={option.label}
                 title={option.label}

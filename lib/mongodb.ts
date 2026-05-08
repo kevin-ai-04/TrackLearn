@@ -94,6 +94,14 @@ export async function ensureAppIndexes() {
           { userId: 1 },
           { unique: true, name: "user_progress_user_uq" },
         ),
+        db.collection("userCourseLibrary").createIndex(
+          { userId: 1, publicSubjectId: 1 },
+          { unique: true, name: "user_course_library_user_subject_uq" },
+        ),
+        db.collection("userCourseLibrary").createIndex(
+          { publicSubjectId: 1, updatedAt: -1 },
+          { name: "user_course_library_subject_updated_idx" },
+        ),
       ]);
     })();
   }

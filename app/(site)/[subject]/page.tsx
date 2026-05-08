@@ -1,6 +1,16 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { SubjectOverviewSections } from "@/components/subject/SubjectOverviewSections";
+import {
+  createPrivateCourseCopyAction,
+  syncPrivateCourseCopyAction,
+} from "@/app/(site)/library/actions";
+import { requireUser } from "@/lib/auth-helpers";
+import {
+  getUserPrivateSubjectForPublicSubject,
+  isCourseInUserLibrary,
+  listSelectedPublicSubjects,
+} from "@/lib/course-library";
 import { getNavigationTree, getSubjectBySlug } from "@/lib/content";
 import { formatCount } from "@/lib/utils";
 
@@ -14,18 +24,33 @@ export const dynamic = "force-dynamic";
 
 export default async function SubjectPage({ params }: SubjectPageProps) {
   const resolvedParams = await params;
+  const viewer = await requireUser();
   const [subjects, subject] = await Promise.all([
-    getNavigationTree(),
-    getSubjectBySlug(resolvedParams.subject),
+    getNavigationTree(viewer),
+    getSubjectBySlug(resolvedParams.subject, viewer),
   ]);
 
   if (!subject) {
     notFound();
   }
 
+  const isInLibrary = await isCourseInUserLibrary(viewer.userId!, subject.id);
+
+  if (!isInLibrary) {
+    redirect(`/explore?course=${subject.slug}`);
+  }
+
+  const [privateCopy, selectedSubjects] = await Promise.all([
+    getUserPrivateSubjectForPublicSubject(viewer.userId!, subject.id),
+    listSelectedPublicSubjects(viewer.userId!, subjects),
+  ]);
+  const publicIsAhead = privateCopy?.updatedAt
+    ? new Date(subject.updatedAt ?? 0).getTime() > new Date(privateCopy.updatedAt).getTime()
+    : false;
+
   return (
     <AppShell
-      subjects={subjects}
+      subjects={selectedSubjects}
       currentSubjectSlug={subject.slug}
       currentPathLabel={`${subject.title} - Subject Overview`}
       currentPathHint={subject.description}
@@ -45,6 +70,33 @@ export default async function SubjectPage({ params }: SubjectPageProps) {
             This subject contains {formatCount(subject.materials.length, "material")} and{" "}
             {formatCount(subject.modules.length, "module")} in the shared catalog.
           </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {privateCopy ? (
+              <>
+                <a
+                  href={`/library/subjects/${privateCopy.id}`}
+                  className="button-primary px-4 py-3 text-sm font-semibold"
+                >
+                  Edit Private Copy
+                </a>
+                {publicIsAhead ? (
+                  <form action={syncPrivateCourseCopyAction}>
+                    <input type="hidden" name="privateSubjectId" value={privateCopy.id} />
+                    <button type="submit" className="button-secondary px-4 py-3 text-sm font-semibold">
+                      {privateCopy.hasPrivateChanges ? "Update From Public Version" : "Sync Latest Public Version"}
+                    </button>
+                  </form>
+                ) : null}
+              </>
+            ) : (
+              <form action={createPrivateCourseCopyAction}>
+                <input type="hidden" name="subjectId" value={subject.id} />
+                <button type="submit" className="button-primary px-4 py-3 text-sm font-semibold">
+                  Edit Course
+                </button>
+              </form>
+            )}
+          </div>
         </section>
 
         <SubjectOverviewSections

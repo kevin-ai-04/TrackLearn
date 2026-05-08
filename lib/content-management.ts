@@ -185,6 +185,149 @@ export async function createSubjectForUser(userId: string, formData: FormData) {
   return result.insertedId.toHexString();
 }
 
+export async function createPrivateSubjectCopyFromPublic(userId: string, publicSubjectId: string) {
+  assertDatabaseConfigured();
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const publicSubject = await db.collection<SubjectDocument>("subjects").findOne({
+    _id: new ObjectId(publicSubjectId),
+    visibility: "public",
+  });
+
+  if (!publicSubject) {
+    throw new Error("Public subject not found.");
+  }
+
+  const existingCopy = await db.collection<SubjectDocument>("subjects").findOne({
+    ownerUserId: userId,
+    visibility: "private",
+    publishedSubjectId: publicSubjectId,
+  });
+
+  if (existingCopy) {
+    return existingCopy._id.toHexString();
+  }
+
+  const subjectResult = await db
+    .collection<Omit<SubjectDocument, "_id"> & { _id?: ObjectId }>("subjects")
+    .insertOne({
+      title: publicSubject.title,
+      slug: publicSubject.slug,
+      description: publicSubject.description,
+      order: publicSubject.order,
+      visibility: "private",
+      status: "draft",
+      ownerUserId: userId,
+      publishedSubjectId: publicSubject._id.toHexString(),
+      sourceSubjectId: publicSubject.sourceSubjectId ?? null,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+  const publicEntries = await db.collection<EntryDocument>("entries").find({
+    subjectId: publicSubject._id.toHexString(),
+    visibility: "public",
+  }).toArray();
+
+  if (publicEntries.length) {
+    await db.collection<Omit<EntryDocument, "_id">>("entries").insertMany(
+      publicEntries.map((entry) => ({
+        subjectId: subjectResult.insertedId.toHexString(),
+        kind: entry.kind,
+        title: entry.title,
+        slug: entry.slug,
+        description: entry.description,
+        order: entry.order,
+        markdown: entry.markdown,
+        headings: entry.headings,
+        visibility: "private",
+        status: "draft",
+        ownerUserId: userId,
+        sourceEntryId: entry.sourceEntryId ?? null,
+        linkedPublicEntryId: entry._id.toHexString(),
+        publishedEntryId: entry._id.toHexString(),
+        createdAt: now,
+        updatedAt: now,
+      })),
+    );
+  }
+
+  return subjectResult.insertedId.toHexString();
+}
+
+export async function syncPrivateSubjectCopyFromPublic(userId: string, privateSubjectId: string) {
+  assertDatabaseConfigured();
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const privateSubject = await assertOwnedSubject(userId, privateSubjectId);
+
+  if (!privateSubject.publishedSubjectId) {
+    throw new Error("This subject is not linked to a public subject.");
+  }
+
+  const publicSubject = await db.collection<SubjectDocument>("subjects").findOne({
+    _id: new ObjectId(privateSubject.publishedSubjectId),
+    visibility: "public",
+  });
+
+  if (!publicSubject) {
+    throw new Error("Linked public subject not found.");
+  }
+
+  const publicEntries = await db.collection<EntryDocument>("entries").find({
+    subjectId: publicSubject._id.toHexString(),
+    visibility: "public",
+  }).toArray();
+
+  await db.collection<SubjectDocument>("subjects").updateOne(
+    { _id: privateSubject._id },
+    {
+      $set: {
+        title: publicSubject.title,
+        slug: publicSubject.slug,
+        description: publicSubject.description,
+        order: publicSubject.order,
+        status: "draft",
+        reviewNotes: null,
+        updatedAt: now,
+      },
+    },
+  );
+
+  await db.collection<EntryDocument>("entries").deleteMany({
+    ownerUserId: userId,
+    visibility: "private",
+    subjectId: privateSubject._id.toHexString(),
+  });
+
+  if (publicEntries.length) {
+    await db.collection<Omit<EntryDocument, "_id">>("entries").insertMany(
+      publicEntries.map((entry) => ({
+        subjectId: privateSubject._id.toHexString(),
+        kind: entry.kind,
+        title: entry.title,
+        slug: entry.slug,
+        description: entry.description,
+        order: entry.order,
+        markdown: entry.markdown,
+        headings: entry.headings,
+        visibility: "private",
+        status: "draft",
+        ownerUserId: userId,
+        sourceEntryId: entry.sourceEntryId ?? null,
+        linkedPublicEntryId: entry._id.toHexString(),
+        publishedEntryId: entry._id.toHexString(),
+        createdAt: now,
+        updatedAt: now,
+      })),
+    );
+  }
+
+  return privateSubject._id.toHexString();
+}
+
 export async function updateSubjectForUser(userId: string, subjectId: string, formData: FormData) {
   assertDatabaseConfigured();
   await ensureAppIndexes();

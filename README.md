@@ -4,8 +4,8 @@ TrackLearn is a study platform for browsing learning content, tracking progress,
 
 It supports two usage modes:
 
-- Browse public study content without signing in
-- Sign in to save progress, create private subjects and notes, and submit content for review
+- Browse the public course catalog overview without signing in
+- Sign in to add courses to your library, read course content, save progress, create private subjects and notes, and submit content for review
 
 Currently hosted at [TrackLearn](https://tracklearn.vercel.app/)
 
@@ -13,8 +13,10 @@ Currently hosted at [TrackLearn](https://tracklearn.vercel.app/)
 
 TrackLearn is designed around a shared learning library plus personal study space.
 
-- Explore public subjects, modules, and materials
-- Continue where you left off with recent activity and progress tracking
+- Explore public courses before adding them to your library
+- Search and filter available courses
+- Build a signed-in library from selected public courses
+- Continue where you left off with progress tracking
 - Mark modules as done or flag them for revision
 - Choose your reading theme and font
 - Create your own personal subjects, modules, and materials
@@ -26,16 +28,17 @@ TrackLearn is designed around a shared learning library plus personal study spac
 
 ### Public learning experience
 
-- Public library anyone can browse
-- Subject overview pages for each topic
-- Module and material pages with clean reading layouts
+- Explore page anyone can browse as a course catalog overview
+- Search and filter controls on Explore and Library
+- Signed-in Library page containing only selected courses plus personal subjects
+- Subject overview pages for selected courses
+- Module and material pages with clean reading layouts for signed-in users
 - Sidebar navigation for moving between subjects, modules, and materials
 - Table of contents navigation for long Markdown pages
 
 ### Study tracking
 
-- Recent activity on the home page
-- Per-subject progress bars
+- Progress tracking for courses in a signed-in user's library
 - "Mark as Done" and "Flag Revision" actions on modules
 - Guest progress saved in the browser
 - Account sync for signed-in users
@@ -47,6 +50,8 @@ TrackLearn is designed around a shared learning library plus personal study spac
 - Paste Markdown directly or upload Markdown files
 - Keep personal work private until you are ready
 - Submit content for review when you want it published
+- Create a private editable copy of a public course from its subject overview
+- Sync a private copy from the latest public version when the public course is newer
 
 ### Admin tools
 
@@ -59,17 +64,21 @@ TrackLearn is designed around a shared learning library plus personal study spac
 
 ### Home dashboard
 
-The home page gives users a quick starting point with subject cards, progress bars, recent activity, and a "Continue Reading" area.
+The home page is a centered landing view with a TrackLearn hero, Explore Courses call to action, and feature cards. Recent Activity and Subjects are hidden for now and are planned for later reimplementation.
 
 ![Home](images/Home.png)
 
-### Public library
+### Explore
 
-The library page is the main browsing area for public subjects. Signed-in users also see their personal subjects and a shortcut to the manage area.
+The Explore page is the public catalog overview. Users can search and filter available courses. Clicking "Add To Library" requires sign-in; after a signed-in add, a non-intrusive confirmation appears and the course becomes available from Library.
+
+### Library
+
+The Library page requires sign-in. It shows selected public courses from Explore and the user's personal subjects, with search and filtering controls for both areas.
 
 ### Study reader
 
-Subject, module, and material pages are built for reading. Users can move through content with the sidebar, use the table of contents on longer pages, and track study progress from the module header.
+Subject, module, and material pages are built for reading after a course has been added to the signed-in user's library. Users can move through content with the sidebar, use the table of contents on longer pages, and track study progress from the module header.
 
 ![Reader](images/Reader_UI.gif)
 
@@ -97,19 +106,23 @@ TrackLearn expands in three layers of access. Each level includes the capabiliti
 
 Available without authentication:
 
-- Public content browsing
-- Subject and module reading
-- Local progress tracking
+- Home page
+- Explore catalog overview
+- Settings page
 - Theme and font preferences
 
 ### Signed in as User
 
 Unlocks the following features:
 
+- Add courses from Explore to Library
+- Read selected course content
 - Synced progress and preferences
+- Search and filter selected Library courses
 - Personal subject creation
 - Personal module and material creation
 - Markdown paste and `.md` upload for personal entries
+- Private edits to public courses
 - Publication request workflow
 
 ### Signed in as Admin
@@ -205,18 +218,20 @@ Then open [http://localhost:3000](http://localhost:3000)
 ### Guest mode
 
 1. Open the home page
-2. Browse subjects from the library
-3. Read modules and materials
-4. Track progress locally in the browser
+2. Open `/explore`
+3. Browse, search, and filter available course overviews
+4. Sign in when adding a course to Library or opening course content
 
 ### Authenticated users
 
 1. Open `/login`
 2. Choose a role
 3. Sign in with Google
-4. Go to Library or Manage
-5. Create personal subjects and entries
-6. Submit content for review when ready
+4. Open `/explore`
+5. Add courses to Library
+6. Open `/library` to view selected courses and personal subjects
+7. Edit private copies or create personal subjects and entries
+8. Submit content for review when ready
 
 ### Admin mode
 
@@ -240,6 +255,6 @@ TrackLearn is built with:
 
 ## Notes
 
-- This project supports guest mode and signed-in mode
+- This project supports guest catalog browsing and signed-in course libraries
 - Public content can come from MongoDB or from the local `data/subjects` fallback
 - The current login flow includes role selection for evaluation and testing purposes

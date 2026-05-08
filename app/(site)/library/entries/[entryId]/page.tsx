@@ -104,13 +104,13 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
             </div>
             <div className="flex flex-wrap gap-3">
               <button type="submit" className="button-primary px-4 py-3 text-sm font-semibold">
-                Save Entry
+                Keep Private
               </button>
               <button
                 formAction={boundSubmitEntryAction}
                 className="button-secondary px-4 py-3 text-sm font-semibold"
               >
-                Request Public Approval
+                Submit Edits To Public
               </button>
               <button
                 formAction={boundDeleteEntryAction}

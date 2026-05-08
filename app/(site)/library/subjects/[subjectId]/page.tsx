@@ -16,11 +16,15 @@ interface SubjectEditorPageProps {
   params: Promise<{
     subjectId: string;
   }>;
+  searchParams: Promise<{
+    synced?: string;
+  }>;
 }
 
-export default async function SubjectEditorPage({ params }: SubjectEditorPageProps) {
+export default async function SubjectEditorPage({ params, searchParams }: SubjectEditorPageProps) {
   const viewer = await requireUser();
   const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   const [subjects, subject] = await Promise.all([
     getNavigationTree(viewer),
     getOwnedSubjectById(viewer.userId!, resolvedParams.subjectId),
@@ -41,6 +45,12 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
       currentPathHint="Edit your personal subject metadata and submit it for publication when ready."
     >
       <div className="space-y-4">
+        {resolvedSearchParams.synced === "public" ? (
+          <section className="rounded-[1.6rem] border border-emerald-300/60 bg-emerald-100/70 p-4 text-sm text-emerald-900">
+            Private copy updated from the latest public version.
+          </section>
+        ) : null}
+
         <section className="panel rounded-[2rem] p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
             Subject Editor
@@ -68,7 +78,7 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
             />
             <div className="flex flex-wrap gap-3">
               <button type="submit" className="button-primary px-4 py-3 text-sm font-semibold">
-                Save Subject
+                Keep Private
               </button>
               <Link
                 href={`/library/manage?tab=entry&subjectId=${subject.id}`}
@@ -80,7 +90,7 @@ export default async function SubjectEditorPage({ params }: SubjectEditorPagePro
                 formAction={boundSubmitSubjectAction}
                 className="button-secondary px-4 py-3 text-sm font-semibold"
               >
-                Request Public Approval
+                Submit Edits To Public
               </button>
               <button
                 formAction={boundDeleteSubjectAction}

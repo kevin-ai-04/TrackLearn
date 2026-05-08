@@ -1,155 +1,105 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { useStudyHistory } from "@/hooks/useStudyHistory";
-import { formatCount, normalizeRouteSegment } from "@/lib/utils";
-import type { SubjectSummary } from "@/types/content";
 
-const HistoryPanel = dynamic(
-  () => import("@/components/history/HistoryPanel").then((mod) => mod.HistoryPanel),
-  {
-    loading: () => (
-      <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
-        Loading recent activity...
-      </div>
-    ),
-  },
-);
-
-interface HomeDashboardProps {
-  subjects: SubjectSummary[];
+function CommunityLibraryIcon() {
+  return (
+    <svg viewBox="0 0 96 96" className="h-20 w-20" aria-hidden="true">
+      <path d="M20 29c11 0 20 4 28 12 8-8 17-12 28-12v42c-11 0-20 4-28 12-8-8-17-12-28-12V29Z" fill="none" stroke="currentColor" strokeWidth="4" />
+      <path d="M48 41v42M30 41c6 1 11 3 16 7M30 53c6 1 11 3 16 7M66 41c-6 1-11 3-16 7M66 53c-6 1-11 3-16 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="25" cy="19" r="5" fill="currentColor" />
+      <circle cx="48" cy="17" r="5" fill="currentColor" />
+      <circle cx="71" cy="19" r="5" fill="currentColor" />
+    </svg>
+  );
 }
 
-export function HomeDashboard({ subjects }: HomeDashboardProps) {
-  const { hydrated, isAuthenticated, state } = useStudyHistory();
-  const latestVisit = hydrated ? state.recentActivity[0] : null;
-  const latestModule = latestVisit
-    ? subjects
-        .find((subject) => subject.slug === latestVisit.subjectSlug)
-        ?.modules.find((module) => module.slug === normalizeRouteSegment(latestVisit.moduleSlug))
-    : null;
-
+function SyncProgressIcon() {
   return (
-    <div className="space-y-4">
-      <section className="panel overflow-hidden rounded-[2rem] p-6 sm:p-8">
-        <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              TrackLearn
-            </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
-              TrackLearn
-            </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted)]">
-              Browse the shared study catalog, keep your progress synced when signed in, and build
-              personal subjects or notes in your library.
-            </p>
+    <svg viewBox="0 0 96 96" className="h-20 w-20" aria-hidden="true">
+      <rect x="34" y="24" width="28" height="28" rx="3" fill="none" stroke="currentColor" strokeWidth="4" />
+      <rect x="14" y="50" width="18" height="28" rx="4" fill="none" stroke="currentColor" strokeWidth="4" />
+      <rect x="64" y="54" width="24" height="18" rx="3" fill="none" stroke="currentColor" strokeWidth="4" />
+      <path d="M28 31a28 28 0 0 0-11 14M64 30a28 28 0 0 1 15 17M61 75a28 28 0 0 1-28-1" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+      <path d="m17 45-6-1 4-5M79 47l5 5-7 2M33 74l-5-5 7-2" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-            {latestVisit && latestModule ? (
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href={latestModule.href}
-                  className="button-primary px-4 py-3 text-sm font-semibold"
-                >
-                  Continue {latestModule.title}
-                </Link>
-              </div>
-            ) : null}
-          </div>
+function OfflineSupportIcon() {
+  return (
+    <svg viewBox="0 0 96 96" className="h-20 w-20" aria-hidden="true">
+      <rect x="20" y="18" width="40" height="58" rx="4" fill="none" stroke="currentColor" strokeWidth="4" />
+      <path d="M40 30v25M30 48l10 10 10-10" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M56 34h16l10 10v34H56V34Z" fill="var(--panel)" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" />
+      <path d="M72 35v12h10M62 56h13M62 66h13" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
 
-          <div className="rounded-[2rem] border border-[var(--border)] bg-[var(--panel-alt)] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Continue Reading
-            </p>
-            {latestVisit && latestModule ? (
-              <>
-                <h2 className="mt-3 text-2xl font-semibold">{latestModule.title}</h2>
-                <p className="mt-2 text-sm text-[var(--muted)]">{latestModule.subjectTitle}</p>
-                <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-                  Pick up from the last module you visited, with status and recent history already
-                  restored from {isAuthenticated ? "your synced account state." : "local browser storage."}
-                </p>
-              </>
-            ) : (
-              <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-                No recent module yet. Open a subject below and the app will start tracking your
-                progress {isAuthenticated ? "on your account." : "locally on this device."}
+const features = [
+  {
+    title: "Community Library",
+    description: "Discover a diverse, community-curated collection of courses and personalized learning paths to study from.",
+    icon: <CommunityLibraryIcon />,
+  },
+  {
+    title: "Sync Progress",
+    description: "Track achievements seamlessly and pick up right where you left off, across your devices.",
+    icon: <SyncProgressIcon />,
+  },
+  {
+    title: "Offline Support",
+    description: "View chosen courses without an internet connection.",
+    icon: <OfflineSupportIcon />,
+  },
+];
+
+export function HomeDashboard() {
+  return (
+    <div className="min-h-screen bg-[var(--surface)]">
+      <section className="flex min-h-[52vh] items-center justify-center bg-accent px-4 pb-16 pt-28 text-center text-white md:min-h-[58vh]">
+        <div className="mx-auto max-w-4xl">
+          <h1 className="text-5xl font-semibold tracking-tight text-white sm:text-7xl">
+            TrackLearn
+          </h1>
+          <p className="mt-8 text-3xl font-medium text-white sm:text-5xl">Learning Simplified</p>
+          <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-white/90 sm:text-lg">
+            Your curated platform for seamless knowledge discovery and skill acquisition.
+          </p>
+          <Link
+            href="/explore"
+            className="mt-8 inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--accent-strong)] shadow-panel transition hover:-translate-y-0.5 hover:bg-[var(--surface-alt)]"
+          >
+            Explore Courses <span aria-hidden="true" className="ml-2">-&gt;</span>
+          </Link>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+        <div className="text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[var(--muted)]">
+            Features
+          </p>
+        </div>
+        <div className="mt-7 grid justify-center gap-4 md:grid-cols-3">
+          {features.map((feature) => (
+            <article
+              key={feature.title}
+              className="panel flex min-h-64 flex-col rounded-[1.5rem] p-6 text-center md:text-left"
+            >
+              <h2 className="text-2xl font-semibold">{feature.title}</h2>
+              <div className="mx-auto mt-5 text-[var(--foreground)] md:mx-0">{feature.icon}</div>
+              <p className="mt-auto pt-5 text-sm leading-6 text-[var(--muted)]">
+                {feature.description}
               </p>
-            )}
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="grid gap-4 lg:grid-cols-2">
-          {subjects.map((subject, index) => {
-            const completedCount = subject.modules.filter(
-              (module) => state.modules[`${subject.slug}::${module.slug}`]?.done,
-            ).length;
-            const totalModules = subject.modules.length;
-            const completionPercentage = totalModules
-              ? Math.round((completedCount / totalModules) * 100)
-              : 0;
-
-            return (
-              <motion.article
-                key={subject.slug}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05, duration: 0.22 }}
-                className="panel rounded-[2rem] p-6"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-                  Subject
-                </p>
-                <h2 className="mt-3 text-2xl font-semibold">{subject.title}</h2>
-                {subject.description ? (
-                  <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{subject.description}</p>
-                ) : null}
-                <div className="mt-5 flex items-center gap-3 text-sm text-[var(--muted)]">
-                  <span>{formatCount(subject.materials.length, "material")}</span>
-                  <span>&bull;</span>
-                  <span>{formatCount(totalModules, "module")}</span>
-                  <span>&bull;</span>
-                  <span>{completionPercentage}% complete</span>
-                </div>
-
-                <div className="mt-5">
-                  <div className="h-3 overflow-hidden rounded-full bg-[var(--panel-alt)]">
-                    <div
-                      className="h-full rounded-full bg-[var(--accent)] transition-all"
-                      style={{ width: `${completionPercentage}%` }}
-                    />
-                  </div>
-                  <p className="mt-3 text-sm text-[var(--muted)]">
-                    {completedCount} of {formatCount(totalModules, "module")} done
-                  </p>
-                </div>
-
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <Link href={`/${subject.slug}`} className="button-secondary px-4 py-3 text-sm font-semibold">
-                    Explore Subject
-                  </Link>
-                  {subject.modules[0] ? (
-                    <Link
-                      href={subject.modules[0].href}
-                      className="button-primary px-4 py-3 text-sm font-semibold"
-                    >
-                      Open First Module
-                    </Link>
-                  ) : null}
-                </div>
-              </motion.article>
-            );
-          })}
-        </div>
-
-        <section className="panel rounded-[2rem] p-6">
-          <HistoryPanel subjects={subjects} limit={8} />
-        </section>
-      </section>
+      {/*
+        Recent Activity and Subjects are intentionally hidden on the home page for now.
+        They remain candidates for a later reimplementation after the Explore/Library split.
+      */}
     </div>
   );
 }

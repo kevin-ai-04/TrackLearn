@@ -82,6 +82,14 @@ export interface PublicationRequestDocument {
   reviewedAt?: string | null;
 }
 
+export interface UserCourseLibraryDocument {
+  _id?: ObjectId;
+  userId: string;
+  publicSubjectId: string;
+  addedAt: string;
+  updatedAt: string;
+}
+
 export interface UserProgressDocument {
   _id?: ObjectId;
   userId: string;

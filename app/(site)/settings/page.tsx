@@ -74,6 +74,20 @@ export default async function SettingsPage() {
           </section>
         ) : null}
 
+        <section className="panel mb-4 rounded-[2rem] p-6 sm:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
+            About
+          </p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+            TrackLearn interface assets
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted)]">
+            The home page feature icons are custom inline SVGs created for TrackLearn and do not
+            require external attribution. Theme and font controls use local interface glyphs from
+            the app codebase.
+          </p>
+        </section>
+
         <UserDashboard subjects={subjects} />
       </>
     </AppShell>

@@ -1,8 +1,8 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import { ContentViewer } from "@/components/content/ContentViewer";
 import { AppShell } from "@/components/layout/AppShell";
-import { getViewer } from "@/lib/auth-helpers";
+import { requireUser } from "@/lib/auth-helpers";
+import { isCourseInUserLibrary, listSelectedPublicSubjects } from "@/lib/course-library";
 import { getMaterialBySlugs, getNavigationTree } from "@/lib/content";
 
 interface MaterialPageProps {
@@ -16,9 +16,9 @@ export const dynamic = "force-dynamic";
 
 export default async function MaterialPage({ params }: MaterialPageProps) {
   const resolvedParams = await params;
-  const viewer = await getViewer();
+  const viewer = await requireUser();
   const [subjects, materialResult] = await Promise.all([
-    getNavigationTree(),
+    getNavigationTree(viewer),
     getMaterialBySlugs(resolvedParams.subject, resolvedParams.material, viewer),
   ]);
 
@@ -27,11 +27,17 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   }
 
   const { subject, material } = materialResult;
+  const isInLibrary = await isCourseInUserLibrary(viewer.userId!, subject.id);
 
+  if (!isInLibrary) {
+    redirect(`/explore?course=${subject.slug}`);
+  }
+
+  const selectedSubjects = await listSelectedPublicSubjects(viewer.userId!, subjects);
 
   return (
     <AppShell
-      subjects={subjects}
+      subjects={selectedSubjects}
       currentSubjectSlug={subject.slug}
       currentMaterialSlug={material.slug}
       currentPathLabel={`${subject.title} - ${material.title}`}
