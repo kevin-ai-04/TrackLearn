@@ -1,13 +1,8 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import { ContentViewer } from "@/components/content/ContentViewer";
 import { AppShell } from "@/components/layout/AppShell";
-<<<<<<< Updated upstream
-import { getViewer } from "@/lib/auth-helpers";
-=======
 import { requireUser } from "@/lib/auth-helpers";
 import { getUserCourseSubjectIds, listSelectedPublicSubjects } from "@/lib/course-library";
->>>>>>> Stashed changes
 import { getMaterialBySlugs, getNavigationTree } from "@/lib/content";
 
 interface MaterialPageProps {
@@ -21,10 +16,11 @@ export const dynamic = "force-dynamic";
 
 export default async function MaterialPage({ params }: MaterialPageProps) {
   const resolvedParams = await params;
-  const viewer = await getViewer();
-  const [subjects, materialResult] = await Promise.all([
-    getNavigationTree(),
+  const viewer = await requireUser();
+  const [subjects, materialResult, selectedCourseIds] = await Promise.all([
+    getNavigationTree(viewer),
     getMaterialBySlugs(resolvedParams.subject, resolvedParams.material, viewer),
+    getUserCourseSubjectIds(viewer.userId),
   ]);
 
   if (!materialResult) {
@@ -32,10 +28,6 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   }
 
   const { subject, material } = materialResult;
-<<<<<<< Updated upstream
-
-=======
-  const selectedCourseIds = await getUserCourseSubjectIds(viewer.userId!);
   const isInLibrary = selectedCourseIds.includes(subject.id);
 
   if (!isInLibrary) {
@@ -43,11 +35,10 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   }
 
   const selectedSubjects = await listSelectedPublicSubjects(viewer.userId!, subjects, selectedCourseIds);
->>>>>>> Stashed changes
 
   return (
     <AppShell
-      subjects={subjects}
+      subjects={selectedSubjects}
       currentSubjectSlug={subject.slug}
       currentMaterialSlug={material.slug}
       currentPathLabel={`${subject.title} - ${material.title}`}

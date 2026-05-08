@@ -1,14 +1,9 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import { ContentViewer } from "@/components/content/ContentViewer";
 import { ModuleHeader } from "@/components/content/ModuleHeader";
 import { AppShell } from "@/components/layout/AppShell";
-<<<<<<< Updated upstream
-import { getViewer } from "@/lib/auth-helpers";
-=======
 import { requireUser } from "@/lib/auth-helpers";
 import { getUserCourseSubjectIds, listSelectedPublicSubjects } from "@/lib/course-library";
->>>>>>> Stashed changes
 import { getModuleBySlugs, getNavigationTree } from "@/lib/content";
 
 interface ModulePageProps {
@@ -22,10 +17,11 @@ export const dynamic = "force-dynamic";
 
 export default async function ModulePage({ params }: ModulePageProps) {
   const resolvedParams = await params;
-  const viewer = await getViewer();
-  const [subjects, moduleResult] = await Promise.all([
-    getNavigationTree(),
+  const viewer = await requireUser();
+  const [subjects, moduleResult, selectedCourseIds] = await Promise.all([
+    getNavigationTree(viewer),
     getModuleBySlugs(resolvedParams.subject, resolvedParams.module, viewer),
+    getUserCourseSubjectIds(viewer.userId),
   ]);
 
   if (!moduleResult) {
@@ -33,10 +29,6 @@ export default async function ModulePage({ params }: ModulePageProps) {
   }
 
   const { subject, module, previousModule, nextModule } = moduleResult;
-<<<<<<< Updated upstream
-
-=======
-  const selectedCourseIds = await getUserCourseSubjectIds(viewer.userId!);
   const isInLibrary = selectedCourseIds.includes(subject.id);
 
   if (!isInLibrary) {
@@ -44,11 +36,10 @@ export default async function ModulePage({ params }: ModulePageProps) {
   }
 
   const selectedSubjects = await listSelectedPublicSubjects(viewer.userId!, subjects, selectedCourseIds);
->>>>>>> Stashed changes
 
   return (
     <AppShell
-      subjects={subjects}
+      subjects={selectedSubjects}
       currentSubjectSlug={subject.slug}
       currentModuleSlug={module.slug}
       currentPathLabel={`${subject.title} - ${module.title}`}
