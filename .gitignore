@@ -18,3 +18,5 @@ tsconfig.tsbuildinfo
 temp-reference/
 fix_md.js
 test.js
+next-env.d.ts
+.playwright-mcp/

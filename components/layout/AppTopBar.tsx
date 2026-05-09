@@ -185,9 +185,10 @@ export function AppTopBar({
   return (
     <header
       className={cn(
-        "relative sticky top-0 z-40 overflow-hidden border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,transparent)] backdrop-blur-md transition-transform duration-300",
-        isHomeVariant &&
-          "absolute inset-x-0 border-transparent bg-accent text-white backdrop-blur-0",
+        "top-0 z-40 overflow-hidden border-b border-[var(--border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,transparent)] backdrop-blur-md transition-transform duration-300",
+        isHomeVariant
+          ? "fixed inset-x-0 border-transparent bg-accent text-white backdrop-blur-0"
+          : "sticky",
         hidden ? "-translate-y-full" : "translate-y-0",
       )}
     >
