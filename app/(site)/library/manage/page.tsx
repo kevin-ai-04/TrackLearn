@@ -29,12 +29,12 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
     >
       <div className="space-y-4">
         {resolvedSearchParams.saved === "entry" ? (
-          <section className="rounded-[1.6rem] border border-emerald-300/60 bg-emerald-100/70 p-4 text-sm text-emerald-900">
+          <section className="rounded-xl border border-emerald-300/60 bg-emerald-100/70 p-4 text-sm text-emerald-900">
             Entry saved. You are back in Manage.
           </section>
         ) : null}
 
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="panel rounded-xl p-6 sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
@@ -53,15 +53,15 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
             </Link>
           </div>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
+            <div className="rounded-lg bg-[var(--panel-alt)] p-4">
               <p className="text-sm text-[var(--muted)]">Personal subjects</p>
               <p className="mt-2 text-3xl font-semibold">{library.ownedSubjects.length}</p>
             </div>
-            <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
+            <div className="rounded-lg bg-[var(--panel-alt)] p-4">
               <p className="text-sm text-[var(--muted)]">Personal entries</p>
               <p className="mt-2 text-3xl font-semibold">{library.ownedEntries.length}</p>
             </div>
-            <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
+            <div className="rounded-lg bg-[var(--panel-alt)] p-4">
               <p className="text-sm text-[var(--muted)]">Publication requests</p>
               <p className="mt-2 text-3xl font-semibold">{library.publicationRequests.length}</p>
             </div>
@@ -70,7 +70,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
 
         <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-4">
-            <section className="panel rounded-[2rem] p-6">
+            <section className="panel rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
                   Personal Subjects
@@ -83,7 +83,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
                     <Link
                       key={subject.id}
                       href={`/library/subjects/${subject.id}`}
-                      className="block rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
+                      className="block rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -99,14 +99,14 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
                     </Link>
                   ))
                 ) : (
-                  <div className="rounded-[1.4rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+                  <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
                     No personal subjects yet.
                   </div>
                 )}
               </div>
             </section>
 
-            <section className="panel rounded-[2rem] p-6">
+            <section className="panel rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
                   Personal Entries
@@ -119,7 +119,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
                     <Link
                       key={entry.id}
                       href={`/library/entries/${entry.id}`}
-                      className="block rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
+                      className="block rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -135,7 +135,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
                     </Link>
                   ))
                 ) : (
-                  <div className="rounded-[1.4rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+                  <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
                     No personal modules or materials yet.
                   </div>
                 )}
@@ -143,7 +143,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
             </section>
           </div>
 
-          <section className="panel rounded-[2rem] p-6">
+          <section className="panel rounded-xl p-6">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
                 Publication Requests
@@ -155,7 +155,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
                 library.publicationRequests.map((request) => (
                   <article
                     key={request.id}
-                    className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -174,7 +174,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
                   </article>
                 ))
               ) : (
-                <div className="rounded-[1.4rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+                <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
                   No review requests submitted yet.
                 </div>
               )}

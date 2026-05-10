@@ -57,7 +57,7 @@ export default async function SubjectPage({ params }: SubjectPageProps) {
       currentPathHint={subject.description}
     >
       <div className="space-y-4">
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="panel rounded-xl p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
             Subject Overview
           </p>

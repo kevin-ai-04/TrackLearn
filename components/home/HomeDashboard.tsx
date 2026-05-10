@@ -84,7 +84,7 @@ export function HomeDashboard() {
           {features.map((feature) => (
             <article
               key={feature.title}
-              className="panel flex min-h-64 flex-col rounded-[1.5rem] p-6 text-center md:text-left"
+              className="panel flex min-h-64 flex-col rounded-lg p-6 text-center md:text-left"
             >
               <h2 className="text-2xl font-semibold">{feature.title}</h2>
               <div className="mx-auto mt-5 text-[var(--foreground)] md:mx-0">{feature.icon}</div>

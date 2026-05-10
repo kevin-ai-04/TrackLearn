@@ -16,11 +16,11 @@ const Sidebar = dynamic(
   () => import("@/components/sidebar/Sidebar").then((mod) => mod.Sidebar),
   {
     loading: () => (
-      <div className="panel h-full animate-pulse rounded-[2rem] p-5">
+      <div className="panel h-full animate-pulse rounded-xl p-5">
         <div className="space-y-4">
-          <div className="h-20 rounded-[1.5rem] bg-[var(--panel-alt)]" />
-          <div className="h-40 rounded-[1.5rem] bg-[var(--panel-alt)]" />
-          <div className="h-28 rounded-[1.5rem] bg-[var(--panel-alt)]" />
+          <div className="h-20 rounded-lg bg-[var(--panel-alt)]" />
+          <div className="h-40 rounded-lg bg-[var(--panel-alt)]" />
+          <div className="h-28 rounded-lg bg-[var(--panel-alt)]" />
         </div>
       </div>
     ),

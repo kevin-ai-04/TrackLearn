@@ -85,7 +85,7 @@ export function MobileSidebar({
             transition={{ type: "spring", stiffness: 260, damping: 30 }}
             className="fixed inset-y-0 left-0 z-50 w-[min(92vw,26rem)] border-r border-[var(--border)] bg-[var(--surface)] px-3 pb-3 pt-20 shadow-[0_24px_80px_rgba(0,0,0,0.22)]"
           >
-            <div className="h-full overflow-hidden rounded-[2rem]">
+            <div className="h-full overflow-hidden rounded-xl">
               <Sidebar
                 subjects={subjects}
                 currentSubjectSlug={currentSubjectSlug}

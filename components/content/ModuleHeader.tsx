@@ -45,7 +45,7 @@ export function ModuleHeader({
   }, [hydrated, markVisited, moduleSlug, moduleTitle, subjectSlug, subjectTitle]);
 
   return (
-    <section className="panel mb-4 overflow-hidden rounded-[2rem] p-6 sm:p-7">
+    <section className="panel mb-4 overflow-hidden rounded-xl p-6 sm:p-7">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div className="max-w-3xl">
           <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
@@ -81,7 +81,7 @@ export function ModuleHeader({
                 moduleTitle,
               })
             }
-            className={`rounded-[1.1rem] px-4 py-3 text-sm font-semibold transition ${
+            className={`rounded-md px-4 py-3 text-sm font-semibold transition ${
               record?.done
                 ? "bg-emerald-500 text-white"
                 : "button-secondary text-[var(--foreground)]"
@@ -101,7 +101,7 @@ export function ModuleHeader({
                 moduleTitle,
               })
             }
-            className={`rounded-[1.1rem] px-4 py-3 text-sm font-semibold transition ${
+            className={`rounded-md px-4 py-3 text-sm font-semibold transition ${
               record?.needsRevision
                 ? "bg-amber-500 text-slate-950"
                 : "button-secondary text-[var(--foreground)]"
@@ -117,7 +117,7 @@ export function ModuleHeader({
           {previousModule ? (
             <Link
               href={previousModule.href}
-              className="rounded-[1.3rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
+              className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                 Previous
@@ -131,7 +131,7 @@ export function ModuleHeader({
           {nextModule ? (
             <Link
               href={nextModule.href}
-              className="rounded-[1.3rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-left transition hover:border-[var(--accent)]"
+              className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-left transition hover:border-[var(--accent)]"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                 Next

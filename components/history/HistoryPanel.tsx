@@ -41,7 +41,7 @@ export function HistoryPanel({
       </div>
 
       {!hydrated ? (
-        <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+        <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
           Loading study history...
         </div>
       ) : recentItems.length ? (
@@ -59,7 +59,7 @@ export function HistoryPanel({
               >
                 <Link
                   href={`/${item.subjectSlug}/${normalizedModuleSlug}`}
-                  className="block rounded-[1.3rem] border border-[var(--border)] bg-[var(--panel)] p-3 transition hover:-translate-y-0.5 hover:border-[var(--accent)] hover:bg-[var(--panel-alt)]"
+                  className="block rounded-lg border border-[var(--border)] bg-[var(--panel)] p-3 transition hover:-translate-y-0.5 hover:border-[var(--accent)] hover:bg-[var(--panel-alt)]"
                 >
                   <p className="text-sm font-semibold">{resolved.moduleTitle}</p>
                   <p className="mt-1 text-xs text-[var(--muted)]">{resolved.subjectTitle}</p>
@@ -72,7 +72,7 @@ export function HistoryPanel({
           })}
         </div>
       ) : (
-        <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+        <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
           Open a module and it will appear here for quick continuation.
         </div>
       )}

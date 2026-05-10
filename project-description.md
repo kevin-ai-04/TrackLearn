@@ -36,9 +36,11 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - Auth is configured in `auth.ts` with Better Auth, Google, and the MongoDB adapter.
 - User roles are stored on `users.role`.
 - Supported roles are `"user"` and `"admin"`.
+- Auth user records can also store an optional unique `username` for the user's custom profile handle.
 - `/login` should present an explicit role choice before starting Google OAuth.
 - The selected login role should be written to MongoDB on `user.role` as part of sign-in so evaluators can switch between scenarios.
 - Signed-in users should also be able to switch between `user` and `admin` from `/settings` for testing.
+- Signed-in users can view account details and add, change, or clear their custom username from `/settings`.
 - Signing in is optional for browsing and settings.
 - `/explore` is public and shows the full public course catalog overview.
 - `/library` requires login and shows only public courses the user added from Explore plus the signed-in user's personal subjects.
@@ -188,6 +190,7 @@ Important fields:
 - `auth.ts`: Better Auth setup, Google provider integration, MongoDB adapter, and `getSession()`
 - `lib/auth-client.ts`: Better Auth React client and typed client-side session access
 - `lib/auth-helpers.ts`: `getViewer()`, `requireUser()`, and `requireAdmin()`
+- `lib/user-profile-store.ts`: reads auth account profile data and validates/persists custom usernames
 - `lib/content.ts`: read layer for the public catalog, dynamic study lookups, user library reads, and publication request listing
 - `lib/content-management.ts`: write layer for personal content CRUD, ingestion, review submission, admin review decisions, public copy updates, and unpublish flows
 - `lib/mongodb.ts`: MongoDB client, database access, indexes, and environment capability checks

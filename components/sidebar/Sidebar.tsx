@@ -13,7 +13,7 @@ const HistoryPanel = dynamic(
   () => import("@/components/history/HistoryPanel").then((mod) => mod.HistoryPanel),
   {
     loading: () => (
-      <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+      <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
         Loading activity...
       </div>
     ),
@@ -81,7 +81,7 @@ export function Sidebar({
   };
 
   const navigationCard = (
-    <section className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4">
+    <section className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
         Navigate
       </p>
@@ -127,10 +127,10 @@ export function Sidebar({
         headings.length ? "lg:grid-rows-[minmax(0,1fr)_minmax(240px,0.85fr)]" : "",
       )}
     >
-      <section className="panel flex min-h-0 flex-col gap-5 overflow-hidden rounded-[2rem] p-5">
+      <section className="panel flex min-h-0 flex-col gap-5 overflow-hidden rounded-xl p-5">
         {navigationPlacement === "top" ? navigationCard : null}
 
-        <div className="rounded-[1.5rem] bg-[var(--panel-alt)] p-4">
+        <div className="rounded-lg bg-[var(--panel-alt)] p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
             Current Path
           </p>
@@ -156,7 +156,7 @@ export function Sidebar({
       </section>
 
       {headings.length ? (
-        <section className="panel overflow-y-auto rounded-[2rem] p-5">
+        <section className="panel overflow-y-auto rounded-xl p-5">
           <NavigationTree headings={headings} onHeadingSelect={onHeadingSelect} />
         </section>
       ) : null}

@@ -28,7 +28,7 @@ export default async function LibraryPage() {
       currentPathHint="Your selected public courses and personal subjects."
     >
       <div className="space-y-4">
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="panel rounded-xl p-6 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
@@ -48,22 +48,22 @@ export default async function LibraryPage() {
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
+            <div className="rounded-lg bg-[var(--panel-alt)] p-4">
               <p className="text-sm text-[var(--muted)]">Selected courses</p>
               <p className="mt-2 text-3xl font-semibold">{selectedPublicSubjects.length}</p>
             </div>
-            <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
+            <div className="rounded-lg bg-[var(--panel-alt)] p-4">
               <p className="text-sm text-[var(--muted)]">Personal subjects</p>
               <p className="mt-2 text-3xl font-semibold">{library.ownedSubjects.length}</p>
             </div>
-            <div className="rounded-[1.4rem] bg-[var(--panel-alt)] p-4">
+            <div className="rounded-lg bg-[var(--panel-alt)] p-4">
               <p className="text-sm text-[var(--muted)]">Personal entries</p>
               <p className="mt-2 text-3xl font-semibold">{library.ownedEntries.length}</p>
             </div>
           </div>
         </section>
 
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="panel rounded-xl p-6 sm:p-8">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
@@ -80,13 +80,13 @@ export default async function LibraryPage() {
               mode="library"
             />
           ) : (
-            <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] bg-[var(--panel-alt)] p-6 text-sm text-[var(--muted)]">
+            <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--panel-alt)] p-6 text-sm text-[var(--muted)]">
               Your library has no selected public courses yet. Add courses from Explore.
             </div>
           )}
         </section>
 
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="panel rounded-xl p-6 sm:p-8">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">

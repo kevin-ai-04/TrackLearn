@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center px-6 text-center">
-      <div className="panel w-full rounded-[2rem] p-10">
+      <div className="panel w-full rounded-xl p-10">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
           Missing Content
         </p>

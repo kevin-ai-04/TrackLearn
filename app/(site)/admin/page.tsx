@@ -225,7 +225,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       currentPathHint="Review publication requests, moderate shared catalog content, and edit public markdown."
     >
       <div className="space-y-4">
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="panel rounded-xl p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
             Admin
           </p>
@@ -242,7 +242,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           />
         ) : (
           <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-            <section className="panel rounded-[2rem] p-6">
+            <section className="panel rounded-xl p-6">
               <div className="flex flex-wrap gap-2">
                 {REQUEST_STATUS_FILTERS.map((filter) => {
                   const isActive = (filters.status ?? "all") === (filter.value ?? "all");
@@ -276,7 +276,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         requestId: request.id,
                         editEntryId: undefined,
                       })}
-                      className="block rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
+                      className="block rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -295,14 +295,14 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     </Link>
                   ))
                 ) : (
-                  <div className="rounded-[1.4rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+                  <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
                     No publication requests match the current filter.
                   </div>
                 )}
               </div>
             </section>
 
-            <section className="panel rounded-[2rem] p-6">
+            <section className="panel rounded-xl p-6">
               {selectedRequest ? (
                 <div className="space-y-5">
                   <div>
@@ -315,7 +315,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     </p>
                   </div>
 
-                  <div className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
+                  <div className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
                     <p>
                       <span className="font-semibold">Slug:</span> {selectedRequest.snapshot.slug}
                     </p>
@@ -332,7 +332,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   selectedPublishedSubject &&
                   !selectedRequest.entryId ? (
                     <div className="grid gap-4 lg:grid-cols-2">
-                      <section className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
+                      <section className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                           Current Public Subject
                         </p>
@@ -348,7 +348,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         </p>
                       </section>
 
-                      <section className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
+                      <section className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                           Proposed Update
                         </p>
@@ -371,7 +371,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   selectedRequest.snapshot.markdown ? (
                     <div className="grid gap-4">
                       <div className="grid gap-4 lg:grid-cols-2">
-                        <section className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
+                        <section className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
                           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                             Current Public Entry
                           </p>
@@ -386,7 +386,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                           </p>
                         </section>
 
-                        <section className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
+                        <section className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
                           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                             Proposed Update
                           </p>
@@ -453,7 +453,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   </form>
                 </div>
               ) : (
-                <div className="rounded-[1.4rem] border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
+                <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
                   Select a request to review its snapshot and moderation controls.
                 </div>
               )}
@@ -461,7 +461,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </div>
         )}
 
-        <section className="panel rounded-[2rem] p-6">
+        <section className="panel rounded-xl p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
@@ -474,19 +474,19 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             </div>
 
             <div className="grid min-w-[15rem] gap-3 sm:grid-cols-3">
-              <div className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4">
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                   Subjects
                 </p>
                 <p className="mt-2 text-2xl font-semibold">{catalogGroups.length}</p>
               </div>
-              <div className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4">
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                   Entries Shown
                 </p>
                 <p className="mt-2 text-2xl font-semibold">{displayedEntryCount}</p>
               </div>
-              <div className="rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4">
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                   Total Entries
                 </p>
@@ -495,7 +495,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             </div>
           </div>
 
-          <form action="/admin" className="mt-5 grid gap-3 rounded-[1.6rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 lg:grid-cols-[1.4fr_0.9fr_0.8fr_auto]">
+          <form action="/admin" className="mt-5 grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--panel-alt)] p-4 lg:grid-cols-[1.4fr_0.9fr_0.8fr_auto]">
             {filters.status ? <input type="hidden" name="status" value={filters.status} /> : null}
             {filters.requestType ? <input type="hidden" name="requestType" value={filters.requestType} /> : null}
             {filters.requestId ? <input type="hidden" name="requestId" value={filters.requestId} /> : null}
@@ -542,7 +542,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
           <div className="mt-5 grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)]">
             <aside className="space-y-3">
-              <div className="rounded-[1.6rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4">
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--panel-alt)] p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
                   Quick Jump
                 </p>
@@ -552,7 +552,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                       <Link
                         key={group.subject.id}
                         href={`#catalog-subject-${group.subject.id}`}
-                        className="block rounded-[1.1rem] border border-[var(--border)] bg-[var(--panel)] px-3 py-3 transition hover:border-[var(--accent)]"
+                        className="block rounded-md border border-[var(--border)] bg-[var(--panel)] px-3 py-3 transition hover:border-[var(--accent)]"
                       >
                         <p className="font-semibold">{group.subject.title}</p>
                         <p className="mt-1 text-xs text-[var(--muted)]">
@@ -582,7 +582,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     <article
                       key={group.subject.id}
                       id={`catalog-subject-${group.subject.id}`}
-                      className="rounded-[1.8rem] border border-[var(--border)] bg-[var(--panel-alt)] p-5"
+                      className="rounded-xl border border-[var(--border)] bg-[var(--panel-alt)] p-5"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -621,19 +621,19 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                       </div>
 
                       <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-[1.2rem] border border-[var(--border)] bg-[var(--panel)] px-4 py-3">
+                        <div className="rounded-md border border-[var(--border)] bg-[var(--panel)] px-4 py-3">
                           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
                             Visible Modules
                           </p>
                           <p className="mt-2 text-xl font-semibold">{group.visibleModules.length}</p>
                         </div>
-                        <div className="rounded-[1.2rem] border border-[var(--border)] bg-[var(--panel)] px-4 py-3">
+                        <div className="rounded-md border border-[var(--border)] bg-[var(--panel)] px-4 py-3">
                           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
                             Visible Materials
                           </p>
                           <p className="mt-2 text-xl font-semibold">{group.visibleMaterials.length}</p>
                         </div>
-                        <div className="rounded-[1.2rem] border border-[var(--border)] bg-[var(--panel)] px-4 py-3">
+                        <div className="rounded-md border border-[var(--border)] bg-[var(--panel)] px-4 py-3">
                           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
                             Total Entries
                           </p>
@@ -660,7 +660,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                                 <form
                                   key={entry.id}
                                   action={unpublishEntryAction.bind(null, entry.id)}
-                                  className="rounded-[1.3rem] border border-[var(--border)] bg-[var(--panel)] p-4"
+                                  className="rounded-lg border border-[var(--border)] bg-[var(--panel)] p-4"
                                 >
                                   <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div>
@@ -718,7 +718,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                                 <form
                                   key={entry.id}
                                   action={unpublishEntryAction.bind(null, entry.id)}
-                                  className="rounded-[1.3rem] border border-[var(--border)] bg-[var(--panel)] p-4"
+                                  className="rounded-lg border border-[var(--border)] bg-[var(--panel)] p-4"
                                 >
                                   <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div>
@@ -762,7 +762,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                           ) : null}
                         </div>
                       ) : (
-                        <div className="mt-5 rounded-[1.3rem] border border-dashed border-[var(--border)] bg-[var(--panel)] p-4 text-sm text-[var(--muted)]">
+                        <div className="mt-5 rounded-lg border border-dashed border-[var(--border)] bg-[var(--panel)] p-4 text-sm text-[var(--muted)]">
                           No modules or materials within this subject match the current filters.
                         </div>
                       )}
@@ -770,7 +770,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   );
                 })
               ) : (
-                <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] p-6 text-sm text-[var(--muted)]">
+                <div className="rounded-lg border border-dashed border-[var(--border)] p-6 text-sm text-[var(--muted)]">
                   No public catalog content matches the current filters.
                 </div>
               )}

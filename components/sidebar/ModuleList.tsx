@@ -47,7 +47,7 @@ export function ModuleList({
                 key={material.slug}
                 href={material.href}
                 className={cn(
-                  "block rounded-[1.3rem] border p-3 transition",
+                  "block rounded-lg border p-3 transition",
                   activeMaterialSlug === material.slug
                     ? "border-[var(--accent)] bg-[var(--accent-soft)]"
                     : "border-[var(--border)] bg-[var(--panel)] hover:-translate-y-0.5 hover:border-[var(--accent)] hover:bg-[var(--panel-alt)]",
@@ -79,7 +79,7 @@ export function ModuleList({
               key={module.slug}
               href={`/${subjectSlug}/${module.slug}`}
               className={cn(
-                "block rounded-[1.3rem] border p-3 transition",
+                "block rounded-lg border p-3 transition",
                 activeModuleSlug === module.slug
                   ? "border-[var(--accent)] bg-[var(--accent-soft)]"
                   : "border-[var(--border)] bg-[var(--panel)] hover:-translate-y-0.5 hover:border-[var(--accent)] hover:bg-[var(--panel-alt)]",

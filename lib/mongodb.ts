@@ -66,6 +66,14 @@ export async function ensureAppIndexes() {
 
       await Promise.all([
         db.collection("user").createIndex({ role: 1 }, { name: "user_role_idx" }),
+        db.collection("user").createIndex(
+          { usernameNormalized: 1 },
+          {
+            unique: true,
+            name: "user_username_normalized_uq",
+            partialFilterExpression: { usernameNormalized: { $type: "string" } },
+          },
+        ),
         db.collection("subjects").createIndex(
           { visibility: 1, ownerUserId: 1, slug: 1 },
           { unique: true, name: "subjects_visibility_owner_slug_uq" },

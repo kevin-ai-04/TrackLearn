@@ -38,7 +38,7 @@ export default async function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-3xl items-center px-4 py-8 md:px-6">
-      <section className="panel w-full rounded-[2rem] p-6 sm:p-8">
+      <section className="panel w-full rounded-xl p-6 sm:p-8">
         {/* <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
           Login
         </p> */}
@@ -55,7 +55,7 @@ export default async function LoginPage() {
               <form
                 key={roleOption.value}
                 action={signInWithGoogle.bind(null, roleOption.value)}
-                className="rounded-[1.6rem] border border-[var(--border)] bg-[var(--panel-alt)] p-5"
+                className="rounded-xl border border-[var(--border)] bg-[var(--panel-alt)] p-5"
               >
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
                   {roleOption.label}
@@ -73,7 +73,7 @@ export default async function LoginPage() {
             ))}
           </div>
         ) : (
-          <div className="mt-8 rounded-[1.4rem] border border-amber-300/60 bg-amber-100/70 p-4 text-sm text-amber-900">
+          <div className="mt-8 rounded-lg border border-amber-300/60 bg-amber-100/70 p-4 text-sm text-amber-900">
             Google sign-in is not configured yet. Set `MONGODB_URI`, `AUTH_SECRET`,
             `AUTH_GOOGLE_ID`, and `AUTH_GOOGLE_SECRET` to enable authentication.
           </div>

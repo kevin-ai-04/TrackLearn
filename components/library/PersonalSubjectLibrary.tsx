@@ -36,7 +36,7 @@ export function PersonalSubjectLibrary({ subjects }: PersonalSubjectLibraryProps
 
   return (
     <section className="space-y-5">
-      <div className="panel rounded-[1.5rem] p-4">
+      <div className="panel rounded-lg p-4">
         <form className="grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
           <label className="sr-only" htmlFor="personal-subject-search">
             Search personal subjects
@@ -69,13 +69,10 @@ export function PersonalSubjectLibrary({ subjects }: PersonalSubjectLibraryProps
 
       <div className="grid gap-4 lg:grid-cols-2">
         {visibleSubjects.map((subject) => (
-          <article key={subject.id} className="panel rounded-[1.5rem] p-6">
+          <article key={subject.id} className="panel rounded-lg p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-                  Personal Subject
-                </p>
-                <h3 className="mt-3 text-2xl font-semibold">{subject.title}</h3>
+                <h3 className="text-2xl font-semibold">{subject.title}</h3>
               </div>
               <span className="status-pill bg-[var(--accent-soft)] text-[var(--accent-strong)]">
                 {formatContentStatus(subject.status)}
@@ -102,7 +99,7 @@ export function PersonalSubjectLibrary({ subjects }: PersonalSubjectLibraryProps
       </div>
 
       {!visibleSubjects.length ? (
-        <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] bg-[var(--panel-alt)] p-6 text-sm text-[var(--muted)]">
+        <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--panel-alt)] p-6 text-sm text-[var(--muted)]">
           No personal subjects match the current search and filter.
         </div>
       ) : null}

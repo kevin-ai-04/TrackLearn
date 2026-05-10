@@ -68,7 +68,7 @@ export function CourseCatalog({
 
   return (
     <section className="space-y-5">
-      <div className="panel rounded-[1.5rem] p-4">
+      <div className="panel rounded-lg p-4">
         <form className="grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
           <label className="sr-only" htmlFor={`${mode}-course-search`}>
             Search courses
@@ -106,13 +106,10 @@ export function CourseCatalog({
           const isSelected = selectedCourseIdSet.has(course.id);
 
           return (
-            <article key={course.id} className="panel rounded-[1.5rem] p-6">
+            <article key={course.id} className="panel rounded-lg p-6">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-                    Course
-                  </p>
-                  <h2 className="mt-3 text-2xl font-semibold">{course.title}</h2>
+                  <h2 className="text-2xl font-semibold">{course.title}</h2>
                 </div>
                 {isSelected ? (
                   <span className="status-pill bg-[var(--accent-soft)] text-[var(--accent-strong)]">
@@ -163,7 +160,7 @@ export function CourseCatalog({
       </div>
 
       {!visibleCourses.length ? (
-        <div className="rounded-[1.5rem] border border-dashed border-[var(--border)] bg-[var(--panel-alt)] p-6 text-sm text-[var(--muted)]">
+        <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--panel-alt)] p-6 text-sm text-[var(--muted)]">
           No courses match the current search and filter.
         </div>
       ) : null}

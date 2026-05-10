@@ -41,7 +41,7 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
       currentPathHint="Edit personal markdown content and submit updates for review."
     >
       <div className="space-y-4">
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="panel rounded-xl p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
             Entry Editor
           </p>
@@ -51,7 +51,7 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
           </p>
         </section>
 
-        <section className="panel rounded-[2rem] p-6">
+        <section className="panel rounded-xl p-6">
           <form action={boundUpdateEntryAction} className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
               <input name="title" className="field" defaultValue={entry.title} required />

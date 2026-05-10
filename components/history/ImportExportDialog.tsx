@@ -67,7 +67,7 @@ export function ImportExportDialog({ open, mode, onClose }: ImportExportDialogPr
             aria-modal="true"
             aria-label={mode === "export" ? "Export progress" : "Import progress"}
           >
-            <div className="panel max-h-[85vh] overflow-y-auto rounded-[2rem] p-6 sm:p-7">
+            <div className="panel max-h-[85vh] overflow-y-auto rounded-xl p-6 sm:p-7">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
@@ -139,7 +139,7 @@ export function ImportExportDialog({ open, mode, onClose }: ImportExportDialogPr
               )}
 
               {feedback ? (
-                <div className="mt-5 rounded-[1.25rem] border border-[var(--border)] bg-[var(--panel-alt)] px-4 py-3 text-sm text-[var(--muted)]">
+                <div className="mt-5 rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] px-4 py-3 text-sm text-[var(--muted)]">
                   {feedback}
                 </div>
               ) : null}

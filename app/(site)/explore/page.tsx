@@ -30,12 +30,12 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
     >
       <div className="space-y-4">
         {addedCourse ? (
-          <div className="fixed right-4 top-20 z-50 max-w-sm rounded-[1.25rem] border border-emerald-300/70 bg-emerald-100 px-4 py-3 text-sm font-semibold text-emerald-950 shadow-panel">
+          <div className="fixed right-4 top-20 z-50 max-w-sm rounded-lg border border-emerald-300/70 bg-emerald-100 px-4 py-3 text-sm font-semibold text-emerald-950 shadow-panel">
             Course added to library.
           </div>
         ) : null}
 
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="panel rounded-xl p-6 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">

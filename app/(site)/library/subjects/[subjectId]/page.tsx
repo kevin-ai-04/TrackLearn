@@ -46,12 +46,12 @@ export default async function SubjectEditorPage({ params, searchParams }: Subjec
     >
       <div className="space-y-4">
         {resolvedSearchParams.synced === "public" ? (
-          <section className="rounded-[1.6rem] border border-emerald-300/60 bg-emerald-100/70 p-4 text-sm text-emerald-900">
+          <section className="rounded-xl border border-emerald-300/60 bg-emerald-100/70 p-4 text-sm text-emerald-900">
             Private copy updated from the latest public version.
           </section>
         ) : null}
 
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="panel rounded-xl p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
             Subject Editor
           </p>
@@ -61,7 +61,7 @@ export default async function SubjectEditorPage({ params, searchParams }: Subjec
           </p>
         </section>
 
-        <section className="panel rounded-[2rem] p-6">
+        <section className="panel rounded-xl p-6">
           <form action={boundUpdateSubjectAction} className="space-y-3">
             <input name="title" className="field" defaultValue={subject.title} required />
             <input
@@ -102,7 +102,7 @@ export default async function SubjectEditorPage({ params, searchParams }: Subjec
           </form>
         </section>
 
-        <section className="panel rounded-[2rem] p-6">
+        <section className="panel rounded-xl p-6">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
               Entries In This Subject
@@ -116,7 +116,7 @@ export default async function SubjectEditorPage({ params, searchParams }: Subjec
               <Link
                 key={entry.id}
                 href={`/library/entries/${entry.id}`}
-                className="block rounded-[1.4rem] border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
+                className="block rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>

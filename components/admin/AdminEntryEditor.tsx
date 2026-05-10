@@ -213,7 +213,7 @@ export function AdminEntryEditor({ entry, action, cancelHref }: AdminEntryEditor
   };
 
   return (
-    <section className="panel rounded-[2rem] p-6">
+    <section className="panel rounded-xl p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
@@ -285,7 +285,7 @@ export function AdminEntryEditor({ entry, action, cancelHref }: AdminEntryEditor
             </div>
             <div
               ref={previewRef}
-              className="panel overflow-auto rounded-[1.5rem]"
+              className="panel overflow-auto rounded-lg"
               style={{ height: `${paneHeight}px` }}
               onDoubleClick={handlePreviewDoubleClick}
             >
