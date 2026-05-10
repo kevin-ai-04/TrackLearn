@@ -39,15 +39,14 @@ export default async function LoginPage() {
   return (
     <main className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-3xl items-center px-4 py-8 md:px-6">
       <section className="panel w-full rounded-[2rem] p-6 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
+        {/* <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
           Login
-        </p>
+        </p> */}
         <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Choose a testing role.
+          Sign In
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)]">
-          Pick the role to test as, then sign in with Google. The selected role is stored in MongoDB and can also be
-          changed later from the settings page.
+          Sign in with Google to view courses, add to library, sync progress and more.
         </p>
 
         {googleReady ? (

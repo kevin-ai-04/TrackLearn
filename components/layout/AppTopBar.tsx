@@ -318,8 +318,8 @@ export function AppTopBar({
 
           <div
             className={cn(
-              "hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel)] p-1 shadow-panel md:flex",
-              isHomeVariant && "border-white/60 bg-white/95 shadow-none",
+              "hidden items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel)] p-1 md:flex",
+              isHomeVariant && "border-white/60 bg-white/95",
             )}
           >
             {themeOptions.map((option) => (

@@ -30,9 +30,9 @@ html[data-theme="dark"] {
   --panel-alt: #132a28;
   --foreground: #e6f7f4;
   --muted: #8fb5b0;
-  --accent: #25c0b2;
-  --accent-strong: #71ded3;
-  --accent-soft: rgba(37, 192, 178, 0.16);
+  --accent: #0f766e;
+  --accent-strong: #0b5b56;
+  --accent-soft: rgba(15, 118, 110, 0.16);
   --border: #1f3f3b;
   --shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
   --code-bg: #132826;
