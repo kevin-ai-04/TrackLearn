@@ -59,12 +59,15 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const { data: sessionData, isPending } = authClient.useSession();
-  const currentSubject = subjects.find((subject) => subject.slug === currentSubjectSlug);
+  const currentSubject = subjects.find(
+    (subject) => subject.routeSegment === currentSubjectSlug || subject.slug === currentSubjectSlug,
+  );
   const isAuthenticated = !isPending && Boolean(sessionData?.user?.id);
   const isAdmin = sessionData?.user?.role === "admin";
 
   const primaryLinks = [
-    { href: "/", label: "Home" },
+    { href: "/home", label: "Home" },
+    { href: "/explore", label: "Explore" },
     { href: "/library", label: "Library" },
     ...(!isAuthenticated ? [{ href: "/login", label: "Login" }] : []),
     ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
@@ -144,7 +147,7 @@ export function Sidebar({
           <SubjectList subjects={subjects} activeSubjectSlug={currentSubjectSlug} />
           {currentSubject ? (
             <ModuleList
-              subjectSlug={currentSubject.slug}
+              subjectSlug={currentSubject.routeSegment}
               materials={currentSubject.materials}
               modules={currentSubject.modules}
               activeModuleSlug={currentModuleSlug}

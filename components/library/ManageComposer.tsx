@@ -16,6 +16,7 @@ export function ManageComposer({ ownedSubjects, publicSubjects }: ManageComposer
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "entry" ? "entry" : "subject";
   const initialSubjectId = searchParams.get("subjectId") ?? "";
+  const errorMessage = searchParams.get("error");
   const [activeTab, setActiveTab] = useState<ComposerTab>(initialTab);
 
   return (
@@ -25,7 +26,7 @@ export function ManageComposer({ ownedSubjects, publicSubjects }: ManageComposer
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
             Create
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">Add a personal subject or entry</h2>
+          <h2 className="mt-2 text-2xl font-semibold">Add a personal course or entry</h2>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -35,7 +36,7 @@ export function ManageComposer({ ownedSubjects, publicSubjects }: ManageComposer
               activeTab === "subject" ? "button-primary" : "button-secondary"
             }`}
           >
-            Create Subject
+            Create Course
           </button>
           <button
             type="button"
@@ -52,10 +53,15 @@ export function ManageComposer({ ownedSubjects, publicSubjects }: ManageComposer
       {activeTab === "subject" ? (
         <div className="mt-6">
           <p className="text-sm leading-6 text-[var(--muted)]">
-            Start a new personal subject. You can build it out and submit it later when it is ready.
+            Start a new personal course. You can build it out and submit it later when it is ready.
           </p>
+          {errorMessage ? (
+            <div className="mt-4 rounded-lg border border-rose-300/70 bg-rose-100 px-4 py-3 text-sm font-semibold text-rose-950">
+              {errorMessage}
+            </div>
+          ) : null}
           <form action={createSubjectAction} className="mt-5 space-y-3">
-            <input name="title" className="field" placeholder="Personal subject title" required />
+            <input name="title" className="field" placeholder="Personal course title" required />
             <input
               name="order"
               className="field"
@@ -68,14 +74,14 @@ export function ManageComposer({ ownedSubjects, publicSubjects }: ManageComposer
               placeholder="Short description"
             />
             <button type="submit" className="button-primary px-4 py-3 text-sm font-semibold">
-              Create Personal Subject
+              Create Personal Course
             </button>
           </form>
         </div>
       ) : (
         <div className="mt-6">
           <p className="text-sm leading-6 text-[var(--muted)]">
-            Add a module or material under one of your personal subjects, or attach one to a public subject.
+            Add a module or material under one of your personal courses, or attach one to a public course.
           </p>
           <form action={createEntryAction} className="mt-5 space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
@@ -98,16 +104,16 @@ export function ManageComposer({ ownedSubjects, publicSubjects }: ManageComposer
               defaultValue={ownedSubjects.some((subject) => subject.id === initialSubjectId) ? initialSubjectId : ""}
             >
               <option value="" disabled>
-                Choose a parent subject
+                Choose a parent course
               </option>
               {ownedSubjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
-                  Personal: {subject.title}
+                  Personal Course: {subject.title}
                 </option>
               ))}
               {publicSubjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
-                  Public: {subject.title}
+                  Public Course: {subject.title}
                 </option>
               ))}
             </select>

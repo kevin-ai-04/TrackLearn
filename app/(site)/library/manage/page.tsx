@@ -25,7 +25,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
     <AppShell
       subjects={subjects}
       currentPathLabel="Manage"
-      currentPathHint="Create, edit, and submit your personal subjects and entries from one place."
+      currentPathHint="Create, edit, and submit your personal courses and entries from one place."
     >
       <div className="space-y-4">
         {resolvedSearchParams.saved === "entry" ? (
@@ -41,10 +41,10 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
                 Manage
               </p>
               <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-                Your personal subject workspace.
+                Your personal course workspace.
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted)]">
-                Manage personal subjects, create entries, and track publication requests separately
+                Manage personal courses, create entries, and track publication requests separately
                 from the public browsing view.
               </p>
             </div>
@@ -54,7 +54,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
           </div>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <div className="rounded-lg bg-[var(--panel-alt)] p-4">
-              <p className="text-sm text-[var(--muted)]">Personal subjects</p>
+              <p className="text-sm text-[var(--muted)]">Personal courses</p>
               <p className="mt-2 text-3xl font-semibold">{library.ownedSubjects.length}</p>
             </div>
             <div className="rounded-lg bg-[var(--panel-alt)] p-4">
@@ -73,7 +73,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
             <section className="panel rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-                  Personal Subjects
+                  Personal Courses
                 </p>
                 <span className="text-xs text-[var(--muted)]">{library.ownedSubjects.length} total</span>
               </div>
@@ -100,7 +100,7 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
                   ))
                 ) : (
                   <div className="rounded-lg border border-dashed border-[var(--border)] p-4 text-sm text-[var(--muted)]">
-                    No personal subjects yet.
+                    No personal courses yet.
                   </div>
                 )}
               </div>
@@ -161,7 +161,10 @@ export default async function ManagePage({ searchParams }: ManagePageProps) {
                       <div>
                         <p className="font-semibold">{request.snapshot.title}</p>
                         <p className="mt-1 text-sm text-[var(--muted)]">
-                          {request.requestType.replaceAll("_", " ")}
+                          {request.requestType
+                            .replaceAll("_", " ")
+                            .replace(/\bsubjects\b/gi, "courses")
+                            .replace(/\bsubject\b/gi, "course")}
                         </p>
                       </div>
                       <span className="status-pill bg-sky-500/15 text-sky-700">

@@ -25,7 +25,7 @@ export default async function LibraryPage() {
     <AppShell
       subjects={selectedPublicSubjects}
       currentPathLabel="Library"
-      currentPathHint="Your selected public courses and personal subjects."
+      currentPathHint="Your selected public courses and personal courses."
     >
       <div className="space-y-4">
         <section className="panel rounded-xl p-6 sm:p-8">
@@ -35,10 +35,10 @@ export default async function LibraryPage() {
                 Library
               </p>
               <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-                Your selected courses and personal subjects.
+                Your selected courses and personal courses.
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--muted)]">
-                Courses appear here after you add them from Explore. Personal subjects remain here
+                Courses appear here after you add them from Explore. Personal courses remain here
                 for editing, submission, and private study.
               </p>
             </div>
@@ -53,7 +53,7 @@ export default async function LibraryPage() {
               <p className="mt-2 text-3xl font-semibold">{selectedPublicSubjects.length}</p>
             </div>
             <div className="rounded-lg bg-[var(--panel-alt)] p-4">
-              <p className="text-sm text-[var(--muted)]">Personal subjects</p>
+              <p className="text-sm text-[var(--muted)]">Personal courses</p>
               <p className="mt-2 text-3xl font-semibold">{library.ownedSubjects.length}</p>
             </div>
             <div className="rounded-lg bg-[var(--panel-alt)] p-4">
@@ -90,12 +90,12 @@ export default async function LibraryPage() {
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-                Personal Subjects
+                Personal Courses
               </p>
               <h2 className="mt-2 text-2xl font-semibold">Your private and submitted work</h2>
             </div>
             <Link href="/library/manage?tab=subject" className="button-secondary px-4 py-3 text-sm font-semibold">
-              New Personal Subject
+              New Personal Course
             </Link>
           </div>
           <PersonalSubjectLibrary subjects={library.ownedSubjects} />

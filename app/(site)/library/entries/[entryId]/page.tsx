@@ -70,12 +70,12 @@ export default async function EntryEditorPage({ params }: EntryEditorPageProps) 
             <select name="subjectId" className="field" defaultValue={entry.subjectId}>
               {library.ownedSubjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
-                  Personal: {subject.title}
+                  Personal Course: {subject.title}
                 </option>
               ))}
               {library.publicSubjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
-                  Public: {subject.title}
+                  Public Course: {subject.title}
                 </option>
               ))}
             </select>

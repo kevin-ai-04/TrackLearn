@@ -13,13 +13,16 @@ interface HistoryPanelProps {
 }
 
 function resolveTitles(subjects: SubjectSummary[], subjectSlug: string, moduleSlug: string) {
-  const subject = subjects.find((item) => item.slug === subjectSlug);
+  const subject = subjects.find(
+    (item) => item.routeSegment === subjectSlug || item.slug === subjectSlug,
+  );
   const normalizedModuleSlug = normalizeRouteSegment(moduleSlug);
   const module = subject?.modules.find((item) => item.slug === normalizedModuleSlug);
 
   return {
     subjectTitle: subject?.title ?? subjectSlug,
     moduleTitle: module?.title ?? moduleSlug,
+    href: module?.href ?? `/${subjectSlug}/${normalizedModuleSlug}`,
   };
 }
 
@@ -29,7 +32,10 @@ export function HistoryPanel({
   title = "Recent Activity",
 }: HistoryPanelProps) {
   const { hydrated, state } = useStudyHistory();
-  const recentItems = state.recentActivity.slice(0, limit);
+  const subjectSlugSet = new Set(subjects.map((subject) => subject.slug));
+  const recentItems = state.recentActivity
+    .filter((item) => subjectSlugSet.has(item.subjectSlug))
+    .slice(0, limit);
 
   return (
     <div className="space-y-3">
@@ -48,7 +54,6 @@ export function HistoryPanel({
         <div className="space-y-2">
           {recentItems.map((item, index) => {
             const resolved = resolveTitles(subjects, item.subjectSlug, item.moduleSlug);
-            const normalizedModuleSlug = normalizeRouteSegment(item.moduleSlug);
 
             return (
               <motion.div
@@ -58,7 +63,7 @@ export function HistoryPanel({
                 transition={{ delay: index * 0.04, duration: 0.2 }}
               >
                 <Link
-                  href={`/${item.subjectSlug}/${normalizedModuleSlug}`}
+                  href={resolved.href}
                   className="block rounded-lg border border-[var(--border)] bg-[var(--panel)] p-3 transition hover:-translate-y-0.5 hover:border-[var(--accent)] hover:bg-[var(--panel-alt)]"
                 >
                   <p className="text-sm font-semibold">{resolved.moduleTitle}</p>

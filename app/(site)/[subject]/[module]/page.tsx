@@ -40,7 +40,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
   return (
     <AppShell
       subjects={selectedSubjects}
-      currentSubjectSlug={subject.slug}
+      currentSubjectSlug={subject.routeSegment}
       currentModuleSlug={module.slug}
       currentPathLabel={`${subject.title} - ${module.title}`}
       currentPathHint={module.description}
@@ -48,7 +48,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
     >
       <div className="space-y-4">
         <ModuleHeader
-          subjectSlug={subject.slug}
+          subjectSlug={subject.routeSegment}
           moduleSlug={module.slug}
           subjectTitle={subject.title}
           moduleTitle={module.title}

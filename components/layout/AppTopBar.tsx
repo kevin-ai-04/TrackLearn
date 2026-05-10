@@ -195,52 +195,67 @@ export function AppTopBar({
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 py-3 md:px-6">
         <div className="flex items-center gap-2 md:gap-3">
           {!isHomeVariant ? (
-            <>
-              <button
-                type="button"
-                onClick={onToggleSidebar}
-                className="button-secondary inline-flex h-11 w-11 items-center justify-center text-lg"
-                aria-label={sidebarOpen ? "Hide navigation panel" : "Show navigation panel"}
-                aria-expanded={sidebarOpen}
-                aria-controls="navigation-panel"
-              >
-                <span aria-hidden="true" className="relative block h-4 w-4">
-                  {sidebarOpen ? (
-                    <>
-                      <span className="absolute left-1/2 top-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
-                      <span className="absolute left-1/2 top-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
-                    </>
-                  ) : (
-                    <>
-                      <span className="absolute left-0 top-0.5 h-0.5 w-4 rounded-full bg-current" />
-                      <span className="absolute left-0 top-1/2 h-0.5 w-4 -translate-y-1/2 rounded-full bg-current" />
-                      <span className="absolute left-0 bottom-0.5 h-0.5 w-4 rounded-full bg-current" />
-                    </>
-                  )}
-                </span>
-              </button>
-              <Link href="/" className="text-lg font-semibold tracking-tight">
-                TrackLearn
-              </Link>
-              <nav className="hidden items-center gap-2 text-sm text-[var(--muted)] md:flex">
-                <Link className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]" href="/">
-                  Home
-                </Link>
-                <Link
-                  className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                  href="/explore"
-                >
-                  Explore
-                </Link>
-                <Link
-                  className="rounded-full px-3 py-2 transition hover:bg-[var(--accent-soft)]"
-                  href="/library"
-                >
-                  Library
-                </Link>
-              </nav>
-            </>
+            <button
+              type="button"
+              onClick={onToggleSidebar}
+              className="button-secondary inline-flex h-11 w-11 items-center justify-center text-lg"
+              aria-label={sidebarOpen ? "Hide navigation panel" : "Show navigation panel"}
+              aria-expanded={sidebarOpen}
+              aria-controls="navigation-panel"
+            >
+              <span aria-hidden="true" className="relative block h-4 w-4">
+                {sidebarOpen ? (
+                  <>
+                    <span className="absolute left-1/2 top-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-current" />
+                    <span className="absolute left-1/2 top-1/2 h-0.5 w-4 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
+                  </>
+                ) : (
+                  <>
+                    <span className="absolute left-0 top-0.5 h-0.5 w-4 rounded-full bg-current" />
+                    <span className="absolute left-0 top-1/2 h-0.5 w-4 -translate-y-1/2 rounded-full bg-current" />
+                    <span className="absolute left-0 bottom-0.5 h-0.5 w-4 rounded-full bg-current" />
+                  </>
+                )}
+              </span>
+            </button>
           ) : null}
+          <Link href="/" className="text-lg font-semibold tracking-tight">
+            TrackLearn
+          </Link>
+          <nav
+            className={cn(
+              "hidden items-center gap-2 text-sm md:flex",
+              isHomeVariant ? "text-white/90" : "text-[var(--muted)]",
+            )}
+          >
+            <Link
+              className={cn(
+                "rounded-full px-3 py-2 transition",
+                isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
+              )}
+              href="/home"
+            >
+              Home
+            </Link>
+            <Link
+              className={cn(
+                "rounded-full px-3 py-2 transition",
+                isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
+              )}
+              href="/explore"
+            >
+              Explore
+            </Link>
+            <Link
+              className={cn(
+                "rounded-full px-3 py-2 transition",
+                isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
+              )}
+              href="/library"
+            >
+              Library
+            </Link>
+          </nav>
         </div>
 
         <div className="flex items-center gap-2">

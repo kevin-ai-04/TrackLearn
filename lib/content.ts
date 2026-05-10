@@ -11,7 +11,7 @@ import {
   getFilesystemNavigationTree,
   getFilesystemSubjectBySlug,
 } from "@/lib/fs-content";
-import { normalizeRouteSegment } from "@/lib/utils";
+import { buildSubjectHref, buildSubjectRouteSegment, normalizeRouteSegment } from "@/lib/utils";
 import type { Viewer } from "@/lib/auth-helpers";
 import type {
   ContentMeta,
@@ -47,20 +47,23 @@ function sortByOrderThenTitle<T extends ContentMeta>(items: T[]) {
 }
 
 function mapEntrySummary(entry: EntryDocument, subject: SubjectDocument): EntrySummary {
+  const subjectId = subject._id.toHexString();
+  const subjectRouteSegment = buildSubjectRouteSegment(subject.slug, subjectId);
   const base = {
     id: entry._id.toHexString(),
     title: entry.title,
     order: entry.order,
     description: entry.description,
     slug: entry.slug,
-    subjectId: subject._id.toHexString(),
+    subjectId,
     subjectSlug: subject.slug,
+    subjectRouteSegment,
     subjectTitle: subject.title,
     headings: entry.headings,
     href:
       entry.kind === "module"
-        ? `/${subject.slug}/${entry.slug}`
-        : `/${subject.slug}/materials/${entry.slug}`,
+        ? `/${subjectRouteSegment}/${entry.slug}`
+        : `/${subjectRouteSegment}/materials/${entry.slug}`,
     visibility: entry.visibility,
     status: entry.status,
     ownerUserId: entry.ownerUserId,
@@ -106,6 +109,8 @@ function mapEntryContent(entry: EntryDocument, subject: SubjectDocument): EntryC
 }
 
 function mapSubjectContent(subject: SubjectDocument, entries: EntryDocument[]): SubjectContent {
+  const subjectId = subject._id.toHexString();
+  const routeSegment = buildSubjectRouteSegment(subject.slug, subjectId);
   const modules = sortByOrderThenTitle(
     entries
       .filter((entry) => entry.kind === "module")
@@ -118,12 +123,13 @@ function mapSubjectContent(subject: SubjectDocument, entries: EntryDocument[]): 
   );
 
   return {
-    id: subject._id.toHexString(),
+    id: subjectId,
     title: subject.title,
     order: subject.order,
     description: subject.description,
     slug: subject.slug,
-    href: `/${subject.slug}`,
+    routeSegment,
+    href: buildSubjectHref(subject.slug, subjectId),
     materials,
     modules,
     visibility: subject.visibility,
@@ -164,6 +170,7 @@ function toSubjectSummary(subject: SubjectContent): SubjectSummary {
     order: subject.order,
     description: subject.description,
     slug: subject.slug,
+    routeSegment: subject.routeSegment,
     href: subject.href,
     materials: subject.materials,
     modules: subject.modules,
@@ -243,7 +250,16 @@ export async function getSubjectBySlug(subjectSlug: string, viewer?: Viewer) {
   }
 
   const subjects = await getPublicContentTree();
-  return subjects.find((subject) => subject.slug === normalizeRouteSegment(subjectSlug)) ?? null;
+  const normalizedRouteSegment = normalizeRouteSegment(subjectSlug);
+  const routeMatch =
+    subjects.find((subject) => subject.routeSegment === normalizedRouteSegment) ?? null;
+
+  if (routeMatch) {
+    return routeMatch;
+  }
+
+  const slugMatches = subjects.filter((subject) => subject.slug === normalizedRouteSegment);
+  return slugMatches.length === 1 ? slugMatches[0] : null;
 }
 
 export async function getModuleBySlugs(subjectSlug: string, moduleSlug: string, viewer?: Viewer) {
@@ -712,7 +728,7 @@ export async function getAllModuleParams() {
 
   return subjects.flatMap((subject) =>
     subject.modules.map((module) => ({
-      subject: subject.slug,
+      subject: subject.routeSegment,
       module: module.slug,
     })),
   );
@@ -723,7 +739,7 @@ export async function getAllMaterialParams() {
 
   return subjects.flatMap((subject) =>
     subject.materials.map((material) => ({
-      subject: subject.slug,
+      subject: subject.routeSegment,
       material: material.slug,
     })),
   );

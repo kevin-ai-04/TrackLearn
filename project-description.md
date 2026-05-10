@@ -27,7 +27,7 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 
 ### Public catalog
 
-- Public subjects, modules, and materials are read through `lib/content.ts`.
+- Public courses, modules, and materials are read through `lib/content.ts`.
 - If `MONGODB_URI` is configured, public catalog reads come from MongoDB.
 - If MongoDB is not configured, public catalog reads fall back to `lib/fs-content.ts`.
 
@@ -41,10 +41,13 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - The selected login role should be written to MongoDB on `user.role` as part of sign-in so evaluators can switch between scenarios.
 - Signed-in users should also be able to switch between `user` and `admin` from `/settings` for testing.
 - Signed-in users can view account details and add, change, or clear their custom username from `/settings`.
-- Signing in is optional for browsing and settings.
+- Signing in is optional for browsing, `/home`, and settings.
+- `/` is the public landing page.
+- `/home` is the study dashboard with the welcome greeting, selected-course progress tracker, and recent activity.
 - `/explore` is public and shows the full public course catalog overview.
-- `/library` requires login and shows only public courses the user added from Explore plus the signed-in user's personal subjects.
+- `/library` requires login and shows only public courses the user added from Explore plus the signed-in user's personal courses.
 - Course content routes require login and require the public course to be in the user's library.
+- Public course URLs use a route segment containing both the course slug and stable subject ID, such as `/course-name-<subjectId>`, so same-name public courses do not collide.
 - `/library/manage` requires login.
 - `/library/subjects/[subjectId]` requires login.
 - `/library/entries/[entryId]` requires login.
@@ -61,15 +64,16 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 
 Logged-in users can create:
 
-- personal subjects
+- personal courses, stored internally as private `subjects`
 - personal modules
 - personal materials
 
 All user-created content starts with `visibility: "private"` and is treated in the UI as personal content.
+New personal courses cannot be created with the same title as an existing course.
 
 ### Moderated publishing
 
-- Users can submit personal subjects or entries for review.
+- Users can submit personal courses or entries for review.
 - Submission creates a `publicationRequests` document with a snapshot of the submitted content.
 - Admin approval creates or updates a separate public copy.
 - The original personal record remains the author-owned working copy.
@@ -84,10 +88,12 @@ All user-created content starts with `visibility: "private"` and is treated in t
 
 ## Main Routes
 
-- Public browsing lives under `app/(site)` and includes home, settings, login, library, and dynamic public study routes.
-- Home intentionally hides Recent Activity and Subjects for now; those sections are commented out in the home dashboard and should be reimplemented later after the Explore/Library split settles.
+- Public browsing lives under `app/(site)` and includes the landing page, `/home`, settings, login, library, and dynamic public study routes.
+- `/` is the marketing-style landing page with links to sign in and explore courses.
+- `/home` is the app home dashboard. It greets the viewer and shows tracked module totals, selected-course progress, and recent study activity.
 - `/explore` is the public catalog overview and add-to-library surface.
 - `/user` redirects to `/settings`.
+- `/settings` is for display preferences, account profile/role controls, and progress import/export/reset controls.
 - Personal management routes live under `/library/manage`, `/library/subjects/[subjectId]`, and `/library/entries/[entryId]`.
 - `/admin` is the moderation and public catalog management surface.
 
@@ -103,7 +109,7 @@ All user-created content starts with `visibility: "private"` and is treated in t
 
 ### `subjects`
 
-Represents both public and personal subjects.
+Represents both public and personal courses.
 
 Important fields:
 
@@ -180,7 +186,7 @@ Important fields:
 
 ### Publishing rules
 
-- A personal subject can be submitted for publication.
+- A personal course can be submitted for publication.
 - A personal entry can be submitted for publication.
 - Approval publishes a separate public record, not the same private record flipped to public.
 - Unpublishing removes the public copy and resets the private source back to draft.
@@ -247,7 +253,8 @@ For fast orientation, open these in order:
 6. `lib/content-management.ts`
 7. `lib/mongodb.ts`
 8. `hooks/useStudyHistory.ts`
-9. `app/(site)/settings/page.tsx`
-10. `app/(site)/library/page.tsx`
-11. `app/(site)/library/manage/page.tsx`
-12. `app/(site)/admin/page.tsx`
+9. `app/(site)/home/page.tsx`
+10. `app/(site)/settings/page.tsx`
+11. `app/(site)/library/page.tsx`
+12. `app/(site)/library/manage/page.tsx`
+13. `app/(site)/admin/page.tsx`

@@ -9,7 +9,7 @@ export default function NotFound() {
         </p>
         <h1 className="mt-4 text-4xl font-semibold">That study page does not exist.</h1>
         <p className="mt-4 text-base text-[var(--muted)]">
-          Check the shared catalog routes or go back to the subject index.
+          Check the shared catalog routes or go back to the course index.
         </p>
         <Link
           href="/"

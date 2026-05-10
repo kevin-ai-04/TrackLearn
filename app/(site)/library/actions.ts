@@ -72,7 +72,15 @@ export async function syncPrivateCourseCopyAction(formData: FormData) {
 
 export async function createSubjectAction(formData: FormData) {
   const viewer = await requireUser();
-  const subjectId = await createSubjectForUser(viewer.userId!, formData);
+  let subjectId: string;
+
+  try {
+    subjectId = await createSubjectForUser(viewer.userId!, formData);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unable to create course.";
+    redirect(`/library/manage?tab=subject&error=${encodeURIComponent(message)}`);
+  }
+
   revalidatePath("/library");
   revalidatePath("/library/manage");
   redirect(`/library/subjects/${subjectId}`);

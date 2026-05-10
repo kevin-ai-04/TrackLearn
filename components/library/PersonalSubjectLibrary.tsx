@@ -39,18 +39,18 @@ export function PersonalSubjectLibrary({ subjects }: PersonalSubjectLibraryProps
       <div className="panel rounded-lg p-4">
         <form className="grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
           <label className="sr-only" htmlFor="personal-subject-search">
-            Search personal subjects
+            Search personal courses
           </label>
           <input
             id="personal-subject-search"
             className="field"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search personal subjects"
+            placeholder="Search personal courses"
             type="search"
           />
           <label className="sr-only" htmlFor="personal-subject-status">
-            Filter personal subjects
+            Filter personal courses
           </label>
           <select
             id="personal-subject-status"
@@ -91,7 +91,7 @@ export function PersonalSubjectLibrary({ subjects }: PersonalSubjectLibraryProps
                 href={`/library/subjects/${subject.id}`}
                 className="button-primary inline-flex px-4 py-3 text-sm font-semibold"
               >
-                Open Subject
+                Open Course
               </Link>
             </div>
           </article>
@@ -100,7 +100,7 @@ export function PersonalSubjectLibrary({ subjects }: PersonalSubjectLibraryProps
 
       {!visibleSubjects.length ? (
         <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--panel-alt)] p-6 text-sm text-[var(--muted)]">
-          No personal subjects match the current search and filter.
+          No personal courses match the current search and filter.
         </div>
       ) : null}
     </section>

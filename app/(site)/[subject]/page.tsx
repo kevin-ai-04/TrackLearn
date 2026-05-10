@@ -52,14 +52,14 @@ export default async function SubjectPage({ params }: SubjectPageProps) {
   return (
     <AppShell
       subjects={selectedSubjects}
-      currentSubjectSlug={subject.slug}
-      currentPathLabel={`${subject.title} - Subject Overview`}
+      currentSubjectSlug={subject.routeSegment}
+      currentPathLabel={`${subject.title} - Course Overview`}
       currentPathHint={subject.description}
     >
       <div className="space-y-4">
         <section className="panel rounded-xl p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-            Subject Overview
+            Course Overview
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{subject.title}</h1>
           {subject.description ? (
@@ -68,7 +68,7 @@ export default async function SubjectPage({ params }: SubjectPageProps) {
             </p>
           ) : null}
           <p className="mt-5 text-sm text-[var(--muted)]">
-            This subject contains {formatCount(subject.materials.length, "material")} and{" "}
+            This course contains {formatCount(subject.materials.length, "material")} and{" "}
             {formatCount(subject.modules.length, "module")} in the shared catalog.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -101,7 +101,7 @@ export default async function SubjectPage({ params }: SubjectPageProps) {
         </section>
 
         <SubjectOverviewSections
-          subjectSlug={subject.slug}
+          subjectSlug={subject.routeSegment}
           materials={subject.materials}
           modules={subject.modules}
         />

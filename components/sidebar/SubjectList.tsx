@@ -13,16 +13,16 @@ export function SubjectList({ subjects, activeSubjectSlug }: SubjectListProps) {
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-        Subjects
+        Courses
       </p>
       <div className="flex flex-wrap gap-2">
         {subjects.map((subject) => (
           <Link
-            key={subject.slug}
-            href={`/${subject.slug}`}
+            key={subject.id}
+            href={subject.href}
             className={cn(
               "rounded-full border px-3 py-2 text-sm font-medium transition",
-              activeSubjectSlug === subject.slug
+              activeSubjectSlug === subject.routeSegment || activeSubjectSlug === subject.slug
                 ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]"
                 : "border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--foreground)]",
             )}

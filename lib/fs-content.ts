@@ -4,7 +4,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { cache } from "react";
 import { extractMarkdownHeadings } from "@/lib/markdown";
-import { normalizeRouteSegment } from "@/lib/utils";
+import { buildSubjectHref, buildSubjectRouteSegment, normalizeRouteSegment } from "@/lib/utils";
 import type {
   ContentMeta,
   MaterialContent,
@@ -74,6 +74,7 @@ async function loadModule(subjectSlug: string, subjectId: string, subjectTitle: 
   const meta = parseMeta(await loadJson(path.join(moduleDir, "meta.json")), moduleDir);
   const content = await readFile(path.join(moduleDir, "content.md"), "utf8");
   const moduleSlug = normalizeRouteSegment(moduleDirName);
+  const subjectRouteSegment = buildSubjectRouteSegment(subjectSlug, subjectId);
 
   const moduleContent: ModuleContent = {
     ...meta,
@@ -82,10 +83,11 @@ async function loadModule(subjectSlug: string, subjectId: string, subjectTitle: 
     slug: moduleSlug,
     subjectId,
     subjectSlug,
+    subjectRouteSegment,
     subjectTitle,
     content,
     headings: extractMarkdownHeadings(content),
-    href: `/${subjectSlug}/${moduleSlug}`,
+    href: `/${subjectRouteSegment}/${moduleSlug}`,
     visibility: "public",
     status: "published",
     ownerUserId: null,
@@ -99,6 +101,7 @@ async function loadMaterial(subjectSlug: string, subjectId: string, subjectTitle
   const meta = parseMeta(await loadJson(path.join(materialDir, "meta.json")), materialDir);
   const content = await readFile(path.join(materialDir, "content.md"), "utf8");
   const materialSlug = normalizeRouteSegment(materialDirName);
+  const subjectRouteSegment = buildSubjectRouteSegment(subjectSlug, subjectId);
 
   const materialContent: MaterialContent = {
     ...meta,
@@ -107,10 +110,11 @@ async function loadMaterial(subjectSlug: string, subjectId: string, subjectTitle
     slug: materialSlug,
     subjectId,
     subjectSlug,
+    subjectRouteSegment,
     subjectTitle,
     content,
     headings: extractMarkdownHeadings(content),
-    href: `/${subjectSlug}/materials/${materialSlug}`,
+    href: `/${subjectRouteSegment}/materials/${materialSlug}`,
     visibility: "public",
     status: "published",
     ownerUserId: null,
@@ -123,6 +127,7 @@ async function loadSubject(subjectSlug: string) {
   const subjectDir = path.join(SUBJECTS_ROOT, subjectSlug);
   const meta = parseMeta(await loadJson(path.join(subjectDir, "meta.json")), subjectDir);
   const subjectId = `subject:${subjectSlug}`;
+  const routeSegment = buildSubjectRouteSegment(subjectSlug, subjectId);
   const [materialEntries, moduleEntries] = await Promise.all([
     readChildDirectories(path.join(subjectDir, "materials")),
     readChildDirectories(path.join(subjectDir, "modules")),
@@ -137,7 +142,8 @@ async function loadSubject(subjectSlug: string) {
     ...meta,
     id: subjectId,
     slug: subjectSlug,
-    href: `/${subjectSlug}`,
+    routeSegment,
+    href: buildSubjectHref(subjectSlug, subjectId),
     materials: sortByOrderThenTitle(materials),
     modules: sortByOrderThenTitle(modules),
     visibility: "public",
@@ -167,6 +173,7 @@ function toMaterialSummary(material: MaterialContent): MaterialSummary {
     slug: material.slug,
     subjectId: material.subjectId,
     subjectSlug: material.subjectSlug,
+    subjectRouteSegment: material.subjectRouteSegment,
     subjectTitle: material.subjectTitle,
     headings: material.headings,
     href: material.href,
@@ -186,6 +193,7 @@ function toModuleSummary(module: ModuleContent): ModuleSummary {
     slug: module.slug,
     subjectId: module.subjectId,
     subjectSlug: module.subjectSlug,
+    subjectRouteSegment: module.subjectRouteSegment,
     subjectTitle: module.subjectTitle,
     headings: module.headings,
     href: module.href,
@@ -202,6 +210,7 @@ function toSubjectSummary(subject: SubjectContent): SubjectSummary {
     description: subject.description,
     id: subject.id,
     slug: subject.slug,
+    routeSegment: subject.routeSegment,
     href: subject.href,
     materials: subject.materials.map(toMaterialSummary),
     modules: subject.modules.map(toModuleSummary),
@@ -218,7 +227,16 @@ export const getFilesystemNavigationTree = cache(async () => {
 
 export const getFilesystemSubjectBySlug = cache(async (subjectSlug: string) => {
   const subjects = await getFilesystemContentTree();
-  return subjects.find((subject) => subject.slug === subjectSlug) ?? null;
+  const normalizedRouteSegment = normalizeRouteSegment(subjectSlug);
+  const routeMatch =
+    subjects.find((subject) => subject.routeSegment === normalizedRouteSegment) ?? null;
+
+  if (routeMatch) {
+    return routeMatch;
+  }
+
+  const slugMatches = subjects.filter((subject) => subject.slug === normalizedRouteSegment);
+  return slugMatches.length === 1 ? slugMatches[0] : null;
 });
 
 export const getFilesystemModuleBySlugs = cache(async (subjectSlug: string, moduleSlug: string) => {

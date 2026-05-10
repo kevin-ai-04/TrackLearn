@@ -13,6 +13,17 @@ export function normalizeRouteSegment(value: string) {
   return slug || value.trim().toLowerCase().replace(/\s+/g, "-");
 }
 
+export function buildSubjectRouteSegment(slug: string, id: string) {
+  const normalizedSlug = normalizeRouteSegment(slug);
+  const normalizedId = normalizeRouteSegment(id);
+
+  return normalizedId ? `${normalizedSlug}-${normalizedId}` : normalizedSlug;
+}
+
+export function buildSubjectHref(slug: string, id: string) {
+  return `/${buildSubjectRouteSegment(slug, id)}`;
+}
+
 export function formatDateTime(dateString: string | null) {
   if (!dateString) {
     return "Not yet visited";

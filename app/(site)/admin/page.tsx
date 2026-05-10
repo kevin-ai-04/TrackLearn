@@ -132,7 +132,10 @@ function getEntryKindClasses(kind: EntryKind) {
 }
 
 function formatLabel(value: string) {
-  return value.replaceAll("_", " ");
+  return value
+    .replaceAll("_", " ")
+    .replace(/\bsubjects\b/gi, "courses")
+    .replace(/\bsubject\b/gi, "course");
 }
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
@@ -320,8 +323,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                       <span className="font-semibold">Slug:</span> {selectedRequest.snapshot.slug}
                     </p>
                     <p className="mt-2">
-                      <span className="font-semibold">Subject:</span>{" "}
-                      {selectedRequest.snapshot.subjectTitle ?? "No subject snapshot"}
+                      <span className="font-semibold">Course:</span>{" "}
+                      {selectedRequest.snapshot.subjectTitle ?? "No course snapshot"}
                     </p>
                     {selectedRequest.snapshot.description ? (
                       <p className="mt-2 text-[var(--muted)]">{selectedRequest.snapshot.description}</p>
@@ -334,7 +337,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     <div className="grid gap-4 lg:grid-cols-2">
                       <section className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-sm">
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
-                          Current Public Subject
+                          Current Public Course
                         </p>
                         <p className="mt-3">
                           <span className="font-semibold">Title:</span> {selectedPublishedSubject.title}
@@ -382,7 +385,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                             <span className="font-semibold">Slug:</span> {selectedPublishedEntry.slug}
                           </p>
                           <p className="mt-2">
-                            <span className="font-semibold">Subject:</span> {selectedPublishedEntry.subjectTitle}
+                            <span className="font-semibold">Course:</span> {selectedPublishedEntry.subjectTitle}
                           </p>
                         </section>
 
@@ -397,8 +400,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                             <span className="font-semibold">Slug:</span> {selectedRequest.snapshot.slug}
                           </p>
                           <p className="mt-2">
-                            <span className="font-semibold">Subject:</span>{" "}
-                            {selectedRequest.snapshot.subjectTitle ?? "No subject snapshot"}
+                            <span className="font-semibold">Course:</span>{" "}
+                            {selectedRequest.snapshot.subjectTitle ?? "No course snapshot"}
                           </p>
                         </section>
                       </div>
@@ -467,16 +470,16 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
                 Public Catalog
               </p>
-              <h2 className="mt-2 text-2xl font-semibold">Find a public subject, module, or material fast.</h2>
+              <h2 className="mt-2 text-2xl font-semibold">Find a public course, module, or material fast.</h2>
               <p className="mt-2 text-sm text-[var(--muted)]">
-                Grouped by subject with server-side filters so you can jump straight to editing or unpublishing.
+                Grouped by course with server-side filters so you can jump straight to editing or unpublishing.
               </p>
             </div>
 
             <div className="grid min-w-[15rem] gap-3 sm:grid-cols-3">
               <div className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
-                  Subjects
+                  Courses
                 </p>
                 <p className="mt-2 text-2xl font-semibold">{catalogGroups.length}</p>
               </div>
@@ -504,12 +507,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               type="search"
               name="catalogQuery"
               className="field"
-              placeholder="Search by subject, module, material, or slug"
+              placeholder="Search by course, module, material, or slug"
               defaultValue={catalogQuery}
             />
 
             <select name="catalogSubject" className="field" defaultValue={catalogSubject}>
-              <option value="">All subjects</option>
+              <option value="">All courses</option>
               {catalog.subjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
                   {subject.title}
@@ -562,7 +565,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     ))
                   ) : (
                     <p className="text-sm text-[var(--muted)]">
-                      No subjects match the current catalog filters.
+                      No courses match the current catalog filters.
                     </p>
                   )}
                 </div>
@@ -604,7 +607,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                             href={subjectPanelHref}
                             className="button-secondary px-4 py-2 text-sm font-semibold"
                           >
-                            Focus Subject
+                            Focus Course
                           </Link>
                           <Link
                             href={group.subject.href}
@@ -614,7 +617,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                           </Link>
                           <form action={unpublishSubjectAction.bind(null, group.subject.id)}>
                             <button type="submit" className="button-secondary px-4 py-2 text-sm font-semibold">
-                              Unpublish Subject
+                              Unpublish Course
                             </button>
                           </form>
                         </div>
@@ -763,7 +766,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         </div>
                       ) : (
                         <div className="mt-5 rounded-lg border border-dashed border-[var(--border)] bg-[var(--panel)] p-4 text-sm text-[var(--muted)]">
-                          No modules or materials within this subject match the current filters.
+                          No modules or materials within this course match the current filters.
                         </div>
                       )}
                     </article>

@@ -45,7 +45,7 @@ export async function addCourseToUserLibrary(userId: string, publicSubjectId: st
   });
 
   if (!subject) {
-    throw new Error("Public subject not found.");
+    throw new Error("Public course not found.");
   }
 
   const now = new Date().toISOString();

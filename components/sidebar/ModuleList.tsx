@@ -77,7 +77,7 @@ export function ModuleList({
           return (
             <Link
               key={module.slug}
-              href={`/${subjectSlug}/${module.slug}`}
+              href={module.href}
               className={cn(
                 "block rounded-lg border p-3 transition",
                 activeModuleSlug === module.slug

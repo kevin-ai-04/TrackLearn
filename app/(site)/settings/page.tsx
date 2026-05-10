@@ -1,9 +1,9 @@
 import { AppShell } from "@/components/layout/AppShell";
-import { UserDashboard } from "@/components/history/UserDashboard";
 import { AccountProfileSettings } from "@/components/settings/AccountProfileSettings";
 import { SettingsPreferenceControls } from "@/components/settings/SettingsPreferenceControls";
 import { SettingsAccountActions } from "@/components/settings/SettingsAccountActions";
 import { RoleSwitchAutoRefresh } from "@/components/settings/RoleSwitchAutoRefresh";
+import { ProgressDataControls } from "@/components/settings/ProgressDataControls";
 import { userRoleOptions } from "@/lib/auth-roles";
 import { getViewer } from "@/lib/auth-helpers";
 import { getNavigationTree } from "@/lib/content";
@@ -39,7 +39,7 @@ export default async function SettingsPage() {
     <AppShell
       subjects={subjects}
       currentPathLabel="Settings"
-      currentPathHint="Theme, reading preferences, and study progress are available to everyone. Signing in enables optional account sync and personal content tools."
+      currentPathHint="Theme, reading preferences, account profile, and progress data controls."
     >
       <>
         <RoleSwitchAutoRefresh />
@@ -111,21 +111,7 @@ export default async function SettingsPage() {
           </section>
         ) : null}
 
-        <section className="panel mb-4 rounded-xl p-6 sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-            About
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-            TrackLearn interface assets
-          </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted)]">
-            The home page feature icons are custom inline SVGs created for TrackLearn and do not
-            require external attribution. Theme and font controls use local interface glyphs from
-            the app codebase.
-          </p>
-        </section>
-
-        <UserDashboard subjects={subjects} />
+        <ProgressDataControls />
       </>
     </AppShell>
   );

@@ -3,7 +3,7 @@ import "server-only";
 import { ObjectId } from "mongodb";
 import { extractMarkdownHeadings } from "@/lib/markdown";
 import { ensureAppIndexes, getDatabase, isDatabaseConfigured } from "@/lib/mongodb";
-import { normalizeRouteSegment } from "@/lib/utils";
+import { buildSubjectRouteSegment, normalizeRouteSegment } from "@/lib/utils";
 import type { EntryKind, PublicationRequestType } from "@/types/content";
 import type {
   EntryDocument,
@@ -43,6 +43,24 @@ function parseOptionalNumber(value: FormDataEntryValue | null) {
 
   const number = Number(value);
   return Number.isFinite(number) ? number : undefined;
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function assertCourseTitleAvailable(title: string) {
+  const db = await getDatabase();
+  const existingSubject = await db.collection<SubjectDocument>("subjects").findOne({
+    title: {
+      $regex: `^${escapeRegExp(title)}$`,
+      $options: "i",
+    },
+  });
+
+  if (existingSubject) {
+    throw new Error("A course with this name already exists.");
+  }
 }
 
 async function readMarkdownFromForm(formData: FormData) {
@@ -98,11 +116,11 @@ async function assertWritableSubject(userId: string, subjectId: string) {
   const subject = await getSubjectById(subjectId);
 
   if (!subject) {
-    throw new Error("Subject not found.");
+    throw new Error("Course not found.");
   }
 
   if (subject.visibility === "private" && subject.ownerUserId !== userId) {
-    throw new Error("You do not have access to that subject.");
+    throw new Error("You do not have access to that course.");
   }
 
   return subject;
@@ -112,7 +130,7 @@ async function assertOwnedSubject(userId: string, subjectId: string) {
   const subject = await getSubjectById(subjectId);
 
   if (!subject || subject.ownerUserId !== userId || subject.visibility !== "private") {
-    throw new Error("Private subject not found.");
+    throw new Error("Private course not found.");
   }
 
   return subject;
@@ -151,10 +169,12 @@ function getReviewResetFields<T extends { publishedEntryId?: string | null; publ
   return {};
 }
 
-function getPublicEntryPath(subjectSlug: string, kind: EntryKind, entrySlug: string) {
+function getPublicEntryPath(subjectSlug: string, subjectId: string, kind: EntryKind, entrySlug: string) {
+  const subjectRouteSegment = buildSubjectRouteSegment(subjectSlug, subjectId);
+
   return kind === "module"
-    ? `/${subjectSlug}/${entrySlug}`
-    : `/${subjectSlug}/materials/${entrySlug}`;
+    ? `/${subjectRouteSegment}/${entrySlug}`
+    : `/${subjectRouteSegment}/materials/${entrySlug}`;
 }
 
 export async function createSubjectForUser(userId: string, formData: FormData) {
@@ -163,10 +183,12 @@ export async function createSubjectForUser(userId: string, formData: FormData) {
   const db = await getDatabase();
   const now = new Date().toISOString();
 
-  const title = parseRequiredText(formData.get("title"), "Subject title");
+  const title = parseRequiredText(formData.get("title"), "Course title");
   const slug = normalizeRouteSegment(parseOptionalText(formData.get("slug")) ?? title);
   const description = parseOptionalText(formData.get("description"));
   const order = parseOptionalNumber(formData.get("order"));
+
+  await assertCourseTitleAvailable(title);
 
   const result = await db
     .collection<Omit<SubjectDocument, "_id"> & { _id?: ObjectId }>("subjects")
@@ -196,7 +218,7 @@ export async function createPrivateSubjectCopyFromPublic(userId: string, publicS
   });
 
   if (!publicSubject) {
-    throw new Error("Public subject not found.");
+    throw new Error("Public course not found.");
   }
 
   const existingCopy = await db.collection<SubjectDocument>("subjects").findOne({
@@ -264,7 +286,7 @@ export async function syncPrivateSubjectCopyFromPublic(userId: string, privateSu
   const privateSubject = await assertOwnedSubject(userId, privateSubjectId);
 
   if (!privateSubject.publishedSubjectId) {
-    throw new Error("This subject is not linked to a public subject.");
+    throw new Error("This course is not linked to a public course.");
   }
 
   const publicSubject = await db.collection<SubjectDocument>("subjects").findOne({
@@ -273,7 +295,7 @@ export async function syncPrivateSubjectCopyFromPublic(userId: string, privateSu
   });
 
   if (!publicSubject) {
-    throw new Error("Linked public subject not found.");
+    throw new Error("Linked public course not found.");
   }
 
   const publicEntries = await db.collection<EntryDocument>("entries").find({
@@ -335,7 +357,7 @@ export async function updateSubjectForUser(userId: string, subjectId: string, fo
   const subject = await assertOwnedSubject(userId, subjectId);
   const now = new Date().toISOString();
 
-  const title = parseRequiredText(formData.get("title"), "Subject title");
+  const title = parseRequiredText(formData.get("title"), "Course title");
   const slug = normalizeRouteSegment(parseOptionalText(formData.get("slug")) ?? title);
   const description = parseOptionalText(formData.get("description"));
   const order = parseOptionalNumber(formData.get("order"));
@@ -377,7 +399,7 @@ export async function createEntryForUser(userId: string, formData: FormData) {
   const db = await getDatabase();
   const now = new Date().toISOString();
 
-  const subjectId = parseRequiredText(formData.get("subjectId"), "Subject");
+  const subjectId = parseRequiredText(formData.get("subjectId"), "Course");
   const kind = parseRequiredText(formData.get("kind"), "Entry kind") as EntryKind;
   const subject = await assertWritableSubject(userId, subjectId);
   const title = parseRequiredText(formData.get("title"), "Entry title");
@@ -414,7 +436,7 @@ export async function updateEntryForUser(userId: string, entryId: string, formDa
   await ensureAppIndexes();
   const db = await getDatabase();
   const entry = await assertOwnedEntry(userId, entryId);
-  const subjectId = parseRequiredText(formData.get("subjectId"), "Subject");
+  const subjectId = parseRequiredText(formData.get("subjectId"), "Course");
   const subject = await assertWritableSubject(userId, subjectId);
   const now = new Date().toISOString();
 
@@ -464,7 +486,7 @@ export async function updatePublicEntryAsAdmin(entryId: string, formData: FormDa
   const subject = await getSubjectById(entry.subjectId);
 
   if (!subject || subject.visibility !== "public") {
-    throw new Error("Parent public subject not found.");
+    throw new Error("Parent public course not found.");
   }
 
   const now = new Date().toISOString();
@@ -492,9 +514,9 @@ export async function updatePublicEntryAsAdmin(entryId: string, formData: FormDa
   );
 
   return {
-    subjectSlug: subject.slug,
-    previousPath: getPublicEntryPath(subject.slug, entry.kind, entry.slug),
-    nextPath: getPublicEntryPath(subject.slug, kind, slug),
+    subjectSlug: buildSubjectRouteSegment(subject.slug, subject._id.toHexString()),
+    previousPath: getPublicEntryPath(subject.slug, subject._id.toHexString(), entry.kind, entry.slug),
+    nextPath: getPublicEntryPath(subject.slug, subject._id.toHexString(), kind, slug),
   };
 }
 
@@ -560,7 +582,7 @@ export async function submitEntryForReview(userId: string, entryId: string) {
   const subject = await getSubjectById(entry.subjectId);
 
   if (!subject) {
-    throw new Error("Parent subject was not found.");
+    throw new Error("Parent course was not found.");
   }
 
   const now = new Date().toISOString();
@@ -694,7 +716,7 @@ async function approveSubjectRequest(
   );
 
   return {
-    subjectSlug: subject.slug,
+    subjectSlug: buildSubjectRouteSegment(subject.slug, publicSubjectId),
   };
 }
 
@@ -707,7 +729,7 @@ async function approveEntryRequest(
   const sourceSubject = await getSubjectById(entry.subjectId);
 
   if (!sourceSubject) {
-    throw new Error("Entry subject not found.");
+    throw new Error("Entry course not found.");
   }
 
   const publicSubjectId = await ensurePublicSubjectCopy(
@@ -785,8 +807,8 @@ async function approveEntryRequest(
   );
 
   return {
-    entryPath: getPublicEntryPath(sourceSubject.slug, entry.kind, entry.slug),
-    subjectSlug: sourceSubject.slug,
+    entryPath: getPublicEntryPath(sourceSubject.slug, publicSubjectId, entry.kind, entry.slug),
+    subjectSlug: buildSubjectRouteSegment(sourceSubject.slug, publicSubjectId),
   };
 }
 
@@ -930,7 +952,7 @@ export async function unpublishPublicContent(options: {
     const subject = await getSubjectById(options.subjectId);
 
     if (!subject || subject.visibility !== "public") {
-      throw new Error("Public subject not found.");
+      throw new Error("Public course not found.");
     }
 
     const publicEntries = await db.collection<EntryDocument>("entries").find({

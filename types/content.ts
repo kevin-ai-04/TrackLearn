@@ -39,6 +39,7 @@ export interface ContentOwnership {
 export interface SubjectSummary extends ContentMeta, ContentOwnership {
   id: string;
   slug: string;
+  routeSegment: string;
   href: string;
   materials: MaterialSummary[];
   modules: ModuleSummary[];
@@ -57,6 +58,7 @@ export interface EntrySummaryBase extends ContentMeta, ContentOwnership {
   slug: string;
   subjectId: string;
   subjectSlug: string;
+  subjectRouteSegment: string;
   subjectTitle: string;
   headings: HeadingItem[];
   href: string;

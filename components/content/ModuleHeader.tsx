@@ -49,7 +49,7 @@ export function ModuleHeader({
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div className="max-w-3xl">
           <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
-            <Link href="/" className="transition hover:text-[var(--foreground)]">
+            <Link href="/home" className="transition hover:text-[var(--foreground)]">
               Home
             </Link>
             <span>/</span>

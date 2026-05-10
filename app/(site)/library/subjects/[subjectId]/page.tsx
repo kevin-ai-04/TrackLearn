@@ -42,7 +42,7 @@ export default async function SubjectEditorPage({ params, searchParams }: Subjec
     <AppShell
       subjects={subjects}
       currentPathLabel={`Manage - ${subject.title}`}
-      currentPathHint="Edit your personal subject metadata and submit it for publication when ready."
+      currentPathHint="Edit your personal course metadata and submit it for publication when ready."
     >
       <div className="space-y-4">
         {resolvedSearchParams.synced === "public" ? (
@@ -53,7 +53,7 @@ export default async function SubjectEditorPage({ params, searchParams }: Subjec
 
         <section className="panel rounded-xl p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-            Subject Editor
+            Course Editor
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{subject.title}</h1>
           <p className="mt-3 text-sm text-[var(--muted)]">
@@ -84,7 +84,7 @@ export default async function SubjectEditorPage({ params, searchParams }: Subjec
                 href={`/library/manage?tab=entry&subjectId=${subject.id}`}
                 className="button-secondary px-4 py-3 text-sm font-semibold"
               >
-                Create Entry In This Subject
+                Create Entry In This Course
               </Link>
               <button
                 formAction={boundSubmitSubjectAction}
@@ -96,7 +96,7 @@ export default async function SubjectEditorPage({ params, searchParams }: Subjec
                 formAction={boundDeleteSubjectAction}
                 className="button-secondary px-4 py-3 text-sm font-semibold"
               >
-                Delete Subject
+                Delete Course
               </button>
             </div>
           </form>
@@ -105,7 +105,7 @@ export default async function SubjectEditorPage({ params, searchParams }: Subjec
         <section className="panel rounded-xl p-6">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Entries In This Subject
+              Entries In This Course
             </p>
             <span className="text-xs text-[var(--muted)]">
               {subject.modules.length + subject.materials.length} total

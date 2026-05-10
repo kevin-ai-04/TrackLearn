@@ -39,7 +39,7 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   return (
     <AppShell
       subjects={selectedSubjects}
-      currentSubjectSlug={subject.slug}
+      currentSubjectSlug={subject.routeSegment}
       currentMaterialSlug={material.slug}
       currentPathLabel={`${subject.title} - ${material.title}`}
       currentPathHint={material.description}
