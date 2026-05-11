@@ -127,7 +127,7 @@ export function CourseCatalog({
                 <span>{formatCount(course.materials.length, "material")}</span>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-5 flex flex-wrap items-start gap-3">
                 {mode === "library" ? (
                   <Link href={course.href} className="button-primary px-4 py-3 text-sm font-semibold">
                     View Course

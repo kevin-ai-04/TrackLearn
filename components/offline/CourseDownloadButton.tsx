@@ -19,6 +19,7 @@ export function CourseDownloadButton({ course }: CourseDownloadButtonProps) {
   const [downloaded, setDownloaded] = useState(false);
   const [pending, setPending] = useState(false);
   const [promptOpen, setPromptOpen] = useState(false);
+  const [removePending, setRemovePending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -79,6 +80,7 @@ export function CourseDownloadButton({ course }: CourseDownloadButtonProps) {
     try {
       await removeDownloadedCourse(course.id);
       setDownloaded(false);
+      setRemovePending(false);
       setMessage("Removed download");
     } catch {
       setMessage("Unable to remove download.");
@@ -97,20 +99,54 @@ export function CourseDownloadButton({ course }: CourseDownloadButtonProps) {
     <div className="relative">
       <button
         type="button"
-        onClick={downloaded ? removeDownload : () => downloadCourse()}
+        onClick={
+          downloaded
+            ? removePending
+              ? removeDownload
+              : () => {
+                  setRemovePending(true);
+                  setMessage(null);
+                }
+            : () => downloadCourse()
+        }
         disabled={pending}
-        className="button-secondary px-4 py-3 text-sm font-semibold"
+        className={`px-4 py-3 text-sm font-semibold ${
+          removePending ? "rounded-full bg-rose-600 text-white hover:bg-rose-700" : "button-secondary"
+        }`}
       >
-        {pending ? "Working..." : downloaded ? "Remove Download" : "Download"}
+        {pending
+          ? "Working..."
+          : downloaded
+            ? removePending
+              ? "Confirm Remove"
+              : "Remove Download"
+            : "Download"}
       </button>
 
+      {removePending ? (
+        <button
+          type="button"
+          onClick={() => setRemovePending(false)}
+          disabled={pending}
+          className="button-secondary ml-2 px-4 py-3 text-sm font-semibold"
+        >
+          Cancel
+        </button>
+      ) : null}
+
       {message ? <p className="mt-2 text-xs text-[var(--muted)]">{message}</p> : null}
+      {removePending ? (
+        <p className="mt-2 max-w-xs text-xs leading-5 text-rose-600">
+          This deletes the downloaded course files from this device. Synced progress is kept.
+        </p>
+      ) : null}
 
       {promptOpen ? (
         <div className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-[var(--border)] bg-[var(--panel)] p-4 shadow-xl">
           <p className="text-sm font-semibold">Enable offline support?</p>
           <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-            Downloads are available after offline support is turned on in settings.
+            Downloaded courses will be saved in this browser&apos;s local device storage so they can be
+            opened when the network is unavailable.
           </p>
           <div className="mt-4 flex gap-2">
             <button

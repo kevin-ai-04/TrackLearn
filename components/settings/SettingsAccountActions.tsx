@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { clearPersistedHistoryState } from "@/lib/history";
+import { clearDownloadedCourses } from "@/lib/offline-courses";
 
 interface SettingsAccountActionsProps {
   isAdmin: boolean;
@@ -19,6 +21,8 @@ export function SettingsAccountActions({ isAdmin }: SettingsAccountActionsProps)
       return;
     }
 
+    await clearDownloadedCourses();
+    clearPersistedHistoryState();
     await authClient.signOut();
     router.push("/");
     router.refresh();
@@ -56,7 +60,8 @@ export function SettingsAccountActions({ isAdmin }: SettingsAccountActionsProps)
       </div>
       {isSignOutPending ? (
         <p className="mt-4 text-sm text-rose-600">
-          Signing out will end the current session on this device.
+          Signing out will end the current session, clear this browser&apos;s local progress and
+          preferences, and delete downloaded course files from this device.
         </p>
       ) : null}
     </div>

@@ -150,6 +150,18 @@ function mergeRecentActivity(existing: StudyHistoryState["recentActivity"], inco
     .slice(0, MAX_RECENT_ACTIVITY);
 }
 
+export function clearPersistedHistoryState() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Ignore storage errors during sign out cleanup.
+  }
+}
+
 function pickLatestBoolean(
   currentValue: boolean,
   currentUpdatedAt: string | null,

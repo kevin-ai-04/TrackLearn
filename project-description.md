@@ -92,11 +92,16 @@ New personal courses cannot be created with the same title as an existing course
 ### Offline support
 
 - `/settings` includes an Offline Support preference.
+- Enabling or disabling Offline Support requires confirmation; disabling clears downloaded course files from browser storage.
 - Public courses already added to `/library` can be downloaded for offline reading.
-- Downloaded course snapshots are stored on the current device in IndexedDB through `lib/offline-courses.ts`.
+- Downloaded course snapshots are stored on the current device in IndexedDB with a localStorage mirror through `lib/offline-courses.ts`.
 - `/api/offline-courses/[subjectId]` returns full public course content only for signed-in users who have that course in their library.
+- `/api/health` is a lightweight app reachability probe used by client offline indicators.
 - `/library/offline` lists downloaded courses from local device storage and is the service worker fallback for opening `/library` while offline.
+- Downloaded course cards open course overviews, modules, and materials within the cached `/library/offline` surface using local React state plus URL hash updates so reading does not require another server-rendered route after the app is offline.
+- If Next static chunks are unavailable while offline, `public/sw.js` serves self-contained app-shell-shaped fallback pages for `/` and `/library/offline`; the offline library fallback reads downloaded courses from IndexedDB and the localStorage mirror.
 - `/library/offline/[subjectId]/[[...segments]]` renders downloaded course overviews, modules, and materials without a network request after the app shell is available.
+- The top bar shows an Offline indicator based on app reachability, hides links that require network access, and offers a non-intrusive refresh prompt when connectivity returns.
 - Offline progress writes use the same local study history state and sync back through `/api/user-progress` when connectivity returns.
 
 ## Main Routes
@@ -222,6 +227,7 @@ Important fields:
 ## API and Action Entry Points
 
 - `app/api/auth/[...all]/route.ts`
+- `app/api/health/route.ts`
 - `app/api/offline-courses/[subjectId]/route.ts`
 - `app/api/user-progress/route.ts`
 - `app/(site)/library/actions.ts`
