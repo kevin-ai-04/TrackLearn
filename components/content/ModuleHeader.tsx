@@ -49,11 +49,11 @@ export function ModuleHeader({
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div className="max-w-3xl">
           <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
-            <Link href="/home" className="transition hover:text-[var(--foreground)]">
+            <Link href="/home" prefetch={false} className="transition hover:text-[var(--foreground)]">
               Home
             </Link>
             <span>/</span>
-            <Link href={`/${subjectSlug}`} className="transition hover:text-[var(--foreground)]">
+            <Link href={`/${subjectSlug}`} prefetch={false} className="transition hover:text-[var(--foreground)]">
               {subjectTitle}
             </Link>
             <span>/</span>
@@ -117,6 +117,7 @@ export function ModuleHeader({
           {previousModule ? (
             <Link
               href={previousModule.href}
+              prefetch={false}
               className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 transition hover:border-[var(--accent)]"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
@@ -131,6 +132,7 @@ export function ModuleHeader({
           {nextModule ? (
             <Link
               href={nextModule.href}
+              prefetch={false}
               className="rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4 text-left transition hover:border-[var(--accent)]"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">

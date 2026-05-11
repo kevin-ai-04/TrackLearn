@@ -157,6 +157,7 @@ export function PersonalSubjectLibrary({ subjects }: PersonalSubjectLibraryProps
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 href={`/library/subjects/${subject.id}`}
+                prefetch={false}
                 className="button-primary inline-flex px-4 py-3 text-sm font-semibold"
               >
                 Open Course

@@ -6,12 +6,11 @@ import type {
   SubjectSummary,
 } from "@/types/content";
 import type { OfflineCourseEntry, OfflineCourseSnapshot } from "@/types/offline";
-
-function offlineEntryHref(courseId: string, entry: OfflineCourseEntry) {
-  return entry.kind === "module"
-    ? `/offline/courses/${courseId}/${entry.slug}`
-    : `/offline/courses/${courseId}/materials/${entry.slug}`;
-}
+import {
+  getOfflineCourseHref,
+  getOfflineMaterialHref,
+  getOfflineModuleHref,
+} from "@/lib/offline-routes";
 
 export function mapOfflineCourseToSubjectSummary(course: OfflineCourseSnapshot): SubjectSummary {
   return {
@@ -19,7 +18,7 @@ export function mapOfflineCourseToSubjectSummary(course: OfflineCourseSnapshot):
     title: course.title,
     slug: course.slug,
     routeSegment: course.routeSegment,
-    href: `/offline/courses/${course.id}`,
+    href: getOfflineCourseHref(course),
     description: course.description,
     order: course.order,
     visibility: course.source === "personal" ? "private" : "public",
@@ -47,7 +46,7 @@ export function mapOfflineModule(
     subjectRouteSegment: course.routeSegment,
     subjectTitle: course.title,
     headings: module.headings,
-    href: offlineEntryHref(course.id, module),
+    href: getOfflineModuleHref(course, module.slug),
     content: module.content,
     visibility: course.source === "personal" ? "private" : "public",
     status: course.source === "personal" ? "draft" : "published",
@@ -72,7 +71,7 @@ export function mapOfflineMaterial(
     subjectRouteSegment: course.routeSegment,
     subjectTitle: course.title,
     headings: material.headings,
-    href: offlineEntryHref(course.id, material),
+    href: getOfflineMaterialHref(course, material.slug),
     content: material.content,
     visibility: course.source === "personal" ? "private" : "public",
     status: course.source === "personal" ? "draft" : "published",

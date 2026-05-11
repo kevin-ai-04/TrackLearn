@@ -93,6 +93,7 @@ export function Sidebar({
           <Link
             key={item.href}
             href={item.href}
+            prefetch={false}
             className={cn(
               "inline-flex min-h-11 items-center justify-between rounded-[1rem] px-4 py-3 text-sm font-semibold transition",
               isActiveLink(item.href)
@@ -109,6 +110,7 @@ export function Sidebar({
           <Link
             key={item.href}
             href={item.href}
+            prefetch={false}
             className={cn(
               "inline-flex min-h-11 w-full items-center justify-between rounded-[1rem] px-4 py-3 text-sm font-semibold transition",
               isActiveLink(item.href)

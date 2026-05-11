@@ -65,6 +65,7 @@ function toOfflineSnapshot(
     slug: subject.slug,
     routeSegment: subject.routeSegment,
     href: subject.href,
+    offlineHref: `/offline/courses/${subject.id}`,
     description: subject.description,
     order: subject.order,
     modules: subject.modules.map((module) => mapEntry(module, subject.routeSegment)),

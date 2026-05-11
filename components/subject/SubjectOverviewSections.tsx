@@ -62,6 +62,7 @@ export function SubjectOverviewSections({
               <Link
                 key={material.slug}
                 href={material.href}
+                prefetch={false}
                 className="panel rounded-xl p-6 transition hover:-translate-y-1 hover:border-[var(--accent)]"
               >
                 <div className="flex items-start justify-between gap-3">
@@ -99,6 +100,7 @@ export function SubjectOverviewSections({
               <Link
                 key={module.slug}
                 href={module.href}
+                prefetch={false}
                 className="panel rounded-xl p-6 transition hover:-translate-y-1 hover:border-[var(--accent)]"
               >
                 <div className="flex items-start justify-between gap-3">

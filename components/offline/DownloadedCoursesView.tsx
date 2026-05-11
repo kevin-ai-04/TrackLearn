@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useOfflineSupport } from "@/hooks/useOfflineSupport";
+import { getOfflineCourseHref } from "@/lib/offline-routes";
 import { formatCount } from "@/lib/utils";
 
 export function DownloadedCoursesView() {
@@ -40,7 +41,8 @@ export function DownloadedCoursesView() {
               <span>{formatCount(course.materials.length, "material")}</span>
             </div>
             <Link
-              href={`/offline/courses/${course.id}`}
+              href={course.offlineHref || getOfflineCourseHref(course)}
+              prefetch={false}
               className="button-primary mt-5 inline-flex px-4 py-3 text-sm font-semibold"
             >
               Open Download

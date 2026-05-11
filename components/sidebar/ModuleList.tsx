@@ -46,6 +46,7 @@ export function ModuleList({
               <Link
                 key={material.slug}
                 href={material.href}
+                prefetch={false}
                 className={cn(
                   "block rounded-lg border p-3 transition",
                   activeMaterialSlug === material.slug
@@ -78,6 +79,7 @@ export function ModuleList({
             <Link
               key={module.slug}
               href={module.href}
+              prefetch={false}
               className={cn(
                 "block rounded-lg border p-3 transition",
                 activeModuleSlug === module.slug

@@ -20,6 +20,7 @@ export function SubjectList({ subjects, activeSubjectSlug }: SubjectListProps) {
           <Link
             key={subject.id}
             href={subject.href}
+            prefetch={false}
             className={cn(
               "rounded-full border px-3 py-2 text-sm font-medium transition",
               activeSubjectSlug === subject.routeSegment || activeSubjectSlug === subject.slug

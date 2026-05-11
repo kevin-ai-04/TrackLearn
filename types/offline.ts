@@ -30,6 +30,7 @@ export interface OfflineCourseSnapshot {
   slug: string;
   routeSegment: string;
   href: string;
+  offlineHref: string;
   description?: string;
   order?: number;
   modules: OfflineCourseEntry[];
