@@ -26,11 +26,18 @@ export async function PUT(request: Request) {
     migratedFromLocalAt?: string | null;
   };
 
-  await saveUserProgress({
+  const savedProgress = await saveUserProgress({
     userId: session.user.id,
     state: normalizeHistoryState(payload.state),
     migratedFromLocalAt: payload.migratedFromLocalAt ?? null,
   });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({
+    ok: true,
+    ...(savedProgress ?? {
+      state: normalizeHistoryState(payload.state),
+      migratedFromLocalAt: payload.migratedFromLocalAt ?? null,
+      updatedAt: null,
+    }),
+  });
 }

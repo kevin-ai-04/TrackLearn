@@ -31,6 +31,7 @@ export function createEmptyHistoryState(): StudyHistoryState {
     preferences: {
       theme: "light",
       font: "outfit",
+      offlineSupport: false,
     },
     modules: {},
     recentActivity: [],
@@ -59,7 +60,10 @@ function normalizeModuleRecord(value: unknown): ModuleHistoryRecord | null {
     visitCount: typeof value.visitCount === "number" && value.visitCount >= 0 ? value.visitCount : 0,
     lastVisitedAt: typeof value.lastVisitedAt === "string" ? value.lastVisitedAt : null,
     done: Boolean(value.done),
+    doneUpdatedAt: typeof value.doneUpdatedAt === "string" ? value.doneUpdatedAt : null,
     needsRevision: Boolean(value.needsRevision),
+    needsRevisionUpdatedAt:
+      typeof value.needsRevisionUpdatedAt === "string" ? value.needsRevisionUpdatedAt : null,
   };
 }
 
@@ -79,6 +83,10 @@ export function normalizeHistoryState(value: unknown): StudyHistoryState {
     preferences: {
       theme: isThemeMode(preferences.theme) ? preferences.theme : fallback.preferences.theme,
       font: isReadingFont(preferences.font) ? preferences.font : fallback.preferences.font,
+      offlineSupport:
+        typeof preferences.offlineSupport === "boolean"
+          ? preferences.offlineSupport
+          : fallback.preferences.offlineSupport,
     },
     modules: Object.fromEntries(
       Object.entries(modules)
@@ -142,12 +150,36 @@ function mergeRecentActivity(existing: StudyHistoryState["recentActivity"], inco
     .slice(0, MAX_RECENT_ACTIVITY);
 }
 
+function pickLatestBoolean(
+  currentValue: boolean,
+  currentUpdatedAt: string | null,
+  incomingValue: boolean,
+  incomingUpdatedAt: string | null,
+) {
+  if (!currentUpdatedAt && !incomingUpdatedAt) {
+    return currentValue || incomingValue;
+  }
+
+  if (!currentUpdatedAt) {
+    return incomingValue;
+  }
+
+  if (!incomingUpdatedAt) {
+    return currentValue;
+  }
+
+  return incomingUpdatedAt >= currentUpdatedAt ? incomingValue : currentValue;
+}
+
 export function mergeHistoryStates(
   baseState: StudyHistoryState,
   incomingState: StudyHistoryState,
   mode: ImportMode,
 ): StudyHistoryState {
   const normalizedIncoming = normalizeHistoryState(incomingState);
+  const incomingPreferences: Record<string, unknown> =
+    isRecord(incomingState) && isRecord(incomingState.preferences) ? incomingState.preferences : {};
+
   if (mode === "replace") {
     return normalizedIncoming;
   }
@@ -171,16 +203,45 @@ export function mergeHistoryStates(
         !current.lastVisitedAt || (incomingRecord.lastVisitedAt && incomingRecord.lastVisitedAt > current.lastVisitedAt)
           ? incomingRecord.lastVisitedAt
           : current.lastVisitedAt,
-      done: current.done || incomingRecord.done,
-      needsRevision: current.needsRevision || incomingRecord.needsRevision,
+      done: pickLatestBoolean(
+        current.done,
+        current.doneUpdatedAt,
+        incomingRecord.done,
+        incomingRecord.doneUpdatedAt,
+      ),
+      doneUpdatedAt:
+        !current.doneUpdatedAt ||
+        (incomingRecord.doneUpdatedAt && incomingRecord.doneUpdatedAt > current.doneUpdatedAt)
+          ? incomingRecord.doneUpdatedAt
+          : current.doneUpdatedAt,
+      needsRevision: pickLatestBoolean(
+        current.needsRevision,
+        current.needsRevisionUpdatedAt,
+        incomingRecord.needsRevision,
+        incomingRecord.needsRevisionUpdatedAt,
+      ),
+      needsRevisionUpdatedAt:
+        !current.needsRevisionUpdatedAt ||
+        (incomingRecord.needsRevisionUpdatedAt &&
+          incomingRecord.needsRevisionUpdatedAt > current.needsRevisionUpdatedAt)
+          ? incomingRecord.needsRevisionUpdatedAt
+          : current.needsRevisionUpdatedAt,
     };
   });
 
   return {
     version: HISTORY_VERSION,
     preferences: {
-      theme: normalizedIncoming.preferences.theme ?? baseState.preferences.theme,
-      font: normalizedIncoming.preferences.font ?? baseState.preferences.font,
+      theme: isThemeMode(incomingPreferences.theme)
+        ? normalizedIncoming.preferences.theme
+        : baseState.preferences.theme,
+      font: isReadingFont(incomingPreferences.font)
+        ? normalizedIncoming.preferences.font
+        : baseState.preferences.font,
+      offlineSupport:
+        typeof incomingPreferences.offlineSupport === "boolean"
+          ? normalizedIncoming.preferences.offlineSupport
+          : baseState.preferences.offlineSupport,
     },
     modules: mergedModules,
     recentActivity: mergeRecentActivity(baseState.recentActivity, normalizedIncoming.recentActivity),
@@ -206,7 +267,9 @@ export function updateModuleVisit(state: StudyHistoryState, moduleRef: ModuleRef
         visitCount: (current?.visitCount ?? 0) + 1,
         lastVisitedAt: now,
         done: current?.done ?? false,
+        doneUpdatedAt: current?.doneUpdatedAt ?? null,
         needsRevision: current?.needsRevision ?? false,
+        needsRevisionUpdatedAt: current?.needsRevisionUpdatedAt ?? null,
       },
     },
     recentActivity: mergeRecentActivity(state.recentActivity, [
@@ -239,7 +302,9 @@ function updateModuleRecord(
       visitCount: 0,
       lastVisitedAt: null,
       done: false,
+      doneUpdatedAt: null,
       needsRevision: false,
+      needsRevisionUpdatedAt: null,
     } satisfies ModuleHistoryRecord);
 
   return {
@@ -252,9 +317,12 @@ function updateModuleRecord(
 }
 
 export function setModuleDone(state: StudyHistoryState, moduleRef: ModuleReference, value?: boolean) {
+  const now = new Date().toISOString();
+
   return updateModuleRecord(state, moduleRef, (record) => ({
     ...record,
     done: typeof value === "boolean" ? value : !record.done,
+    doneUpdatedAt: now,
   }));
 }
 
@@ -263,9 +331,12 @@ export function setModuleNeedsRevision(
   moduleRef: ModuleReference,
   value?: boolean,
 ) {
+  const now = new Date().toISOString();
+
   return updateModuleRecord(state, moduleRef, (record) => ({
     ...record,
     needsRevision: typeof value === "boolean" ? value : !record.needsRevision,
+    needsRevisionUpdatedAt: now,
   }));
 }
 
@@ -285,6 +356,16 @@ export function setFontPreference(state: StudyHistoryState, font: ReadingFont) {
     preferences: {
       ...state.preferences,
       font,
+    },
+  };
+}
+
+export function setOfflineSupportPreference(state: StudyHistoryState, enabled: boolean) {
+  return {
+    ...state,
+    preferences: {
+      ...state.preferences,
+      offlineSupport: enabled,
     },
   };
 }

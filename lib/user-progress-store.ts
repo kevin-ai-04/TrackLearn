@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createEmptyHistoryState, normalizeHistoryState } from "@/lib/history";
+import { createEmptyHistoryState, mergeHistoryStates, normalizeHistoryState } from "@/lib/history";
 import { ensureAppIndexes, getDatabase, isDatabaseConfigured } from "@/lib/mongodb";
 import type { UserProgressDocument } from "@/types/database";
 import type { StudyHistoryState } from "@/types/history";
@@ -10,6 +10,7 @@ export async function getUserProgress(userId: string) {
     return {
       state: createEmptyHistoryState(),
       migratedFromLocalAt: null,
+      updatedAt: null,
     };
   }
 
@@ -23,12 +24,14 @@ export async function getUserProgress(userId: string) {
     return {
       state: createEmptyHistoryState(),
       migratedFromLocalAt: null,
+      updatedAt: null,
     };
   }
 
   return {
     state: normalizeHistoryState(record.state),
     migratedFromLocalAt: record.migratedFromLocalAt ?? null,
+    updatedAt: record.updatedAt,
   };
 }
 
@@ -45,6 +48,13 @@ export async function saveUserProgress(options: {
   const db = await getDatabase();
   const now = new Date().toISOString();
 
+  const existing = await db.collection<UserProgressDocument>("userProgress").findOne({
+    userId: options.userId,
+  });
+  const nextState = existing
+    ? mergeHistoryStates(normalizeHistoryState(existing.state), normalizeHistoryState(options.state), "merge")
+    : normalizeHistoryState(options.state);
+
   await db.collection<UserProgressDocument>("userProgress").updateOne(
     {
       userId: options.userId,
@@ -52,7 +62,7 @@ export async function saveUserProgress(options: {
     {
       $set: {
         userId: options.userId,
-        state: normalizeHistoryState(options.state),
+        state: nextState,
         migratedFromLocalAt: options.migratedFromLocalAt ?? null,
         updatedAt: now,
       },
@@ -61,4 +71,10 @@ export async function saveUserProgress(options: {
       upsert: true,
     },
   );
+
+  return {
+    state: nextState,
+    migratedFromLocalAt: options.migratedFromLocalAt ?? null,
+    updatedAt: now,
+  };
 }

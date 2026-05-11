@@ -19,6 +19,7 @@ import {
   normalizeHistoryState,
   parseTextImport,
   persistHistoryState,
+  setOfflineSupportPreference,
   setFontPreference,
   setModuleDone,
   setModuleNeedsRevision,
@@ -57,6 +58,7 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
   const [hydrated, setHydrated] = useState(false);
   const [syncStatus, setSyncStatus] = useState<"local" | "syncing" | "synced" | "error">("local");
   const [remoteReady, setRemoteReady] = useState(false);
+  const [networkVersion, setNetworkVersion] = useState(0);
   const localBootStateRef = useRef<StudyHistoryState>(createEmptyHistoryState());
   const migratedFromLocalAtRef = useRef<string | null>(null);
   const lastRemoteSerializedRef = useRef<string | null>(null);
@@ -67,6 +69,18 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
     setState(loaded);
     applyDocumentPreferences(loaded);
     setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setNetworkVersion((current) => current + 1);
+    };
+
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+    };
   }, []);
 
   useEffect(() => {
@@ -123,7 +137,7 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
           remoteState = mergeHistoryStates(remoteState, localBootStateRef.current, "merge");
           migratedFromLocalAt = new Date().toISOString();
 
-          await fetch("/api/user-progress", {
+          const migrationResponse = await fetch("/api/user-progress", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -134,6 +148,15 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
               migratedFromLocalAt,
             }),
           });
+
+          if (migrationResponse.ok) {
+            const migrationPayload = (await migrationResponse.json()) as {
+              state?: unknown;
+              migratedFromLocalAt?: string | null;
+            };
+            remoteState = normalizeHistoryState(migrationPayload.state ?? remoteState);
+            migratedFromLocalAt = migrationPayload.migratedFromLocalAt ?? migratedFromLocalAt;
+          }
         }
 
         if (cancelled) {
@@ -158,7 +181,7 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
     return () => {
       cancelled = true;
     };
-  }, [hydrated, sessionData?.user?.id, sessionPending]);
+  }, [hydrated, networkVersion, sessionData?.user?.id, sessionPending]);
 
   useEffect(() => {
     if (!hydrated || sessionPending || !sessionData?.user?.id || !remoteReady) {
@@ -191,7 +214,19 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
           throw new Error("Failed to save remote progress.");
         }
 
-        lastRemoteSerializedRef.current = serialized;
+        const payload = (await response.json()) as {
+          state?: unknown;
+          migratedFromLocalAt?: string | null;
+        };
+        const remoteState = normalizeHistoryState(payload.state ?? state);
+        const remoteSerialized = JSON.stringify(remoteState);
+
+        migratedFromLocalAtRef.current =
+          payload.migratedFromLocalAt ?? migratedFromLocalAtRef.current;
+        lastRemoteSerializedRef.current = remoteSerialized;
+        if (remoteSerialized !== serialized) {
+          setState(remoteState);
+        }
         setSyncStatus("synced");
       } catch {
         setSyncStatus("error");
@@ -222,6 +257,9 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
     },
     setFont(font: ReadingFont) {
       setState((current) => setFontPreference(current, font));
+    },
+    setOfflineSupport(enabled: boolean) {
+      setState((current) => setOfflineSupportPreference(current, enabled));
     },
     getModuleRecord(subjectSlug: string, moduleSlug: string) {
       return state.modules[getModuleKey(subjectSlug, moduleSlug)];

@@ -15,6 +15,7 @@ interface ModuleHeaderProps {
   description?: string;
   previousModule?: ModuleContent | null;
   nextModule?: ModuleContent | null;
+  subjectHref?: string;
 }
 
 export function ModuleHeader({
@@ -25,6 +26,7 @@ export function ModuleHeader({
   description,
   previousModule,
   nextModule,
+  subjectHref,
 }: ModuleHeaderProps) {
   const { hydrated, getModuleRecord, markVisited, setDone, setNeedsRevision } = useStudyHistory();
   const hasMarkedVisit = useRef(false);
@@ -53,7 +55,7 @@ export function ModuleHeader({
               Home
             </Link>
             <span>/</span>
-            <Link href={`/${subjectSlug}`} className="transition hover:text-[var(--foreground)]">
+            <Link href={subjectHref ?? `/${subjectSlug}`} className="transition hover:text-[var(--foreground)]">
               {subjectTitle}
             </Link>
             <span>/</span>

@@ -6,6 +6,7 @@ import {
   addCourseToLibraryAction,
   removeCourseFromLibraryAction,
 } from "@/app/(site)/library/actions";
+import { CourseDownloadButton } from "@/components/offline/CourseDownloadButton";
 import { formatCount } from "@/lib/utils";
 import type { SubjectSummary } from "@/types/content";
 
@@ -132,6 +133,8 @@ export function CourseCatalog({
                     View Course
                   </Link>
                 ) : null}
+
+                {mode === "library" ? <CourseDownloadButton course={course} /> : null}
 
                 {mode === "explore" ? (
                   <form action={addCourseToLibraryAction}>

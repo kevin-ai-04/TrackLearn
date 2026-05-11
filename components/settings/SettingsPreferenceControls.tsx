@@ -16,7 +16,7 @@ const fontOptions: Array<{ label: string; value: ReadingFont; description: strin
 ];
 
 export function SettingsPreferenceControls() {
-  const { state, setFont, setTheme } = useStudyHistory();
+  const { state, setFont, setOfflineSupport, setTheme } = useStudyHistory();
 
   return (
     <section className="panel mb-4 rounded-xl p-6 sm:p-8">
@@ -101,6 +101,37 @@ export function SettingsPreferenceControls() {
               );
             })}
           </div>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold">Offline support</p>
+            <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
+              Allow courses in your library to be downloaded for offline reading.
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={state.preferences.offlineSupport}
+            onClick={() => setOfflineSupport(!state.preferences.offlineSupport)}
+            className={`relative h-8 w-14 shrink-0 rounded-full border transition ${
+              state.preferences.offlineSupport
+                ? "border-[var(--accent)] bg-[var(--accent)]"
+                : "border-[var(--border)] bg-[var(--panel)]"
+            }`}
+          >
+            <span
+              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition ${
+                state.preferences.offlineSupport ? "left-7" : "left-1"
+              }`}
+            />
+            <span className="sr-only">
+              {state.preferences.offlineSupport ? "Disable offline support" : "Enable offline support"}
+            </span>
+          </button>
         </div>
       </div>
     </section>
