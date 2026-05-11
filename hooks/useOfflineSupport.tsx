@@ -18,10 +18,6 @@ import {
   saveDownloadedCourse,
   setOfflineSupportEnabled,
 } from "@/lib/offline-storage";
-import {
-  cacheOfflineRoutesForCourse,
-  removeOfflineRoutesForCourse,
-} from "@/lib/offline-route-cache";
 import type { OfflineCourseSnapshot, OfflineCourseSource } from "@/types/offline";
 
 type DownloadStatus = "idle" | "downloading" | "downloaded" | "error";
@@ -124,7 +120,6 @@ export function OfflineSupportProvider({ children }: PropsWithChildren) {
 
         const snapshot = (await response.json()) as OfflineCourseSnapshot;
         await saveDownloadedCourse(snapshot);
-        await cacheOfflineRoutesForCourse(snapshot);
         await refreshDownloads();
       } catch {
         setFailedDownloads((current) => new Set(current).add(courseId));
@@ -141,21 +136,16 @@ export function OfflineSupportProvider({ children }: PropsWithChildren) {
 
   const removeDownload = useCallback(
     async (courseId: string) => {
-      const course = courses.find((item) => item.id === courseId);
       await removeDownloadedCourse(courseId);
-      if (course) {
-        await removeOfflineRoutesForCourse(course);
-      }
       await refreshDownloads();
     },
-    [courses, refreshDownloads],
+    [refreshDownloads],
   );
 
   const clearDownloads = useCallback(async () => {
-    await Promise.all(courses.map((course) => removeOfflineRoutesForCourse(course)));
     await clearDownloadedCourses();
     await refreshDownloads();
-  }, [courses, refreshDownloads]);
+  }, [refreshDownloads]);
 
   const getDownloadStatus = useCallback(
     (courseId: string): DownloadStatus => {

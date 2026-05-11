@@ -219,7 +219,7 @@ export function AppTopBar({
               </span>
             </button>
           ) : null}
-          <Link href="/" prefetch={false} className="text-lg font-semibold tracking-tight">
+          <Link href="/" className="text-lg font-semibold tracking-tight">
             TrackLearn
           </Link>
           <nav
@@ -234,7 +234,6 @@ export function AppTopBar({
                 isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
               )}
               href="/home"
-              prefetch={false}
             >
               Home
             </Link>
@@ -244,7 +243,6 @@ export function AppTopBar({
                 isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
               )}
               href="/explore"
-              prefetch={false}
             >
               Explore
             </Link>
@@ -254,7 +252,6 @@ export function AppTopBar({
                 isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
               )}
               href="/library"
-              prefetch={false}
             >
               Library
             </Link>
@@ -269,7 +266,6 @@ export function AppTopBar({
                 isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",
               )}
               href="/login"
-              prefetch={false}
             >
               Login
             </Link>
@@ -281,14 +277,12 @@ export function AppTopBar({
                 isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",
               )}
               href="/admin"
-              prefetch={false}
             >
               Admin
             </Link>
           ) : null}
           <Link
             href="/settings"
-            prefetch={false}
             className={cn(
               "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
               isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",

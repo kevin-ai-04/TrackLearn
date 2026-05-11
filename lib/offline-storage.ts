@@ -1,7 +1,6 @@
 "use client";
 
 import type { OfflineCourseSnapshot, OfflineProgressMutation } from "@/types/offline";
-import { getOfflineCourseHref } from "@/lib/offline-routes";
 
 const DATABASE_NAME = "tracklearn-offline";
 const DATABASE_VERSION = 1;
@@ -187,12 +186,7 @@ export async function getDownloadedCourseByRoute(routeSegment: string) {
 }
 
 export async function saveDownloadedCourse(course: OfflineCourseSnapshot) {
-  await withStore<IDBValidKey>("courses", "readwrite", (store) =>
-    store.put({
-      ...course,
-      offlineHref: course.offlineHref || getOfflineCourseHref(course),
-    }),
-  );
+  await withStore<IDBValidKey>("courses", "readwrite", (store) => store.put(course));
 }
 
 export async function removeDownloadedCourse(courseId: string) {

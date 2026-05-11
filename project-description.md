@@ -96,11 +96,9 @@ New personal courses cannot be created with the same title as an existing course
 - Downloadable content includes selected public courses and the signed-in user's personal courses.
 - Personal courses are read-only while offline.
 - `/library` switches to a client-rendered Downloaded Courses view when the browser is offline.
-- Downloaded course snapshots include course metadata, modules, materials, markdown content, headings, source type, schema version, download timestamp, offline route, and content update timestamp.
+- Downloaded course snapshots include course metadata, modules, materials, markdown content, headings, source type, schema version, download timestamp, and content update timestamp.
 - If offline support is disabled and the user tries to download a course, the Library UI should show a small enable-and-download prompt.
 - Removing a course from Library should ask whether to remove its downloaded copy.
-- Downloading a course also caches its offline overview, module, and material route shells.
-- When the network is unavailable, the service worker redirects downloaded public course URLs and downloaded personal course management URLs to their `/offline/courses/...` read-only routes.
 - Admin moderation has no offline mode.
 - A minimal service worker may cache the app shell and static assets, but course content should be read from IndexedDB rather than relying on cached authenticated pages.
 
