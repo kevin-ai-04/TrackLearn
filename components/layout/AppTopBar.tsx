@@ -54,7 +54,7 @@ export function AppTopBar({
   const navigationRevealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigationResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextFont: ReadingFont = state.preferences.font === "outfit" ? "serif" : "outfit";
-  const isAuthenticated = !isPending && Boolean(sessionData?.user?.id);
+  const isAuthenticated = Boolean(sessionData?.user?.id);
   const isAdmin = sessionData?.user?.role === "admin";
   const nextTheme = getNextTheme(state.preferences.theme);
   const showLoadingLine = loading || isNavigating;
@@ -259,7 +259,7 @@ export function AppTopBar({
         </div>
 
         <div className="flex items-center gap-2">
-          {!isAuthenticated ? (
+          {!isPending && !isAuthenticated ? (
             <Link
               className={cn(
                 "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",

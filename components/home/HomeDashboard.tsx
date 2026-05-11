@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LandingCta } from "@/components/home/LandingCta";
 
 function CommunityLibraryIcon() {
   return (
@@ -53,11 +53,7 @@ const features = [
   },
 ];
 
-interface HomeDashboardProps {
-  isAuthenticated: boolean;
-}
-
-export function HomeDashboard({ isAuthenticated }: HomeDashboardProps) {
+export function HomeDashboard() {
   return (
     <div className="min-h-screen bg-[var(--surface)]">
       <section className="flex min-h-[52vh] items-center justify-center bg-accent px-4 pb-16 pt-28 text-center text-white md:min-h-[58vh]">
@@ -69,29 +65,7 @@ export function HomeDashboard({ isAuthenticated }: HomeDashboardProps) {
           <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-white/90 sm:text-lg">
             Your curated platform for seamless knowledge discovery and skill acquisition.
           </p>
-          {isAuthenticated ? (
-            <Link
-              href="/home"
-              className="mt-8 inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--accent-strong)] shadow-panel transition hover:-translate-y-0.5 hover:bg-[var(--surface-alt)]"
-            >
-              Start Learning <span aria-hidden="true" className="ml-2">-&gt;</span>
-            </Link>
-          ) : (
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/login"
-                className="inline-flex rounded-full bg-white/15 px-5 py-3 text-sm font-semibold text-white ring-1 ring-white/60 transition hover:-translate-y-0.5 hover:bg-white/25"
-              >
-                Sign In <span aria-hidden="true" className="ml-2">-&gt;</span>
-              </Link>
-              <Link
-                href="/explore"
-                className="inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--accent-strong)] shadow-panel transition hover:-translate-y-0.5 hover:bg-[var(--surface-alt)]"
-              >
-                Explore Courses <span aria-hidden="true" className="ml-2">-&gt;</span>
-              </Link>
-            </div>
-          )}
+          <LandingCta />
         </div>
       </section>
 

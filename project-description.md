@@ -42,9 +42,10 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - Signed-in users should also be able to switch between `user` and `admin` from `/settings` for testing.
 - Signed-in users can view account details and add, change, or clear their custom username from `/settings`.
 - Signing in is optional for browsing, `/home`, and settings.
-- `/` is the public landing page.
+- `/` is the public landing page and should stay prerenderable/static; auth-aware landing CTAs and top-bar account differences are resolved client-side through Better Auth rather than server `getViewer()` calls.
 - `/home` is the study dashboard with the welcome greeting, selected-course progress tracker, and recent activity.
 - `/explore` is public and shows the full public course catalog overview.
+- `app/(site)/loading.tsx` is the shared route-group fallback for dynamic site pages and should remain AppShell-shaped rather than landing-page-shaped.
 - `/library` requires login and shows only public courses the user added from Explore plus the signed-in user's personal courses.
 - Course content routes require login and require the public course to be in the user's library.
 - Public course URLs use a route segment containing both the course slug and stable subject ID, such as `/course-name-<subjectId>`, so same-name public courses do not collide.

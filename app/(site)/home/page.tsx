@@ -34,7 +34,7 @@ export default async function HomePage() {
             Welcome Back, {username}
           </h1>
           <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--muted)]">
-            Resume your recent modules and review progress across the catalog.
+            Resume your recent modules and review progress across vour courses.
           </p>
         </section>
 
