@@ -2,7 +2,6 @@ import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { CourseCatalog } from "@/components/library/CourseCatalog";
 import { PersonalSubjectLibrary } from "@/components/library/PersonalSubjectLibrary";
-import { LibraryOfflineGate } from "@/components/offline/LibraryOfflineGate";
 import { requireUser } from "@/lib/auth-helpers";
 import { getUserCourseSubjectIds, listSelectedPublicSubjects } from "@/lib/course-library";
 import { getNavigationTree, listUserLibrary } from "@/lib/content";
@@ -28,7 +27,6 @@ export default async function LibraryPage() {
       currentPathLabel="Library"
       currentPathHint="Your selected public courses and personal courses."
     >
-      <LibraryOfflineGate>
       <div className="space-y-4">
         <section className="panel rounded-xl p-6 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -103,7 +101,6 @@ export default async function LibraryPage() {
           <PersonalSubjectLibrary subjects={library.ownedSubjects} />
         </section>
       </div>
-      </LibraryOfflineGate>
     </AppShell>
   );
 }

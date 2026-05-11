@@ -86,21 +86,6 @@ New personal courses cannot be created with the same title as an existing course
 - Signed-in users load and save progress through `/api/user-progress`.
 - Remote progress is stored in MongoDB in `userProgress`.
 - On first authenticated load, local progress is merged into the account once if remote progress has not already been migrated.
-- Offline progress writes are queued locally and synced when connectivity returns.
-- Offline progress conflict resolution uses a learner-friendly merge: visits merge, visit count deltas are added, latest explicit `done` action wins, latest explicit `needsRevision` action wins, and latest visit timestamp wins.
-
-### Offline support
-
-- Offline support is device-local and controlled from `/settings`.
-- Downloaded course content is stored in browser IndexedDB on the current device.
-- Downloadable content includes selected public courses and the signed-in user's personal courses.
-- Personal courses are read-only while offline.
-- `/library` switches to a client-rendered Downloaded Courses view when the browser is offline.
-- Downloaded course snapshots include course metadata, modules, materials, markdown content, headings, source type, schema version, download timestamp, and content update timestamp.
-- If offline support is disabled and the user tries to download a course, the Library UI should show a small enable-and-download prompt.
-- Removing a course from Library should ask whether to remove its downloaded copy.
-- Admin moderation has no offline mode.
-- A minimal service worker may cache the app shell and static assets, but course content should be read from IndexedDB rather than relying on cached authenticated pages.
 
 ## Main Routes
 
@@ -122,7 +107,6 @@ New personal courses cannot be created with the same title as an existing course
 - `publicationRequests`
 - `userCourseLibrary`
 - `userProgress`
-- client IndexedDB stores downloaded course snapshots and queued progress mutations for offline support
 
 ### `subjects`
 
@@ -219,15 +203,11 @@ Important fields:
 - `lib/mongodb.ts`: MongoDB client, database access, indexes, and environment capability checks
 - `lib/user-progress-store.ts`: load and save helpers for `userProgress`
 - `hooks/useStudyHistory.ts`: client progress state, local hydration, remote sync, migration, and theme/font preference application
-- `lib/offline-storage.ts`: client IndexedDB helpers for offline settings, downloaded course snapshots, and queued progress mutations
-- `hooks/useOfflineSupport.tsx`: client offline setting, network status, downloaded course state, and download/remove actions
 
 ## API and Action Entry Points
 
 - `app/api/auth/[...all]/route.ts`
 - `app/api/user-progress/route.ts`
-- `app/api/offline/courses/[subjectId]/route.ts`
-- `app/api/user-progress/sync/route.ts`
 - `app/(site)/library/actions.ts`
 - `app/(site)/admin/actions.ts`
 

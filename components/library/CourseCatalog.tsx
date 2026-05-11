@@ -6,7 +6,6 @@ import {
   addCourseToLibraryAction,
   removeCourseFromLibraryAction,
 } from "@/app/(site)/library/actions";
-import { useOfflineSupport } from "@/hooks/useOfflineSupport";
 import { formatCount } from "@/lib/utils";
 import type { SubjectSummary } from "@/types/content";
 
@@ -34,17 +33,6 @@ export function CourseCatalog({
 }: CourseCatalogProps) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterValue>("all");
-  const [enablePromptCourseId, setEnablePromptCourseId] = useState<string | null>(null);
-  const {
-    enabled,
-    hydrated,
-    isOnline,
-    setEnabled,
-    downloadCourse,
-    removeDownload,
-    getDownloadStatus,
-    getDownloadedCourse,
-  } = useOfflineSupport();
   const selectedCourseIdSet = useMemo(() => new Set(selectedCourseIds), [selectedCourseIds]);
 
   const visibleCourses = courses.filter((course) => {
@@ -78,59 +66,8 @@ export function CourseCatalog({
     return true;
   });
 
-  async function handleDownload(courseId: string) {
-    if (!enabled) {
-      setEnablePromptCourseId(courseId);
-      return;
-    }
-
-    await downloadCourse(courseId, "public");
-  }
-
-  async function handleEnableAndDownload() {
-    if (!enablePromptCourseId) {
-      return;
-    }
-
-    const courseId = enablePromptCourseId;
-    setEnablePromptCourseId(null);
-    await setEnabled(true);
-    await downloadCourse(courseId, "public");
-  }
-
   return (
     <section className="space-y-5">
-      {enablePromptCourseId ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--panel)] p-6 shadow-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Offline Support
-            </p>
-            <h3 className="mt-3 text-2xl font-semibold">Enable offline downloads?</h3>
-            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-              Offline support stores downloaded courses in this browser so they can be opened
-              without a network connection.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={handleEnableAndDownload}
-                className="button-primary px-4 py-3 text-sm font-semibold"
-              >
-                Enable and Download
-              </button>
-              <button
-                type="button"
-                onClick={() => setEnablePromptCourseId(null)}
-                className="button-secondary px-4 py-3 text-sm font-semibold"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
       <div className="panel rounded-lg p-4">
         <form className="grid gap-3 md:grid-cols-[minmax(0,1fr)_16rem]">
           <label className="sr-only" htmlFor={`${mode}-course-search`}>
@@ -167,10 +104,6 @@ export function CourseCatalog({
       <div className="grid gap-4 lg:grid-cols-2">
         {visibleCourses.map((course) => {
           const isSelected = selectedCourseIdSet.has(course.id);
-          const downloadedCourse = getDownloadedCourse(course.id);
-          const updateAvailable =
-            Boolean(downloadedCourse && course.updatedAt) &&
-            new Date(course.updatedAt!).getTime() > new Date(downloadedCourse!.contentUpdatedAt).getTime();
 
           return (
             <article key={course.id} className="panel rounded-lg p-6">
@@ -200,43 +133,6 @@ export function CourseCatalog({
                   </Link>
                 ) : null}
 
-                {mode === "library" ? (
-                  getDownloadStatus(course.id) === "downloaded" ? (
-                    <>
-                      {updateAvailable ? (
-                        <button
-                          type="button"
-                          disabled={!isOnline || getDownloadStatus(course.id) === "downloading"}
-                          onClick={() => downloadCourse(course.id, "public")}
-                          className="button-secondary px-4 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Update Download
-                        </button>
-                      ) : null}
-                      <button
-                        type="button"
-                        onClick={() => removeDownload(course.id)}
-                        className="button-secondary px-4 py-3 text-sm font-semibold"
-                      >
-                        Remove Download
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={!hydrated || !isOnline || getDownloadStatus(course.id) === "downloading"}
-                      onClick={() => handleDownload(course.id)}
-                      className="button-secondary px-4 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {getDownloadStatus(course.id) === "downloading"
-                        ? "Downloading"
-                        : getDownloadStatus(course.id) === "error"
-                          ? "Retry Download"
-                          : "Download"}
-                    </button>
-                  )
-                ) : null}
-
                 {mode === "explore" ? (
                   <form action={addCourseToLibraryAction}>
                     <input type="hidden" name="subjectId" value={course.id} />
@@ -250,17 +146,7 @@ export function CourseCatalog({
                     </button>
                   </form>
                 ) : (
-                  <form
-                    action={removeCourseFromLibraryAction}
-                    onSubmit={() => {
-                      if (
-                        getDownloadStatus(course.id) === "downloaded" &&
-                        window.confirm("Remove the downloaded copy from this device too?")
-                      ) {
-                        void removeDownload(course.id);
-                      }
-                    }}
-                  >
+                  <form action={removeCourseFromLibraryAction}>
                     <input type="hidden" name="subjectId" value={course.id} />
                     <button type="submit" className="button-secondary px-4 py-3 text-sm font-semibold">
                       Remove
