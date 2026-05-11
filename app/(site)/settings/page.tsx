@@ -4,6 +4,7 @@ import { SettingsPreferenceControls } from "@/components/settings/SettingsPrefer
 import { SettingsAccountActions } from "@/components/settings/SettingsAccountActions";
 import { RoleSwitchAutoRefresh } from "@/components/settings/RoleSwitchAutoRefresh";
 import { ProgressDataControls } from "@/components/settings/ProgressDataControls";
+import { OfflineSupportSettings } from "@/components/settings/OfflineSupportSettings";
 import { userRoleOptions } from "@/lib/auth-roles";
 import { getViewer } from "@/lib/auth-helpers";
 import { getNavigationTree } from "@/lib/content";
@@ -44,6 +45,7 @@ export default async function SettingsPage() {
       <>
         <RoleSwitchAutoRefresh />
         <SettingsPreferenceControls />
+        <OfflineSupportSettings />
 
         {viewer.isAuthenticated ? (
           <AccountProfileSettings

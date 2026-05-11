@@ -25,6 +25,12 @@ import {
   setThemePreference,
   updateModuleVisit,
 } from "@/lib/history";
+import {
+  createOfflineProgressMutation,
+  enqueueProgressMutation,
+  listProgressMutations,
+  removeProgressMutations,
+} from "@/lib/offline-storage";
 import type {
   ImportMode,
   ImportValidationResult,
@@ -57,9 +63,11 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
   const [hydrated, setHydrated] = useState(false);
   const [syncStatus, setSyncStatus] = useState<"local" | "syncing" | "synced" | "error">("local");
   const [remoteReady, setRemoteReady] = useState(false);
+  const [pendingMutationVersion, setPendingMutationVersion] = useState(0);
   const localBootStateRef = useRef<StudyHistoryState>(createEmptyHistoryState());
   const migratedFromLocalAtRef = useRef<string | null>(null);
   const lastRemoteSerializedRef = useRef<string | null>(null);
+  const moduleMutationPendingRef = useRef(false);
 
   useEffect(() => {
     const loaded = normalizeHistoryState(loadHistoryState());
@@ -165,6 +173,10 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
       return;
     }
 
+    if (moduleMutationPendingRef.current) {
+      return;
+    }
+
     const serialized = JSON.stringify(normalizeHistoryState(state));
 
     if (serialized === lastRemoteSerializedRef.current) {
@@ -203,6 +215,91 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
     };
   }, [hydrated, remoteReady, sessionData?.user?.id, sessionPending, state]);
 
+  useEffect(() => {
+    if (!hydrated || sessionPending || !sessionData?.user?.id || !remoteReady) {
+      return;
+    }
+
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const flushMutations = async () => {
+      const mutations = await listProgressMutations();
+
+      if (!mutations.length) {
+        moduleMutationPendingRef.current = false;
+        return;
+      }
+
+      moduleMutationPendingRef.current = true;
+      setSyncStatus("syncing");
+
+      try {
+        const response = await fetch("/api/user-progress/sync", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "same-origin",
+          body: JSON.stringify({ mutations }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to sync progress mutations.");
+        }
+
+        const payload = (await response.json()) as {
+          state?: unknown;
+          migratedFromLocalAt?: string | null;
+          appliedMutationIds?: string[];
+        };
+
+        await removeProgressMutations(payload.appliedMutationIds ?? mutations.map((mutation) => mutation.id));
+
+        if (cancelled) {
+          return;
+        }
+
+        const remoteState = normalizeHistoryState(payload.state);
+        migratedFromLocalAtRef.current = payload.migratedFromLocalAt ?? migratedFromLocalAtRef.current;
+        lastRemoteSerializedRef.current = JSON.stringify(remoteState);
+        moduleMutationPendingRef.current = false;
+        setState(remoteState);
+        setSyncStatus("synced");
+      } catch {
+        if (!cancelled) {
+          moduleMutationPendingRef.current = true;
+          setSyncStatus("error");
+        }
+      }
+    };
+
+    void flushMutations();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, pendingMutationVersion, remoteReady, sessionData?.user?.id, sessionPending]);
+
+  useEffect(() => {
+    function retrySync() {
+      setPendingMutationVersion((current) => current + 1);
+    }
+
+    window.addEventListener("online", retrySync);
+    return () => window.removeEventListener("online", retrySync);
+  }, []);
+
+  function queueMutation(mutation: ReturnType<typeof createOfflineProgressMutation>) {
+    moduleMutationPendingRef.current = true;
+    void enqueueProgressMutation(mutation).finally(() => {
+      setPendingMutationVersion((current) => current + 1);
+    });
+  }
+
   const value: StudyHistoryContextValue = {
     hydrated,
     isAuthenticated: Boolean(sessionData?.user?.id),
@@ -210,12 +307,41 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
     state,
     markVisited(moduleRef: ModuleReference) {
       setState((current) => updateModuleVisit(current, moduleRef));
+      queueMutation(
+        createOfflineProgressMutation({
+          type: "visit",
+          moduleRef,
+          visitDelta: 1,
+        }),
+      );
     },
     setDone(moduleRef: ModuleReference, nextValue?: boolean) {
-      setState((current) => setModuleDone(current, moduleRef, nextValue));
+      setState((current) => {
+        const currentRecord = current.modules[getModuleKey(moduleRef.subjectSlug, moduleRef.moduleSlug)];
+        const resolvedValue = typeof nextValue === "boolean" ? nextValue : !currentRecord?.done;
+        queueMutation(
+          createOfflineProgressMutation({
+            type: "done",
+            moduleRef,
+            value: resolvedValue,
+          }),
+        );
+        return setModuleDone(current, moduleRef, resolvedValue);
+      });
     },
     setNeedsRevision(moduleRef: ModuleReference, nextValue?: boolean) {
-      setState((current) => setModuleNeedsRevision(current, moduleRef, nextValue));
+      setState((current) => {
+        const currentRecord = current.modules[getModuleKey(moduleRef.subjectSlug, moduleRef.moduleSlug)];
+        const resolvedValue = typeof nextValue === "boolean" ? nextValue : !currentRecord?.needsRevision;
+        queueMutation(
+          createOfflineProgressMutation({
+            type: "needsRevision",
+            moduleRef,
+            value: resolvedValue,
+          }),
+        );
+        return setModuleNeedsRevision(current, moduleRef, resolvedValue);
+      });
     },
     setTheme(theme: ThemeMode) {
       setState((current) => setThemePreference(current, theme));

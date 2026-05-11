@@ -59,7 +59,10 @@ function normalizeModuleRecord(value: unknown): ModuleHistoryRecord | null {
     visitCount: typeof value.visitCount === "number" && value.visitCount >= 0 ? value.visitCount : 0,
     lastVisitedAt: typeof value.lastVisitedAt === "string" ? value.lastVisitedAt : null,
     done: Boolean(value.done),
+    doneUpdatedAt: typeof value.doneUpdatedAt === "string" ? value.doneUpdatedAt : null,
     needsRevision: Boolean(value.needsRevision),
+    needsRevisionUpdatedAt:
+      typeof value.needsRevisionUpdatedAt === "string" ? value.needsRevisionUpdatedAt : null,
   };
 }
 
@@ -171,8 +174,22 @@ export function mergeHistoryStates(
         !current.lastVisitedAt || (incomingRecord.lastVisitedAt && incomingRecord.lastVisitedAt > current.lastVisitedAt)
           ? incomingRecord.lastVisitedAt
           : current.lastVisitedAt,
-      done: current.done || incomingRecord.done,
-      needsRevision: current.needsRevision || incomingRecord.needsRevision,
+      done:
+        (incomingRecord.doneUpdatedAt ?? "") > (current.doneUpdatedAt ?? "")
+          ? incomingRecord.done
+          : current.done || incomingRecord.done,
+      doneUpdatedAt:
+        (incomingRecord.doneUpdatedAt ?? "") > (current.doneUpdatedAt ?? "")
+          ? incomingRecord.doneUpdatedAt
+          : current.doneUpdatedAt,
+      needsRevision:
+        (incomingRecord.needsRevisionUpdatedAt ?? "") > (current.needsRevisionUpdatedAt ?? "")
+          ? incomingRecord.needsRevision
+          : current.needsRevision || incomingRecord.needsRevision,
+      needsRevisionUpdatedAt:
+        (incomingRecord.needsRevisionUpdatedAt ?? "") > (current.needsRevisionUpdatedAt ?? "")
+          ? incomingRecord.needsRevisionUpdatedAt
+          : current.needsRevisionUpdatedAt,
     };
   });
 
@@ -205,8 +222,10 @@ export function updateModuleVisit(state: StudyHistoryState, moduleRef: ModuleRef
         visited: true,
         visitCount: (current?.visitCount ?? 0) + 1,
         lastVisitedAt: now,
-        done: current?.done ?? false,
-        needsRevision: current?.needsRevision ?? false,
+    done: current?.done ?? false,
+    doneUpdatedAt: current?.doneUpdatedAt ?? null,
+    needsRevision: current?.needsRevision ?? false,
+    needsRevisionUpdatedAt: current?.needsRevisionUpdatedAt ?? null,
       },
     },
     recentActivity: mergeRecentActivity(state.recentActivity, [
@@ -239,7 +258,9 @@ function updateModuleRecord(
       visitCount: 0,
       lastVisitedAt: null,
       done: false,
+      doneUpdatedAt: null,
       needsRevision: false,
+      needsRevisionUpdatedAt: null,
     } satisfies ModuleHistoryRecord);
 
   return {
@@ -252,9 +273,12 @@ function updateModuleRecord(
 }
 
 export function setModuleDone(state: StudyHistoryState, moduleRef: ModuleReference, value?: boolean) {
+  const now = new Date().toISOString();
+
   return updateModuleRecord(state, moduleRef, (record) => ({
     ...record,
     done: typeof value === "boolean" ? value : !record.done,
+    doneUpdatedAt: now,
   }));
 }
 
@@ -263,9 +287,12 @@ export function setModuleNeedsRevision(
   moduleRef: ModuleReference,
   value?: boolean,
 ) {
+  const now = new Date().toISOString();
+
   return updateModuleRecord(state, moduleRef, (record) => ({
     ...record,
     needsRevision: typeof value === "boolean" ? value : !record.needsRevision,
+    needsRevisionUpdatedAt: now,
   }));
 }
 

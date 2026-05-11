@@ -16,7 +16,9 @@ export interface ModuleHistoryRecord {
   visitCount: number;
   lastVisitedAt: string | null;
   done: boolean;
+  doneUpdatedAt?: string | null;
   needsRevision: boolean;
+  needsRevisionUpdatedAt?: string | null;
 }
 
 export interface RecentActivityEntry {
