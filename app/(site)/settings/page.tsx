@@ -43,7 +43,7 @@ export default async function SettingsPage() {
     >
       <>
         <RoleSwitchAutoRefresh />
-        <SettingsPreferenceControls />
+        <SettingsPreferenceControls canEnableOfflineSupport={viewer.isAuthenticated} />
 
         {viewer.isAuthenticated ? (
           <AccountProfileSettings

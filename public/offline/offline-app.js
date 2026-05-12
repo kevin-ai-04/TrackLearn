@@ -37,7 +37,7 @@
   function createEmptyHistory() {
     return {
       version: 1,
-      preferences: { theme: "light", font: "outfit", offlineSupport: true },
+      preferences: { theme: "light", font: "outfit", offlineSupport: false },
       modules: {},
       recentActivity: [],
     };
@@ -63,7 +63,7 @@
           offlineSupport:
             parsed.preferences && typeof parsed.preferences.offlineSupport === "boolean"
               ? parsed.preferences.offlineSupport
-              : true,
+              : fallback.preferences.offlineSupport,
         },
         modules: parsed.modules && typeof parsed.modules === "object" ? parsed.modules : {},
         recentActivity: Array.isArray(parsed.recentActivity) ? parsed.recentActivity.slice(0, MAX_RECENT_ACTIVITY) : [],
@@ -95,6 +95,41 @@
     state.history.preferences.font = state.history.preferences.font === "serif" ? "outfit" : "serif";
     saveHistory();
     applyPreferences();
+  }
+
+  function setOnlineStatus(message) {
+    var status = document.getElementById("online-status");
+    if (status) status.textContent = message || "";
+  }
+
+  async function goOnline() {
+    var button = document.getElementById("go-online");
+    var originalLabel = button ? button.textContent : "";
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Checking...";
+    }
+    setOnlineStatus("");
+
+    try {
+      var response = await fetch("/api/health?source=offline-app&ts=" + Date.now(), {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+
+      if (!response.ok) {
+        throw new Error("TrackLearn is not reachable.");
+      }
+
+      window.location.assign("/home");
+    } catch (error) {
+      setOnlineStatus("Still offline");
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalLabel || "Go online";
+      }
+    }
   }
 
   function readLocalCourseIndex() {
@@ -534,6 +569,11 @@
 
     if (target.id === "font-toggle") {
       toggleFont();
+      return;
+    }
+
+    if (target.id === "go-online") {
+      goOnline();
       return;
     }
 

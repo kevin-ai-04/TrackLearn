@@ -16,7 +16,7 @@ interface CourseDownloadButtonProps {
 }
 
 export function CourseDownloadButton({ course }: CourseDownloadButtonProps) {
-  const { state, setOfflineSupport } = useStudyHistory();
+  const { isAuthenticated, state, setOfflineSupport } = useStudyHistory();
   const [downloaded, setDownloaded] = useState(false);
   const [pending, setPending] = useState(false);
   const [promptOpen, setPromptOpen] = useState(false);
@@ -44,6 +44,12 @@ export function CourseDownloadButton({ course }: CourseDownloadButtonProps) {
   }, [course.id]);
 
   async function downloadCourse(forceEnabled = false) {
+    if (!isAuthenticated) {
+      setPromptOpen(false);
+      setMessage("Sign in before enabling offline support.");
+      return;
+    }
+
     if (!forceEnabled && !state.preferences.offlineSupport) {
       setPromptOpen(true);
       return;
@@ -96,6 +102,12 @@ export function CourseDownloadButton({ course }: CourseDownloadButtonProps) {
   }
 
   async function enableAndDownload() {
+    if (!isAuthenticated) {
+      setPromptOpen(false);
+      setMessage("Sign in before enabling offline support.");
+      return;
+    }
+
     setOfflineSupport(true);
     setPromptOpen(false);
     await downloadCourse(true);

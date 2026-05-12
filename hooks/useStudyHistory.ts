@@ -93,6 +93,16 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
   }, [hydrated, state]);
 
   useEffect(() => {
+    if (!hydrated || sessionPending || sessionData?.user?.id) {
+      return;
+    }
+
+    setState((current) =>
+      current.preferences.offlineSupport ? setOfflineSupportPreference(current, false) : current,
+    );
+  }, [hydrated, sessionData?.user?.id, sessionPending]);
+
+  useEffect(() => {
     if (!hydrated) {
       return;
     }
@@ -259,6 +269,10 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
       setState((current) => setFontPreference(current, font));
     },
     setOfflineSupport(enabled: boolean) {
+      if (enabled && !sessionPending && !sessionData?.user?.id) {
+        return;
+      }
+
       setState((current) => setOfflineSupportPreference(current, enabled));
     },
     getModuleRecord(subjectSlug: string, moduleSlug: string) {
@@ -273,7 +287,13 @@ export function StudyHistoryProvider({ children }: PropsWithChildren) {
         return parsed;
       }
 
-      setState((current) => mergeHistoryStates(current, parsed.state!, mode));
+      setState((current) => {
+        const nextState = mergeHistoryStates(current, parsed.state!, mode);
+
+        return sessionPending || sessionData?.user?.id || !nextState.preferences.offlineSupport
+          ? nextState
+          : setOfflineSupportPreference(nextState, false);
+      });
       return parsed;
     },
     resetState() {

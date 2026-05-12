@@ -92,8 +92,10 @@ New personal courses cannot be created with the same title as an existing course
 ### Offline support
 
 - `/settings` includes an Offline Support preference.
+- Offline Support defaults to disabled for new local/remote progress state and can only be enabled by a signed-in user after an explicit action.
 - Enabling or disabling Offline Support requires confirmation; disabling clears downloaded course files from browser storage.
 - Public courses already added to `/library` can be downloaded for offline reading.
+- Starting a download while Offline Support is disabled prompts the signed-in user to enable it before saving course content locally.
 - Downloaded course snapshots are stored on the current device in IndexedDB with a localStorage mirror through `lib/offline-courses.ts`.
 - Enabling Offline Support and downloading a course warm the cached standalone `/offline` app shell and assets through `lib/offline-app-cache.ts`.
 - `/api/offline-courses/[subjectId]` returns full public course content only for signed-in users who have that course in their library.
@@ -103,6 +105,7 @@ New personal courses cannot be created with the same title as an existing course
 - `public/sw.js` serves the cached `/offline` static app for `/offline`, legacy `/library/offline`, and nested legacy offline URLs while offline; its built-in HTML response is only a last-resort message when the offline app has not been cached yet.
 - `/library/offline` and nested legacy offline routes redirect to `/offline` when reached online.
 - The top bar shows an Offline indicator based on app reachability, hides links that require network access while offline, and silently updates the indicator when connectivity returns.
+- The standalone `/offline` app top bar includes a Go online action that probes `/api/health` and navigates to `/home` only when the app is reachable.
 - Offline progress writes use the same local study history state and sync back through `/api/user-progress` when connectivity returns.
 
 ## Main Routes
