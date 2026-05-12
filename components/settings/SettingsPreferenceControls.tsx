@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
+import { warmOfflineAppCache } from "@/lib/offline-app-cache";
 import { clearDownloadedCourses } from "@/lib/offline-courses";
 import type { ReadingFont, ThemeMode } from "@/types/history";
 
@@ -35,6 +36,11 @@ export function SettingsPreferenceControls() {
         setOfflineSupport(false);
       } else {
         setOfflineSupport(true);
+        try {
+          await warmOfflineAppCache();
+        } catch {
+          // Offline Support can still be enabled; the app shell is cached again during downloads.
+        }
       }
 
       setOfflineConfirmation(null);

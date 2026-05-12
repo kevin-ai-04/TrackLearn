@@ -43,7 +43,7 @@ export default async function LibraryPage() {
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-3">
-              <Link href="/library/offline" className="button-secondary inline-flex px-4 py-3 text-sm font-semibold">
+              <Link href="/offline" className="button-secondary inline-flex px-4 py-3 text-sm font-semibold">
                 Downloaded Courses
               </Link>
               <Link href="/explore" className="button-primary inline-flex px-4 py-3 text-sm font-semibold">

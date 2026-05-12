@@ -1,19 +1,5 @@
-import { OfflineCourseClient } from "@/components/offline/OfflineCourseClient";
+import { redirect } from "next/navigation";
 
-interface OfflineCoursePageProps {
-  params: Promise<{
-    subjectId: string;
-    segments?: string[];
-  }>;
-}
-
-export default async function OfflineCoursePage({ params }: OfflineCoursePageProps) {
-  const resolvedParams = await params;
-
-  return (
-    <OfflineCourseClient
-      subjectId={resolvedParams.subjectId}
-      segments={resolvedParams.segments ?? []}
-    />
-  );
+export default function OfflineCoursePage() {
+  redirect("/offline");
 }

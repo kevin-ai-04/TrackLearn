@@ -7,6 +7,7 @@ import {
   removeDownloadedCourse,
   saveDownloadedCourse,
 } from "@/lib/offline-courses";
+import { warmOfflineAppCache } from "@/lib/offline-app-cache";
 import type { SubjectSummary } from "@/types/content";
 import type { DownloadedCourseRecord } from "@/types/offline";
 
@@ -64,6 +65,11 @@ export function CourseDownloadButton({ course }: CourseDownloadButtonProps) {
 
       const record = (await response.json()) as DownloadedCourseRecord;
       await saveDownloadedCourse(record);
+      try {
+        await warmOfflineAppCache();
+      } catch {
+        // The course data is the source of truth; offline app cache warming is best effort.
+      }
       setDownloaded(true);
       setMessage("Downloaded");
     } catch (error) {

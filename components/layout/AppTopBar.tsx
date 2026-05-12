@@ -62,7 +62,18 @@ export function AppTopBar({
   const showLoadingLine = loading || isNavigating;
   const isHomeVariant = variant === "home";
   const isOffline = connectivity === "offline";
-  const brandHref = isOffline ? "/library/offline" : "/";
+  const offlineSupportEnabled = state.preferences.offlineSupport;
+  const brandHref = isOffline && offlineSupportEnabled ? "/offline" : "/";
+  const navigationLinks = isOffline
+    ? offlineSupportEnabled
+      ? [{ href: "/offline", label: "Offline" }]
+      : []
+    : [
+        { href: "/home", label: "Home" },
+        { href: "/explore", label: "Explore" },
+        { href: "/library", label: "Library" },
+        ...(offlineSupportEnabled ? [{ href: "/offline", label: "Offline" }] : []),
+      ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -230,42 +241,28 @@ export function AppTopBar({
             <span className="rounded-full border border-amber-500/35 bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-200">
               Offline
             </span>
-          ) : (
+          ) : null}
+          {navigationLinks.length ? (
             <nav
               className={cn(
                 "hidden items-center gap-2 text-sm md:flex",
                 isHomeVariant ? "text-white/90" : "text-[var(--muted)]",
               )}
             >
-              <Link
-                className={cn(
-                  "rounded-full px-3 py-2 transition",
-                  isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
-                )}
-                href="/home"
-              >
-                Home
-              </Link>
-              <Link
-                className={cn(
-                  "rounded-full px-3 py-2 transition",
-                  isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
-                )}
-                href="/explore"
-              >
-                Explore
-              </Link>
-              <Link
-                className={cn(
-                  "rounded-full px-3 py-2 transition",
-                  isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
-                )}
-                href="/library"
-              >
-                Library
-              </Link>
+              {navigationLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  className={cn(
+                    "rounded-full px-3 py-2 transition",
+                    isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
+                  )}
+                  href={item.href}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </nav>
-          )}
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2">
@@ -291,15 +288,17 @@ export function AppTopBar({
               Admin
             </Link>
           ) : null}
-          <Link
-            href="/settings"
-            className={cn(
-              "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
-              isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",
-            )}
-          >
-            Settings
-          </Link>
+          {!isOffline ? (
+            <Link
+              href="/settings"
+              className={cn(
+                "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
+                isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",
+              )}
+            >
+              Settings
+            </Link>
+          ) : null}
 
           <button
             type="button"

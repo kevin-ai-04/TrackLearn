@@ -52,7 +52,7 @@ MongoDB is the primary backend. The `data/subjects` directory is used for seedin
 - `/library/manage` requires login.
 - `/library/subjects/[subjectId]` requires login.
 - `/library/entries/[entryId]` requires login.
-- `/library/offline` is a device-local downloaded-course surface and can render already-downloaded content without a live session.
+- `/offline` is a standalone device-local downloaded-course surface served by `app/offline/route.ts` from static files in `public/offline`; it can render already-downloaded content without a live session or Next client route.
 - `/admin` requires an authenticated admin user.
 
 ### Evaluation-mode access
@@ -95,13 +95,14 @@ New personal courses cannot be created with the same title as an existing course
 - Enabling or disabling Offline Support requires confirmation; disabling clears downloaded course files from browser storage.
 - Public courses already added to `/library` can be downloaded for offline reading.
 - Downloaded course snapshots are stored on the current device in IndexedDB with a localStorage mirror through `lib/offline-courses.ts`.
+- Enabling Offline Support and downloading a course warm the cached standalone `/offline` app shell and assets through `lib/offline-app-cache.ts`.
 - `/api/offline-courses/[subjectId]` returns full public course content only for signed-in users who have that course in their library.
 - `/api/health` is a lightweight app reachability probe used by client offline indicators.
-- `/library/offline` lists downloaded courses from local device storage and is the service worker fallback for opening `/library` while offline.
-- Downloaded course cards open course overviews, modules, and materials within the cached `/library/offline` surface using local React state plus URL hash updates so reading does not require another server-rendered route after the app is offline.
-- If Next static chunks are unavailable while offline, `public/sw.js` serves self-contained app-shell-shaped fallback pages for `/` and `/library/offline`; the offline library fallback reads downloaded courses from IndexedDB and the localStorage mirror.
-- `/library/offline/[subjectId]/[[...segments]]` renders downloaded course overviews, modules, and materials without a network request after the app shell is available.
-- The top bar shows an Offline indicator based on app reachability, hides links that require network access, and offers a non-intrusive refresh prompt when connectivity returns.
+- `/offline` lists downloaded courses from local device storage and renders course overviews, modules, and materials from IndexedDB/localStorage without server data.
+- The offline app uses hash-based in-app navigation within the static shell so reading does not require Next route generation.
+- `public/sw.js` serves the cached `/offline` static app for `/offline`, legacy `/library/offline`, and nested legacy offline URLs while offline; its built-in HTML response is only a last-resort message when the offline app has not been cached yet.
+- `/library/offline` and nested legacy offline routes redirect to `/offline` when reached online.
+- The top bar shows an Offline indicator based on app reachability, hides links that require network access while offline, and silently updates the indicator when connectivity returns.
 - Offline progress writes use the same local study history state and sync back through `/api/user-progress` when connectivity returns.
 
 ## Main Routes
@@ -113,7 +114,7 @@ New personal courses cannot be created with the same title as an existing course
 - `/user` redirects to `/settings`.
 - `/settings` is for display preferences, account profile/role controls, and progress import/export/reset controls.
 - Personal management routes live under `/library/manage`, `/library/subjects/[subjectId]`, and `/library/entries/[entryId]`.
-- Offline course routes live under `/library/offline` and render downloaded course snapshots from device storage.
+- Offline course reading lives under `/offline`; legacy `/library/offline` routes redirect there.
 - `/admin` is the moderation and public catalog management surface.
 
 ## Core Data Model
@@ -222,6 +223,8 @@ Important fields:
 - `lib/mongodb.ts`: MongoDB client, database access, indexes, and environment capability checks
 - `lib/user-progress-store.ts`: load and save helpers for `userProgress`
 - `lib/offline-courses.ts`: client IndexedDB helpers for downloaded course snapshots
+- `lib/offline-app-cache.ts`: client helper for warming the static `/offline` app shell cache
+- `public/offline/index.html` and `public/offline/offline-app.js`: standalone offline reader shell and client app
 - `hooks/useStudyHistory.ts`: client progress state, local hydration, remote sync, migration, and theme/font preference application
 
 ## API and Action Entry Points
@@ -229,6 +232,7 @@ Important fields:
 - `app/api/auth/[...all]/route.ts`
 - `app/api/health/route.ts`
 - `app/api/offline-courses/[subjectId]/route.ts`
+- `app/offline/route.ts`
 - `app/api/user-progress/route.ts`
 - `app/(site)/library/actions.ts`
 - `app/(site)/admin/actions.ts`
@@ -279,7 +283,7 @@ For fast orientation, open these in order:
 9. `app/(site)/home/page.tsx`
 10. `app/(site)/settings/page.tsx`
 11. `app/(site)/library/page.tsx`
-12. `app/(site)/library/offline/page.tsx`
-13. `app/(site)/library/offline/[subjectId]/[[...segments]]/page.tsx`
+12. `app/offline/route.ts`
+13. `public/offline/offline-app.js`
 14. `app/(site)/library/manage/page.tsx`
 15. `app/(site)/admin/page.tsx`
