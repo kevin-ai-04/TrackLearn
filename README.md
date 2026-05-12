@@ -1,11 +1,11 @@
 # TrackLearn
 
-TrackLearn is a study platform for browsing learning content, tracking progress, and building your own private study library.
+TrackLearn is a study platform for browsing learning content, tracking progress, saving selected courses to a personal library, and reading downloaded courses offline.
 
 It supports two usage modes:
 
-- Browse the public course catalog overview without signing in
-- Sign in to add courses to your library, read course content, save progress, create private subjects and notes, and submit content for review
+- Browse the public landing page and course catalog overview without signing in
+- Sign in to use the home dashboard, add courses to your library, read course content, save synced progress, download courses for offline reading, create private subjects and notes, and submit content for review
 
 Currently hosted at [TrackLearn](https://tracklearn.vercel.app/)
 
@@ -15,9 +15,11 @@ TrackLearn is designed around a shared learning library plus personal study spac
 
 - Explore public courses before adding them to your library
 - Search and filter available courses
-- Build a signed-in library from selected public courses
+- Use the public landing page for first-time entry and `/home` as the study dashboard
+- Build a signed-in Library from selected public courses and personal subjects
 - Continue where you left off with progress tracking
 - Mark modules as done or flag them for revision
+- Download selected public courses for device-local offline reading
 - Choose your reading theme and font
 - Create your own personal subjects, modules, and materials
 - Paste Markdown or upload `.md` files for personal content
@@ -28,9 +30,12 @@ TrackLearn is designed around a shared learning library plus personal study spac
 
 ### Public learning experience
 
+- Public landing page at `/` with calls to explore courses or sign in
+- Home dashboard at `/home` with greeting, selected-course progress, and recent activity
 - Explore page anyone can browse as a course catalog overview
-- Search and filter controls on Explore and Library
+- Explore is the full public catalog and add-to-library surface
 - Signed-in Library page containing only selected courses plus personal subjects
+- Search and filter controls on Explore and Library
 - Subject overview pages for selected courses
 - Module and material pages with clean reading layouts for signed-in users
 - Sidebar navigation for moving between subjects, modules, and materials
@@ -42,6 +47,16 @@ TrackLearn is designed around a shared learning library plus personal study spac
 - "Mark as Done" and "Flag Revision" actions on modules
 - Guest progress saved in the browser
 - Account sync for signed-in users
+- Offline progress writes sync back through the normal progress state when the app reconnects
+
+### Offline support
+
+- Offline Support preference in Settings, disabled by default
+- Signed-in users can enable Offline Support after confirmation
+- Courses already added to Library can be downloaded to the current device
+- Downloaded courses open from `/offline` without a live session or Next.js client route
+- Disabling Offline Support requires confirmation and clears downloaded course files from browser storage
+- The top bar shows offline reachability and links to the standalone offline reader when supported
 
 ### Personal workspace
 
@@ -62,9 +77,13 @@ TrackLearn is designed around a shared learning library plus personal study spac
 
 ## UI Overview
 
+### Landing page
+
+The root page (`/`) is the public landing page. It stays separate from the study dashboard. Point of contact between Online and Offline Mode.
+
 ### Home dashboard
 
-The home page is a centered landing view with a TrackLearn hero, Explore Courses call to action, and feature cards. Recent Activity and Subjects are hidden for now and are planned for later reimplementation.
+The Home page (`/home`) is the signed-in oriented study dashboard. It shows a welcome greeting, selected-course progress, and recent activity while still allowing guest access.
 
 ![Home](images/Home.png)
 
@@ -89,9 +108,13 @@ Subject, module, and material pages are built for reading after a course has bee
 
 The Manage page is where signed-in users create subjects, add entries, upload Markdown, and monitor publication requests.
 
+### Offline reader
+
+The standalone Offline page (`/offline`) lists downloaded courses from local device storage and can render saved course overviews, modules, and materials while disconnected.
+
 ### Settings and progress
 
-The Settings page includes theme selection, font selection, import/export for progress, reset controls, and synced account state when logged in.
+The Settings page includes theme selection, font selection, Offline Support, import/export for progress, reset controls, account profile settings, role switching for evaluation, and synced account state when logged in.
 
 ### Admin dashboard
 
@@ -106,7 +129,8 @@ TrackLearn expands in three layers of access. Each level includes the capabiliti
 
 Available without authentication:
 
-- Home page
+- Landing page
+- Home dashboard
 - Explore catalog overview
 - Settings page
 - Theme and font preferences
@@ -118,6 +142,7 @@ Unlocks the following features:
 - Add courses from Explore to Library
 - Read selected course content
 - Synced progress and preferences
+- Enable Offline Support and download Library courses for offline reading
 - Search and filter selected Library courses
 - Personal subject creation
 - Personal module and material creation
@@ -217,8 +242,8 @@ Then open [http://localhost:3000](http://localhost:3000)
 
 ### Guest mode
 
-1. Open the home page
-2. Open `/explore`
+1. Open `/` for the public landing page
+2. Open `/home` for the study dashboard or `/explore` for the public catalog
 3. Browse, search, and filter available course overviews
 4. Sign in when adding a course to Library or opening course content
 
@@ -230,8 +255,10 @@ Then open [http://localhost:3000](http://localhost:3000)
 4. Open `/explore`
 5. Add courses to Library
 6. Open `/library` to view selected courses and personal subjects
-7. Edit private copies or create personal subjects and entries
-8. Submit content for review when ready
+7. Optionally enable Offline Support in `/settings`
+8. Download selected Library courses for offline reading, then open them from `/offline`
+9. Edit private copies or create personal subjects and entries
+10. Submit content for review when ready
 
 ### Admin mode
 
@@ -256,5 +283,8 @@ TrackLearn is built with:
 ## Notes
 
 - This project supports guest catalog browsing and signed-in course libraries
+- `/` is the public landing page, while `/home` is the study dashboard
+- `/explore` is the public catalog; `/library` is the signed-in user's selected course space
+- Offline Support stores downloaded course snapshots on the current device and serves them through `/offline`
 - Public content can come from MongoDB or from the local `data/subjects` fallback
 - The current login flow includes role selection for evaluation and testing purposes
