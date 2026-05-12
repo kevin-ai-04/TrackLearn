@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
@@ -18,13 +19,30 @@ const fontOptions: Array<{ label: string; value: ReadingFont; description: strin
   { label: "Source Serif 4", value: "serif", description: "Serif font for long-form study material." },
 ];
 
-export function SettingsPreferenceControls() {
+interface SettingsPreferenceControlsProps {
+  canEnableOfflineSupport: boolean;
+}
+
+export function SettingsPreferenceControls({
+  canEnableOfflineSupport,
+}: SettingsPreferenceControlsProps) {
   const { state, setFont, setOfflineSupport, setTheme } = useStudyHistory();
-  const [offlineConfirmation, setOfflineConfirmation] = useState<"enable" | "disable" | null>(null);
+  const [offlineConfirmation, setOfflineConfirmation] = useState<
+    "enable" | "disable" | "login" | null
+  >(null);
   const [offlinePending, setOfflinePending] = useState(false);
 
+  function requestOfflinePreferenceChange() {
+    if (state.preferences.offlineSupport) {
+      setOfflineConfirmation("disable");
+      return;
+    }
+
+    setOfflineConfirmation(canEnableOfflineSupport ? "enable" : "login");
+  }
+
   async function confirmOfflinePreference() {
-    if (!offlineConfirmation) {
+    if (!offlineConfirmation || offlineConfirmation === "login") {
       return;
     }
 
@@ -147,22 +165,28 @@ export function SettingsPreferenceControls() {
             type="button"
             role="switch"
             aria-checked={state.preferences.offlineSupport}
-            onClick={() =>
-              setOfflineConfirmation(state.preferences.offlineSupport ? "disable" : "enable")
-            }
+            onClick={requestOfflinePreferenceChange}
             className={`relative h-8 w-14 shrink-0 rounded-full border transition ${
               state.preferences.offlineSupport
                 ? "border-[var(--accent)] bg-[var(--accent)]"
-                : "border-[var(--border)] bg-[var(--panel)]"
+                : "border-[var(--muted)] bg-[var(--panel)]"
             }`}
           >
             <span
-              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition ${
+              className={`absolute top-1 h-6 w-6 rounded-full shadow-sm transition ${
                 state.preferences.offlineSupport ? "left-7" : "left-1"
+              } ${
+                state.preferences.offlineSupport
+                  ? "bg-white"
+                  : "border border-[var(--panel)] bg-[var(--muted)]"
               }`}
             />
             <span className="sr-only">
-              {state.preferences.offlineSupport ? "Disable offline support" : "Enable offline support"}
+              {state.preferences.offlineSupport
+                ? "Disable offline support"
+                : canEnableOfflineSupport
+                  ? "Enable offline support"
+                  : "Sign in to enable offline support"}
             </span>
           </button>
         </div>
@@ -172,26 +196,36 @@ export function SettingsPreferenceControls() {
             <p className="text-sm font-semibold">
               {offlineConfirmation === "enable"
                 ? "Enable offline support?"
-                : "Disable offline support?"}
+                : offlineConfirmation === "disable"
+                  ? "Disable offline support?"
+                  : "Sign in to enable offline support"}
             </p>
             <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
               {offlineConfirmation === "enable"
                 ? "Downloaded courses will be saved in this browser's local device storage so they can be opened when the network is unavailable."
-                : "Disabling offline support will delete downloaded course files from this browser. Your synced study progress is kept, but course content will need to be downloaded again."}
+                : offlineConfirmation === "disable"
+                  ? "Disabling offline support will delete downloaded course files from this browser. Your synced study progress is kept, but course content will need to be downloaded again."
+                  : "Offline Support stores course content from your library on this device, so it requires a signed-in account first."}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={confirmOfflinePreference}
-                disabled={offlinePending}
-                className="button-primary px-3 py-2 text-sm font-semibold"
-              >
-                {offlinePending
-                  ? "Working..."
-                  : offlineConfirmation === "enable"
-                    ? "Enable"
-                    : "Disable And Delete Downloads"}
-              </button>
+              {offlineConfirmation === "login" ? (
+                <Link href="/login" className="button-primary px-3 py-2 text-sm font-semibold">
+                  Login
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={confirmOfflinePreference}
+                  disabled={offlinePending}
+                  className="button-primary px-3 py-2 text-sm font-semibold"
+                >
+                  {offlinePending
+                    ? "Working..."
+                    : offlineConfirmation === "enable"
+                      ? "Enable"
+                      : "Disable And Delete Downloads"}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setOfflineConfirmation(null)}

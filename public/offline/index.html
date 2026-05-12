@@ -27,6 +27,7 @@
     .button-primary { border:1px solid var(--accent); background:var(--accent); color:white; padding:12px 16px; font-weight:700; }
     .button-secondary:hover, .button-primary:hover, .icon-button:hover { transform:translateY(-1px); border-color:var(--accent); }
     .button-primary:hover { background:var(--accent-strong); }
+    .online-status { min-height:18px; color:var(--muted); font-size:12px; font-weight:700; }
     .layout { max-width:1600px; margin:0 auto; display:grid; grid-template-columns:minmax(0,1fr); gap:16px; padding:16px; }
     .with-sidebar { grid-template-columns:360px minmax(0,1fr); }
     .panel { border:1px solid var(--border); background:color-mix(in srgb,var(--panel) 94%,transparent); box-shadow:var(--shadow); border-radius:12px; }
@@ -74,6 +75,8 @@
           <span class="pill">Offline</span>
         </div>
         <div class="actions">
+          <button class="button-secondary" id="go-online" type="button">Go online</button>
+          <span class="online-status" id="online-status" role="status" aria-live="polite"></span>
           <button class="icon-button" id="font-toggle" type="button" title="Switch font">F</button>
           <button class="icon-button" id="theme-toggle" type="button" title="Switch display mode">Theme</button>
         </div>
