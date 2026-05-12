@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useAppConnectivity } from "@/hooks/useAppConnectivity";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
 import { authClient } from "@/lib/auth-client";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
@@ -46,6 +47,7 @@ export function AppTopBar({
 }: AppTopBarProps) {
   const pathname = usePathname();
   const { state, setFont, setTheme } = useStudyHistory();
+  const connectivity = useAppConnectivity();
   const { data: sessionData, isPending } = authClient.useSession();
   const [hidden, setHidden] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -59,6 +61,19 @@ export function AppTopBar({
   const nextTheme = getNextTheme(state.preferences.theme);
   const showLoadingLine = loading || isNavigating;
   const isHomeVariant = variant === "home";
+  const isOffline = connectivity === "offline";
+  const offlineSupportEnabled = state.preferences.offlineSupport;
+  const brandHref = isOffline && offlineSupportEnabled ? "/offline" : "/";
+  const navigationLinks = isOffline
+    ? offlineSupportEnabled
+      ? [{ href: "/offline", label: "Offline" }]
+      : []
+    : [
+        { href: "/home", label: "Home" },
+        { href: "/explore", label: "Explore" },
+        { href: "/library", label: "Library" },
+        ...(offlineSupportEnabled ? [{ href: "/offline", label: "Offline" }] : []),
+      ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -219,47 +234,39 @@ export function AppTopBar({
               </span>
             </button>
           ) : null}
-          <Link href="/" className="text-lg font-semibold tracking-tight">
+          <Link href={brandHref} className="text-lg font-semibold tracking-tight">
             TrackLearn
           </Link>
-          <nav
-            className={cn(
-              "hidden items-center gap-2 text-sm md:flex",
-              isHomeVariant ? "text-white/90" : "text-[var(--muted)]",
-            )}
-          >
-            <Link
+          {isOffline ? (
+            <span className="rounded-full border border-amber-500/35 bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-200">
+              Offline
+            </span>
+          ) : null}
+          {navigationLinks.length ? (
+            <nav
               className={cn(
-                "rounded-full px-3 py-2 transition",
-                isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
+                "hidden items-center gap-2 text-sm md:flex",
+                isHomeVariant ? "text-white/90" : "text-[var(--muted)]",
               )}
-              href="/home"
             >
-              Home
-            </Link>
-            <Link
-              className={cn(
-                "rounded-full px-3 py-2 transition",
-                isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
-              )}
-              href="/explore"
-            >
-              Explore
-            </Link>
-            <Link
-              className={cn(
-                "rounded-full px-3 py-2 transition",
-                isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
-              )}
-              href="/library"
-            >
-              Library
-            </Link>
-          </nav>
+              {navigationLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  className={cn(
+                    "rounded-full px-3 py-2 transition",
+                    isHomeVariant ? "hover:bg-white/15" : "hover:bg-[var(--accent-soft)]",
+                  )}
+                  href={item.href}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2">
-          {!isPending && !isAuthenticated ? (
+          {!isOffline && !isPending && !isAuthenticated ? (
             <Link
               className={cn(
                 "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
@@ -270,7 +277,7 @@ export function AppTopBar({
               Login
             </Link>
           ) : null}
-          {isAdmin ? (
+          {!isOffline && isAdmin ? (
             <Link
               className={cn(
                 "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
@@ -281,15 +288,17 @@ export function AppTopBar({
               Admin
             </Link>
           ) : null}
-          <Link
-            href="/settings"
-            className={cn(
-              "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
-              isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",
-            )}
-          >
-            Settings
-          </Link>
+          {!isOffline ? (
+            <Link
+              href="/settings"
+              className={cn(
+                "hidden rounded-full px-3 py-2 text-sm transition hover:bg-[var(--accent-soft)] md:inline-flex",
+                isHomeVariant ? "text-white hover:bg-white/15" : "text-[var(--muted)]",
+              )}
+            >
+              Settings
+            </Link>
+          ) : null}
 
           <button
             type="button"

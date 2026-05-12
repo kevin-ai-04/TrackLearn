@@ -262,6 +262,35 @@ export async function getSubjectBySlug(subjectSlug: string, viewer?: Viewer) {
   return slugMatches.length === 1 ? slugMatches[0] : null;
 }
 
+export async function getPublicSubjectContentById(subjectId: string) {
+  if (!isDatabaseConfigured()) {
+    const subjects = await getFilesystemContentTree();
+    return subjects.find((subject) => subject.id === subjectId) ?? null;
+  }
+
+  if (!ObjectId.isValid(subjectId)) {
+    return null;
+  }
+
+  await ensureAppIndexes();
+  const db = await getDatabase();
+  const subject = await db.collection<SubjectDocument>("subjects").findOne({
+    _id: new ObjectId(subjectId),
+    visibility: "public",
+  });
+
+  if (!subject) {
+    return null;
+  }
+
+  const entries = await db.collection<EntryDocument>("entries").find({
+    subjectId,
+    visibility: "public",
+  }).toArray();
+
+  return mapSubjectContent(subject, entries);
+}
+
 export async function getModuleBySlugs(subjectSlug: string, moduleSlug: string, viewer?: Viewer) {
   noStore();
 

@@ -1,7 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { ThemeModeIcon } from "@/components/ui/ThemeModeIcon";
 import { useStudyHistory } from "@/hooks/useStudyHistory";
+import { warmOfflineAppCache } from "@/lib/offline-app-cache";
+import { clearDownloadedCourses } from "@/lib/offline-courses";
 import type { ReadingFont, ThemeMode } from "@/types/history";
 
 const themeOptions: Array<{ label: string; value: ThemeMode; description: string }> = [
@@ -16,7 +19,35 @@ const fontOptions: Array<{ label: string; value: ReadingFont; description: strin
 ];
 
 export function SettingsPreferenceControls() {
-  const { state, setFont, setTheme } = useStudyHistory();
+  const { state, setFont, setOfflineSupport, setTheme } = useStudyHistory();
+  const [offlineConfirmation, setOfflineConfirmation] = useState<"enable" | "disable" | null>(null);
+  const [offlinePending, setOfflinePending] = useState(false);
+
+  async function confirmOfflinePreference() {
+    if (!offlineConfirmation) {
+      return;
+    }
+
+    setOfflinePending(true);
+
+    try {
+      if (offlineConfirmation === "disable") {
+        await clearDownloadedCourses();
+        setOfflineSupport(false);
+      } else {
+        setOfflineSupport(true);
+        try {
+          await warmOfflineAppCache();
+        } catch {
+          // Offline Support can still be enabled; the app shell is cached again during downloads.
+        }
+      }
+
+      setOfflineConfirmation(null);
+    } finally {
+      setOfflinePending(false);
+    }
+  }
 
   return (
     <section className="panel mb-4 rounded-xl p-6 sm:p-8">
@@ -102,6 +133,76 @@ export function SettingsPreferenceControls() {
             })}
           </div>
         </div>
+      </div>
+
+      <div className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--panel-alt)] p-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold">Offline support</p>
+            <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
+              Allow courses in your library to be downloaded for offline reading.
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={state.preferences.offlineSupport}
+            onClick={() =>
+              setOfflineConfirmation(state.preferences.offlineSupport ? "disable" : "enable")
+            }
+            className={`relative h-8 w-14 shrink-0 rounded-full border transition ${
+              state.preferences.offlineSupport
+                ? "border-[var(--accent)] bg-[var(--accent)]"
+                : "border-[var(--border)] bg-[var(--panel)]"
+            }`}
+          >
+            <span
+              className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-sm transition ${
+                state.preferences.offlineSupport ? "left-7" : "left-1"
+              }`}
+            />
+            <span className="sr-only">
+              {state.preferences.offlineSupport ? "Disable offline support" : "Enable offline support"}
+            </span>
+          </button>
+        </div>
+
+        {offlineConfirmation ? (
+          <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--panel)] p-4">
+            <p className="text-sm font-semibold">
+              {offlineConfirmation === "enable"
+                ? "Enable offline support?"
+                : "Disable offline support?"}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+              {offlineConfirmation === "enable"
+                ? "Downloaded courses will be saved in this browser's local device storage so they can be opened when the network is unavailable."
+                : "Disabling offline support will delete downloaded course files from this browser. Your synced study progress is kept, but course content will need to be downloaded again."}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={confirmOfflinePreference}
+                disabled={offlinePending}
+                className="button-primary px-3 py-2 text-sm font-semibold"
+              >
+                {offlinePending
+                  ? "Working..."
+                  : offlineConfirmation === "enable"
+                    ? "Enable"
+                    : "Disable And Delete Downloads"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setOfflineConfirmation(null)}
+                disabled={offlinePending}
+                className="button-secondary px-3 py-2 text-sm font-semibold"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );

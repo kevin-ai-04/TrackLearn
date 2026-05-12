@@ -5,6 +5,7 @@ export type ImportMode = "merge" | "replace";
 export interface UserPreferences {
   theme: ThemeMode;
   font: ReadingFont;
+  offlineSupport: boolean;
 }
 
 export interface ModuleHistoryRecord {
@@ -16,7 +17,9 @@ export interface ModuleHistoryRecord {
   visitCount: number;
   lastVisitedAt: string | null;
   done: boolean;
+  doneUpdatedAt: string | null;
   needsRevision: boolean;
+  needsRevisionUpdatedAt: string | null;
 }
 
 export interface RecentActivityEntry {
@@ -67,6 +70,7 @@ export interface StudyHistoryContextValue {
   setNeedsRevision: (moduleRef: ModuleReference, value?: boolean) => void;
   setTheme: (theme: ThemeMode) => void;
   setFont: (font: ReadingFont) => void;
+  setOfflineSupport: (enabled: boolean) => void;
   getModuleRecord: (subjectSlug: string, moduleSlug: string) => ModuleHistoryRecord | undefined;
   exportText: () => string;
   importText: (raw: string, mode: ImportMode) => ImportValidationResult;
